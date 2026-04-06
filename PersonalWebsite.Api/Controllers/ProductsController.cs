@@ -34,7 +34,14 @@ namespace PersonalWebsite.Api.Controllers
             {
                 return NotFound();
             }
-            return Ok(result); 
+            return Ok(result);
+        }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<ProductListResponseDto>> GetProductByName([FromQuery] string? name)
+        {
+            var result = await _prodService.GetProductByNameAsync(name);
+            return Ok(result);
         }
     }
 }

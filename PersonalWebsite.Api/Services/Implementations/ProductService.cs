@@ -85,5 +85,37 @@ return NotFound() if no product exists
 
             return productDetailDto;
         }
+
+        public async Task<ProductListResponseDto> GetProductByNameAsync(string? name)
+        {
+            var query = _context.Products.AsNoTracking();
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return new ProductListResponseDto
+                {
+                    Count = 0,
+                    Items = new List<ProductListDto>()
+                };
+            }
+            query = query.Where(p => p.Name.Contains(name));
+
+            var count = await query.CountAsync();
+            var products = await query.OrderBy(p => p.Name)
+                .Take(25)
+                .Select(p => new ProductListDto
+                {
+                    ProductId = p.ProductId,
+                    Name = p.Name,
+                    ListPrice = p.ListPrice
+                }).ToListAsync();
+
+            var productListResponse = new ProductListResponseDto
+            {
+                Count = count,
+                Items = products
+            };
+
+            return productListResponse;
+        }
     }
 }
