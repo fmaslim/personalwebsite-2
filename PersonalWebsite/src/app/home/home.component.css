@@ -1,0 +1,112 @@
+.hero {
+    display: flex;
+    justify-content: center;
+    padding: 24px 24px 80px;
+    background: #ffffff;
+    color: #111111;
+}
+
+.hero-content {
+    max-width: 760px;
+    width: 100%;
+}
+
+.eyebrow {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #666666;
+    margin-bottom: 16px;
+}
+
+h1 {
+    font-size: clamp(40px, 6vw, 72px);
+    line-height: 1.05;
+    margin-bottom: 16px;
+}
+
+.subtitle {
+    font-size: 24px;
+    font-style: italic;
+    color: #555555;
+    margin-bottom: 24px;
+}
+
+.description {
+    font-size: 18px;
+    line-height: 1.8;
+    color: #333333;
+    margin-bottom: 20px;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 16px;
+    margin-top: 32px;
+    flex-wrap: wrap;
+}
+
+button {
+    padding: 14px 24px;
+    border: none;
+    border-radius: 8px;
+    background: black;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+    button.secondary {
+        background: white;
+        color: black;
+        border: 1px solid #cccccc;
+    }
+
+.banner-image {
+    display: block;
+    width: 100%;
+    max-width: 1200px;
+    height: 580px;
+    object-fit: cover;
+    margin: 32px auto 48px;
+    border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+    .banner-image {
+        height: 220px;
+        margin: 20px auto 36px;
+    }
+
+    .hero {
+        padding: 56px 20px;
+    }
+    /*.hero {
+        display: flex;
+        justify-content: flex-start;*/ /* instead of center */
+        /*padding: 24px 24px 80px;
+    }*/
+
+
+    .subtitle {
+        font-size: 20px;
+    }
+
+    .description {
+        font-size: 17px;
+    }
+}
+
+.external-link {
+    color: #0000ee;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+    .external-link:visited {
+        color: #551a8b;
+    }
+
+    .external-link:hover {
+        color: #0000cc;
+    }

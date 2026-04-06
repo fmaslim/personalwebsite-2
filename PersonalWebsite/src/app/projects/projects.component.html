@@ -1,0 +1,108 @@
+<section class="page-section">
+    <img [src]="bannerUrl" [alt]="bannerAlt" class="banner-image">
+
+    <div class="page-header">
+        <h1>{{ pageTitle }}</h1>
+        <p>{{ pageSubTitle }}</p>
+        <button (click)="toggleFeatured()">Toggle Featured Project</button>
+        <p *ngIf="showFeatured">Featured Project: {{ selectedProject.title }}</p>
+        <p>{{ selectedProject.description }}</p>
+        <div class="tech-tags">
+            <span *ngFor="let tag of selectedProject.tags">
+                {{ tag }}
+            </span>
+        </div>
+        <div class="project-proof">
+            {{ selectedProject.proof }}
+        </div>
+    </div>
+    <div>
+        <input [(ngModel)]="projectName" placeholder="Enter project name">
+        <p>{{ projectName }}</p>
+    </div>
+    <!-- use ngFor -->
+    <div class="projects-grid">
+        <div class="project-card"
+             *ngFor="let project of projects"
+             (click)="setSelectedProject(project)"
+             [class.feature-selected]="project===selectedProject">
+            <h2>{{ project.title }}</h2>
+
+            <p class="project-description">
+                {{ project.description }}
+            </p>
+
+            <div class="tech-tags">
+                <span *ngFor="let tag of project.tags">{{ tag }}</span>
+            </div>
+
+            <div class="project-proof">
+                {{ project.proof }}
+            </div>
+
+            <div class="project-links">
+                <a [href]="project.github" target="_blank">GitHub</a>
+                <a *ngIf="project.caseStudy" [href]="project.caseStudy" target="_blank">Case Study</a>
+            </div>
+
+            <section class="projects-page">
+                <h2>Projects</h2>
+                <app-project-card
+                  [title]="project.title"
+                  [description]="project.description"
+                  [image]="project.image"
+                  [github]="project.github"
+                                  ></app-project-card>
+            </section>            
+        </div>
+    </div>    
+</section>
+<section>
+    <h2>Employees</h2>
+    <p *ngIf="selectedEmployee">
+        Selected Employee: {{ selectedEmployee.name }}
+    </p>
+    <div class="employee-list projects-grid">
+        <app-employee-card *ngFor="let employee of employees"
+                           [employee]="employee"
+                           class="project-card"
+                           (employeeSelected_child)="onEmployeeSelected_parent($event)">
+        </app-employee-card>
+    </div>
+
+    <h2>Products</h2>
+    <p *ngIf="selectedProduct">
+        Selected Product: {{ selectedProduct.name }}
+    </p>
+    <div class="employee-list projects-grid">
+        <app-product-card *ngFor="let product of products"
+                          [product]="product"
+                          class="project-card"
+                          (productSelected_child)="onProductSelected_parent($event)">
+        </app-product-card>
+    </div>
+
+    <h2>Books</h2>
+    <p *ngIf="selectedBook">
+        Selected Book: {{ selectedBook.title }}
+    </p>
+    <div class="employee-list projects-grid">
+        <app-book-card *ngFor="let book of books"
+                       [book]="book"
+                       class="project-card"
+                       (bookSelected_child)="onBookSelected_parent($event)">
+        </app-book-card>
+    </div>
+
+    <h2>Movies - from service</h2>
+    <p *ngIf="selectedMovie">
+        Selected movie: {{ selectedMovie.title }}
+    </p>
+    <div class="employee-list projects-grid">
+        <app-movie-card *ngFor="let movie of movies"
+                        [movie]="movie"
+                        class="project-card"
+                        (movieSelected)="onMovieSelected($event)">
+        </app-movie-card>
+    </div>
+</section>

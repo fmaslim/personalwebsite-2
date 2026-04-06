@@ -1,0 +1,17 @@
+<section class="contact-page">
+    <div class="contact-container">
+        <div class="page-banner">
+            <img src="website-banner-2.png" alt="Contact banner" />
+        </div>
+        <div class="contact-intro">
+            <h1>Contact</h1>
+            <p>Feel free to reach out, connect, or follow my work.</p>
+        </div>
+        <div class="contact-list">
+            <div class="contact-card" *ngFor="let item of contactMethods">
+                <h3>{{ item.title }}</h3>
+                <a [href]="item.link" target="_blank">{{ item.value }}</a>
+            </div>
+        </div>
+    </div>
+</section>

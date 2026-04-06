@@ -1,0 +1,16 @@
+<h3>Products Demo</h3>
+
+<p *ngIf="loading">Loading products...</p>
+<p *ngIf="error">{{ error }}</p>
+<pre *ngIf="debugError">{{ debugError }}</pre>
+
+<div class="product-grid" *ngIf="!loading && !error">
+    <div class="product-card" *ngFor="let product_single of products_many">
+        <img [src]="product_single.thumbnail" [alt]="product_single.title" width="120" />
+        <p><strong>ID:</strong> {{ product_single.id }}</p>
+        <p><strong>Title:</strong> {{ product_single.title }}</p>
+        <p><strong>Price:</strong> ${{ product_single.price }}</p>
+        <p><strong>Category:</strong> {{ product_single.category }}</p>
+        <p><strong>Description:</strong> {{ product_single.description }}</p>
+    </div>
+</div>

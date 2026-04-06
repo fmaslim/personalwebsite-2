@@ -1,0 +1,13 @@
+<h2>ToDo Demo - HTTP API call demo</h2>
+
+<p *ngIf="loading">Loading todos...</p>
+<p *ngIf="error">{{ error }}</p>
+<pre *ngIf="debugError">{{ debugError }}</pre>
+
+<div class="todo-grid" *ngIf="!loading && !error">
+    <div class="todo-card" *ngFor="let todo_single of todo_many">
+        <p><strong>ID:</strong> {{ todo_single.id }}</p>
+        <p><strong>Title:</strong> {{ todo_single.title }}</p>
+        <p><strong>Completed:</strong> {{ todo_single.completed }}</p>
+    </div>
+</div>

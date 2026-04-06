@@ -1,0 +1,32 @@
+<h2>Template Driven Forms Demo</h2>
+
+<form #userForm="ngForm" (ngSubmit)="onSubmit()">
+    <!-- FullName -->
+    <div>
+        <label for="fullName">Full Name: </label>
+        <input
+               type="text"
+               name="fullName"
+               [(ngModel)]="user.fullName"
+               required
+               #fullName="ngModel" />
+    </div>
+
+    <!-- Email -->
+    <div>
+        <label for="email">Email: </label>
+        <input 
+               type="text"
+               name="email"
+               [(ngModel)]="user.email"
+               required
+               #email="ngModel"/>
+        <!-- Email validation message -->
+        <div *ngIf="email.invalid && email.touched">
+            <small *ngIf="email.errors?.['required']">
+                Email is required
+            </small>
+        </div>
+    </div>
+
+</form>

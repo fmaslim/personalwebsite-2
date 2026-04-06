@@ -1,0 +1,9 @@
+.vs/
+**/bin/
+**/obj/
+**/node_modules/
+**/.angular/
+**/.vscode/
+*.user
+*.suo
+dist/

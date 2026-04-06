@@ -1,0 +1,14 @@
+<h2>HTTP API Practice</h2>
+
+<button (click)="component = 'todo'">Show Todo</button>
+<button (click)="component = 'product'">Show Product</button>
+
+<p *ngIf="component == 'todo'">
+    <app-todo-demo></app-todo-demo>
+</p>
+<p *ngIf ="component == 'product'">
+    <app-products-demo></app-products-demo>
+</p>
+
+
+
