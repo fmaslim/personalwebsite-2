@@ -26,5 +26,20 @@ namespace PersonalWebsite.Api.Services.Implementations
 
             return shippers;
         }
+
+        public async Task<ShipperDto?> GetShipperByIdAsync(int shipperId)
+        {
+            var shipper = _context.ShipMethods
+                .AsNoTracking()
+                .Where(s => s.ShipMethodId == shipperId)
+                .Select(s => new ShipperDto
+                {
+                    ShipperId = s.ShipMethodId,
+                    ShipperName = s.Name
+                })
+                .FirstOrDefaultAsync();
+
+            return await shipper;
+        }
     }
 }

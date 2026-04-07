@@ -5,5 +5,6 @@ namespace PersonalWebsite.Api.Services.Abstractions
     public interface IProductCategoryService
     {
         Task<IEnumerable<ProductCategoryDto>> GetAllCategoriesAsync();
+        Task<ProductCategoryDto?> GetCategoryByIdAsync(int categoryId);
     }
 }

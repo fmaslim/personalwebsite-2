@@ -20,5 +20,18 @@ namespace PersonalWebsite.Api.Controllers
             var categories = await _categoryService.GetAllCategoriesAsync();
             return categories;
         }
+
+        [HttpGet("{categoryId}")]
+        [ProducesResponseType(typeof(ProductCategoryDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ProductCategoryDto?>> GetCategoryByIdAsync(int categoryId)
+        {
+            var category = await _categoryService.GetCategoryByIdAsync(categoryId);
+            if (category == null)
+            {
+                return NotFound();
+            }
+            return Ok(category);
+        }
     }
 }

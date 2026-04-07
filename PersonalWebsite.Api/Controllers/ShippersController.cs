@@ -20,5 +20,16 @@ namespace PersonalWebsite.Api.Controllers
             var shippers = await _shipperService.GetAllShippersAsync();
             return Ok(shippers);
         }
+
+        [HttpGet("{shipperId}")]
+        public async Task<ActionResult<ShipperDto?>> GetShipperByIdAsync(int shipperId)
+        {
+            var shipper = await _shipperService.GetShipperByIdAsync(shipperId);
+            if (shipper == null)
+            {
+                return NotFound();
+            }
+            return Ok(shipper);
+        }
     }
 }
