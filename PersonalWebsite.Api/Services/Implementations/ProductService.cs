@@ -73,7 +73,7 @@ async
 return NotFound() if no product exists
              */
 
-            var query = _context.Products.AsNoTracking().AsQueryable();
+            var query = _context.Products.AsNoTracking();
             query = query.Where(p => p.ProductId == id);
             var productDetailDto = await query.Select(p => new ProductDetailsDto
             {
