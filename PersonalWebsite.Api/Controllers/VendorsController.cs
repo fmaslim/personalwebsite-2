@@ -20,5 +20,16 @@ namespace PersonalWebsite.Api.Controllers
              var vendors = await _vendorService.GetAllVendorsAsync();
             return Ok(vendors);
         }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<VendorDto?>> GetVendorByIdAsync(int id)
+        {
+            var vendor = await _vendorService.GetVendorByIdAsync(id);
+            if(vendor == null)
+            {
+                return NotFound();
+            }
+            return Ok(vendor);
+        }
     }
 }

@@ -26,5 +26,20 @@ namespace PersonalWebsite.Api.Services.Implementations
 
             return await query.ToListAsync();
         }
+
+        public async Task<VendorDto?> GetVendorByIdAsync(int vendorId)
+        {
+            var vendor = _context.Vendors
+                .AsNoTracking()
+                .Where(v => v.BusinessEntityId == vendorId)
+                .Select(v => new VendorDto
+                {
+                    VendorId = v.BusinessEntityId,
+                    VendorName = v.Name
+                })
+                .FirstOrDefaultAsync();
+
+            return await vendor;
+        }
     }
 }

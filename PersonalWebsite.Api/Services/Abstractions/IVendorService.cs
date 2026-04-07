@@ -5,5 +5,6 @@ namespace PersonalWebsite.Api.Services.Abstractions
     public interface IVendorService
     {
         Task<IEnumerable<VendorDto>> GetAllVendorsAsync();
+        Task<VendorDto?> GetVendorByIdAsync(int vendorId);
     }
 }
