@@ -17,6 +17,7 @@ builder.Services.AddDbContext<AdventureWorksContext>(options =>
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IProductCategoryService, ProductCategoryService>();
 builder.Services.AddScoped<IShipperService, ShipperService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
 
 builder.Services.AddCors(options =>
 {
