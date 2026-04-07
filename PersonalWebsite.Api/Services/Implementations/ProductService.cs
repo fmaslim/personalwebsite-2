@@ -117,5 +117,26 @@ return NotFound() if no product exists
 
             return productListResponse;
         }
+
+        public async Task<IEnumerable<EmployeeLookupDto>> GetEmployeeListAsync()
+        {
+            var query = _context.Employees
+            .AsNoTracking()
+            .Join(
+                _context.People.AsNoTracking(),
+                e => e.BusinessEntityId,
+                p => p.BusinessEntityId,
+                (e, p) => new EmployeeLookupDto
+                {
+                    EmployeeId = e.BusinessEntityId,
+                    FullName = p.FirstName + " " + p.LastName
+                })
+            .OrderBy(x => x.FullName);
+
+                    var employees = await query.ToListAsync();
+
+            return employees;
+        }
+    
     }
 }

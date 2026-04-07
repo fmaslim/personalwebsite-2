@@ -8,5 +8,6 @@ namespace PersonalWebsite.Api.Services.Abstractions
         Task<ProductListResponseDto> GetProductListAsync();
         Task<ProductDetailsDto?> GetProductByIdAsync(int id);
         Task<ProductListResponseDto> GetProductByNameAsync(string? name);
+        Task<IEnumerable<EmployeeLookupDto>> GetEmployeeListAsync();
     }
 }
