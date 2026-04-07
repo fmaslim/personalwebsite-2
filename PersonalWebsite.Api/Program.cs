@@ -18,6 +18,7 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IProductCategoryService, ProductCategoryService>();
 builder.Services.AddScoped<IShipperService, ShipperService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IVendorService, VendorService>();
 
 builder.Services.AddCors(options =>
 {
