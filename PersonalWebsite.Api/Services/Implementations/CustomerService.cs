@@ -27,5 +27,30 @@ namespace PersonalWebsite.Api.Services.Implementations
 
             return query;
         }
+
+        public async Task<CustomerDetailsDto?> GetCustomerByIdAsync(int customerId)
+        {
+            if (customerId <= 0)
+            {
+                return null;
+            }
+
+            var customer = await _context.Customers
+                .AsNoTracking()
+                .Where(c => c.CustomerId == customerId)
+                .Select(c => new CustomerDetailsDto
+                {
+                    CustomerId = c.CustomerId.ToString(),
+                    CompanyName = c.Store != null ? c.Store.Name : string.Empty,
+                    ContactName = c.Person == null
+                        ? string.Empty
+                        : ((c.Person.FirstName ?? "") + " " + (c.Person.LastName ?? "")).Trim(),
+                    City = string.Empty,
+                    Country = string.Empty
+                })
+                .FirstOrDefaultAsync();
+
+            return customer;
+        }
     }
 }

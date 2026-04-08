@@ -20,5 +20,16 @@ namespace PersonalWebsite.Api.Controllers
             var customers = await _customerService.GetAllCustomersAsync();
             return Ok(customers);
         }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<CustomerDetailsDto?>> GetCustomerByIdAsync(int id)
+        {
+            var customer = await _customerService.GetCustomerByIdAsync(id);
+            if (customer == null)
+            {
+                return NotFound();
+            }
+            return Ok(customer);
+        }
     }
 }
