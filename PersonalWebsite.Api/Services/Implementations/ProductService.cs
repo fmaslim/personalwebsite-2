@@ -137,6 +137,47 @@ return NotFound() if no product exists
 
             return employees;
         }
-    
+
+        public async Task<IEnumerable<ProductSearchDto>> SearchProductsAsync(string? name, int page, int pageSize, string? sortBy, string? sortDir)
+        {
+            var query = _context.Products.AsNoTracking();
+
+            // filter by name
+            if (!String.IsNullOrWhiteSpace(name))
+            {
+                query = query.Where(p => p.Name.Contains(name));
+            }
+
+            var sortByNormalized = sortBy?.Trim().ToLower();
+            var sortDirNormalized = sortDir?.Trim().ToLower();
+
+            // sorting
+            query = (sortByNormalized, sortDirNormalized) switch
+            {
+                ("name", "asc") => query.OrderBy(p => p.Name),
+                ("name", "desc") => query.OrderByDescending(p => p.Name),
+                ("listprice", "asc") => query.OrderBy(p => p.ListPrice),
+                ("listprice", "desc") => query.OrderByDescending(p => p.ListPrice),
+                ("id", "asc") => query.OrderBy(p => p.ProductId),
+                ("id", "desc") => query.OrderByDescending(p => p.ProductId),
+                _ => query.OrderBy(p => p.ProductId)
+            };
+
+            // pagination
+            if (page < 1) page = 1;
+            if (pageSize < 1) pageSize = 10;
+            var skip = (page - 1) * pageSize;
+            query = query.Skip(skip).Take(pageSize);
+
+            var products = query.Select(p => new ProductSearchDto
+            {
+                ProductId = p.ProductId,
+                ProductName = p.Name,
+                ProductNumber = p.ProductNumber,
+                ListPrice = p.ListPrice
+            }).ToListAsync();
+
+            return await products;
+        }
     }
 }

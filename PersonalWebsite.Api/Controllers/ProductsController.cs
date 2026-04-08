@@ -37,10 +37,22 @@ namespace PersonalWebsite.Api.Controllers
             return Ok(result);
         }
 
+        //[HttpGet("search")]
+        //public async Task<ActionResult<ProductListResponseDto>> GetProductByName([FromQuery] string? name)
+        //{
+        //    var result = await _prodService.GetProductByNameAsync(name);
+        //    return Ok(result);
+        //}
+
         [HttpGet("search")]
-        public async Task<ActionResult<ProductListResponseDto>> GetProductByName([FromQuery] string? name)
+        public async Task<ActionResult<IEnumerable<ProductSearchDto>>> SearchProductsAsync(
+            [FromQuery]string? name,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? sortBy = null,
+            [FromQuery] string? sortDir = null)
         {
-            var result = await _prodService.GetProductByNameAsync(name);
+            var result = await _prodService.SearchProductsAsync(name, page, pageSize, sortBy, sortDir);
             return Ok(result);
         }
     }
