@@ -81,5 +81,38 @@ namespace PersonalWebsite.Api.Services.Implementations
 
             return await query.FirstOrDefaultAsync();
         }
+
+        public async Task<IEnumerable<OrderDetailsDto>> SearchOrdersAsync(int? customerId, byte? status)
+        {
+            var query = _context.SalesOrderHeaders
+                .AsNoTracking();
+
+            if (customerId.HasValue)
+            {
+                query = query.Where(o => o.CustomerId == customerId.Value);
+            }
+            if (status.HasValue)
+            {
+                query = query.Where(o => o.Status == status.Value);
+            }
+
+             return await  query.Select(o => new OrderDetailsDto
+                {
+                    SalesOrderId = o.SalesOrderId,
+                    CustomerId = o.CustomerId,
+                    OrderDate = o.OrderDate,
+                    DueDate = o.DueDate,
+                    Status = o.Status,
+                    OnlineOrderFlag = o.OnlineOrderFlag,
+                    BillToAddressId = o.BillToAddressId,
+                    ShipToAddressId = o.ShipToAddressId,
+                    ShipMethodId = o.ShipMethodId,
+                    SubTotal = o.SubTotal,
+                    TaxAmt = o.TaxAmt,
+                    Freight = o.Freight,
+                    TotalDue = o.TotalDue,
+                })
+                .ToListAsync();
+        }
     }
 }

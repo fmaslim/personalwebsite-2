@@ -20,6 +20,15 @@ namespace PersonalWebsite.Api.Controllers
             return Ok(new { id = orderId });
         }
 
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<OrderDetailsDto>>> SearchOrdersAsync(
+            [FromQuery] int customerId,
+            [FromQuery] byte status)
+        {
+            var orders = await _orderService.SearchOrdersAsync(customerId, status);
+            return Ok(orders);
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<OrderDetailsDto?>> GetOrderByIdAsync(int id)
         {
@@ -30,5 +39,7 @@ namespace PersonalWebsite.Api.Controllers
             }
             return Ok(order);
         }
+
+        
     }
 }
