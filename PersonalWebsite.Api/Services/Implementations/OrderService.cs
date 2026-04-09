@@ -82,7 +82,7 @@ namespace PersonalWebsite.Api.Services.Implementations
             return await query.FirstOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<OrderDetailsDto>> SearchOrdersAsync(int? customerId, byte? status, int? page, int? pageSize, string? sortBy, string? sortDir)
+        public async Task<IEnumerable<OrderDetailsDto>> SearchOrdersAsync(int? customerId, byte? status, DateTime? orderDateFrom, DateTime? orderDateTo, int? page, int? pageSize, string? sortBy, string? sortDir)
         {
             var query = _context.SalesOrderHeaders
                 .AsNoTracking();
@@ -96,6 +96,16 @@ namespace PersonalWebsite.Api.Services.Implementations
             if (status.HasValue)
             {
                 query = query.Where(o => o.Status == status.Value);
+            }
+            // filter - orderdatefrom
+            if (orderDateFrom.HasValue)
+            {
+                             query = query.Where(o => o.OrderDate >= orderDateFrom.Value);
+            }
+            // filter - orderdateto
+            if (orderDateTo.HasValue)
+            {
+                query = query.Where(o => o.OrderDate <= orderDateTo.Value);
             }
             // sort
             if (!string.IsNullOrEmpty(sortBy))
