@@ -20,6 +20,7 @@ builder.Services.AddScoped<IShipperService, ShipperService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IVendorService, VendorService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 builder.Services.AddCors(options =>
 {
