@@ -14,12 +14,12 @@ namespace PersonalWebsite.Api.Controllers
             _vendorService = vendorService;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<VendorDto>>> GetAllVendorsAsync()
-        {
-             var vendors = await _vendorService.GetAllVendorsAsync();
-            return Ok(vendors);
-        }
+        //[HttpGet]
+        //public async Task<ActionResult<IEnumerable<VendorDto>>> GetAllVendorsAsync()
+        //{
+        //     var vendors = await _vendorService.GetAllVendorsAsync();
+        //    return Ok(vendors);
+        //}
 
         [HttpGet("{id}")]
         public async Task<ActionResult<VendorDto?>> GetVendorByIdAsync(int id)
@@ -30,6 +30,18 @@ namespace PersonalWebsite.Api.Controllers
                 return NotFound();
             }
             return Ok(vendor);
+        }
+
+        [HttpGet()]
+        public async Task<ActionResult<IEnumerable<VendorDto>>> SearchVendorsByNameAsync(
+            [FromQuery] string? name = null,
+            [FromQuery] int page = 1,
+            [FromQuery]  int pageSize = 10,
+            [FromQuery] string? sortBy = "name",
+            [FromQuery] string? sortDir = "asc")
+        {
+            var vendors = await _vendorService.SearchVendorsByNameAsync(name, page, pageSize, sortBy, sortDir);
+            return Ok(vendors);
         }
     }
 }

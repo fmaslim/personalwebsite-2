@@ -41,5 +41,40 @@ namespace PersonalWebsite.Api.Services.Implementations
 
             return await vendor;
         }
+
+        public async Task<IEnumerable<VendorDto>> SearchVendorsByNameAsync(string? name, int page, int pageSize, string sortBy, string sortDir)
+        {
+            // pagination
+            if (page < 1) page = 1;
+            if (pageSize < 1) pageSize = 10;
+            var skip = (page - 1) * pageSize;
+
+            //query = query.Skip(skip).Take(pageSize);
+
+            var query = _context.Vendors
+            .AsNoTracking()
+            .Where(v => string.IsNullOrEmpty(name) || v.Name.Contains(name));
+
+            if (sortDir?.ToLower() == "asc")
+            {
+                query = query.OrderBy(v => v.Name);
+            }
+            else
+            {
+                query = query.OrderByDescending(v => v.Name);
+            }
+
+            var vendors = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(v => new VendorDto
+                {
+                    VendorId = v.BusinessEntityId,
+                    VendorName = v.Name
+                })
+                .ToListAsync();
+
+            return vendors;
+        }
     }
 }
