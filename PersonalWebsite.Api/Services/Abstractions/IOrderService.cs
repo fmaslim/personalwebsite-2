@@ -6,6 +6,6 @@ namespace PersonalWebsite.Api.Services.Abstractions
     {
         Task<int> CreateOrderAsync(CreateOrderDto dto);
         Task<OrderDetailsDto?> GetOrderByIdAsync(int orderId);
-        Task<IEnumerable<OrderDetailsDto>> SearchOrdersAsync(int? customerId, byte? status);
+        Task<IEnumerable<OrderDetailsDto>> SearchOrdersAsync(int? customerId, byte? status, int? page, int? pageSize, string? sortBy, string? sortDir);
     }
 }

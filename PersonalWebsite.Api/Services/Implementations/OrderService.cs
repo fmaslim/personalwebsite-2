@@ -82,21 +82,57 @@ namespace PersonalWebsite.Api.Services.Implementations
             return await query.FirstOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<OrderDetailsDto>> SearchOrdersAsync(int? customerId, byte? status)
+        public async Task<IEnumerable<OrderDetailsDto>> SearchOrdersAsync(int? customerId, byte? status, int? page, int? pageSize, string? sortBy, string? sortDir)
         {
             var query = _context.SalesOrderHeaders
                 .AsNoTracking();
 
+            // filter
             if (customerId.HasValue)
             {
                 query = query.Where(o => o.CustomerId == customerId.Value);
             }
+            // filter
             if (status.HasValue)
             {
                 query = query.Where(o => o.Status == status.Value);
             }
-
-             return await  query.Select(o => new OrderDetailsDto
+            // sort
+            if (!string.IsNullOrEmpty(sortBy))
+            {
+                sortBy = sortBy?.ToLower();
+                sortDir = sortDir?.ToLower();
+                if (sortBy == "orderdate")
+                {
+                    query = sortDir == "desc" ? query.OrderByDescending(o => o.OrderDate) : query.OrderBy(o => o.OrderDate);
+                }
+                else if (sortBy == "totaldue")
+                {
+                    query = sortDir == "desc" ? query.OrderByDescending(o => o.TotalDue) : query.OrderBy(o => o.TotalDue);
+                }
+                else
+                {
+                    query = query.OrderByDescending(o => o.OrderDate);
+                }
+            }
+            else
+            {
+                query = query.OrderByDescending(o => o.OrderDate);
+            }
+            // skip
+            if (page.HasValue)
+            {
+                int skip = (page.Value - 1) * (pageSize ?? 10);
+                query = query.Skip(skip);
+            }
+            // take
+            if (pageSize.HasValue)
+            {
+                query = query.Take(pageSize.Value);
+            }
+            
+            // project
+                return await  query.Select(o => new OrderDetailsDto
                 {
                     SalesOrderId = o.SalesOrderId,
                     CustomerId = o.CustomerId,

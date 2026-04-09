@@ -22,10 +22,14 @@ namespace PersonalWebsite.Api.Controllers
 
         [HttpGet("search")]
         public async Task<ActionResult<IEnumerable<OrderDetailsDto>>> SearchOrdersAsync(
-            [FromQuery] int customerId,
-            [FromQuery] byte status)
+            [FromQuery] int? customerId,
+            [FromQuery] byte? status,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery]  string? sortBy = "OrderDate",
+            [FromQuery]  string? sortDir = "desc")
         {
-            var orders = await _orderService.SearchOrdersAsync(customerId, status);
+            var orders = await _orderService.SearchOrdersAsync(customerId, status, page, pageSize, sortBy, sortDir);
             return Ok(orders);
         }
 
