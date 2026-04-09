@@ -1,4 +1,5 @@
-﻿using PersonalWebsite.Api.DTOs;
+﻿using Microsoft.EntityFrameworkCore;
+using PersonalWebsite.Api.DTOs;
 using PersonalWebsite.Api.Models;
 using PersonalWebsite.Api.Services.Abstractions;
 
@@ -54,6 +55,31 @@ namespace PersonalWebsite.Api.Services.Implementations
             await _context.SaveChangesAsync();
 
             return order.SalesOrderId;
+        }
+
+        public async Task<OrderDetailsDto?> GetOrderByIdAsync(int orderId)
+        {
+            var query = _context.SalesOrderHeaders
+                .AsNoTracking()
+                .Where(o => o.SalesOrderId == orderId)
+                .Select(o => new OrderDetailsDto
+                {
+                    SalesOrderId = o.SalesOrderId,
+                    CustomerId = o.CustomerId,
+                    OrderDate = o.OrderDate,
+                    DueDate = o.DueDate,
+                    Status = o.Status,
+                    OnlineOrderFlag = o.OnlineOrderFlag,
+                    BillToAddressId = o.BillToAddressId,
+                    ShipToAddressId = o.ShipToAddressId,
+                    ShipMethodId = o.ShipMethodId,
+                    SubTotal = o.SubTotal,
+                    TaxAmt = o.TaxAmt,
+                    Freight = o.Freight,
+                    TotalDue = o.TotalDue
+                });
+
+            return await query.FirstOrDefaultAsync();
         }
     }
 }

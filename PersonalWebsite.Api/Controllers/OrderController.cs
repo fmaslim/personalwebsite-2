@@ -19,5 +19,16 @@ namespace PersonalWebsite.Api.Controllers
             var orderId = await _orderService.CreateOrderAsync(dto);
             return Ok(new { id = orderId });
         }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<OrderDetailsDto?>> GetOrderByIdAsync(int id)
+        {
+            var order = await _orderService.GetOrderByIdAsync(id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+            return Ok(order);
+        }
     }
 }
