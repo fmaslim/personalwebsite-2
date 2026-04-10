@@ -6,5 +6,6 @@ namespace PersonalWebsite.Api.Services.Abstractions
     {
         Task<IEnumerable<ShipperDto>> GetAllShippersAsync();
         Task<ShipperDto?> GetShipperByIdAsync(int shipperId);
+        Task<IEnumerable<ShipperDto>> SearchShippersAsync(string? name, int page, int pageSize, string? sortBy, string? sortDir);
     }
 }

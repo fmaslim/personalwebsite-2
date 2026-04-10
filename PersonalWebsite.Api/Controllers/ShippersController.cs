@@ -31,5 +31,17 @@ namespace PersonalWebsite.Api.Controllers
             }
             return Ok(shipper);
         }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<ShipperDto>>> SearchShippersAsync(
+            [FromQuery] string? name = null,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? sortBy = "shipmethodid",
+            [FromQuery] string? sortDir = "asc")
+        {
+            var shippers = await _shipperService.SearchShippersAsync(name, page, pageSize, sortBy, sortDir);
+            return Ok(shippers);
+        }
     }
 }
