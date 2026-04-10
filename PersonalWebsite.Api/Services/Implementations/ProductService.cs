@@ -8,13 +8,17 @@ namespace PersonalWebsite.Api.Services.Implementations
     public class ProductService : IProductService
     {
         private readonly AdventureWorksContext _context;
-        public ProductService(AdventureWorksContext context)
+        private readonly ILogger<ProductService> _logger;
+        public ProductService(AdventureWorksContext context, ILogger<ProductService> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public async Task<IEnumerable<ProductDto>> GetAllProductsAsync()
         {
+            _logger.LogInformation("Getting products");
+
             var products = await _context.Products
                 .OrderBy(p => p.ProductId)
                 .Take(25)
@@ -26,6 +30,7 @@ namespace PersonalWebsite.Api.Services.Implementations
                 })
                 .ToListAsync();
 
+            _logger.LogInformation("Returned {ProductCount} products", products.Count);
             return products;
         }
 
@@ -43,6 +48,9 @@ project only needed columns into DTO
 not return full entity
 use async
              */
+
+            _logger.LogInformation("GetProductListAsync");
+
             var query = _context.Products.AsNoTracking().AsQueryable();
             query = query.OrderBy(p => p.Name);
             query = query.Take(25);
@@ -51,9 +59,10 @@ use async
                 Name = p.Name,
                 ListPrice = p.ListPrice
             }).ToListAsync();
-
-            //return products;
+                        
             var count = products.Count;
+            _logger.LogInformation("Returned {ProductCount} products", products.Count);
+
             var response = new ProductListResponseDto
             {
                 Count = count,
@@ -72,6 +81,7 @@ project to DTO
 async
 return NotFound() if no product exists
              */
+            _logger.LogInformation("Getting product by id {ProductId}", id);
 
             var query = _context.Products.AsNoTracking();
             query = query.Where(p => p.ProductId == id);
@@ -82,6 +92,12 @@ return NotFound() if no product exists
                 ProductNumber = p.ProductNumber,
                 ListPrice = p.ListPrice
             }).FirstOrDefaultAsync();
+
+            if (productDetailDto == null)
+            {
+                _logger.LogWarning("Product with id {ProductId} not found", id);
+                return null;
+            }
 
             return productDetailDto;
         }

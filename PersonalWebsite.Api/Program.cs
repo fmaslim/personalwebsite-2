@@ -2,8 +2,18 @@ using Microsoft.EntityFrameworkCore;
 using PersonalWebsite.Api.Models;
 using PersonalWebsite.Api.Services.Abstractions;
 using PersonalWebsite.Api.Services.Implementations;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Added Serilog configuration
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    //.WriteTo.Console()
+    .CreateLogger();
+
+builder.Services.AddSerilog();
 
 // Add services to the container.
 
@@ -33,6 +43,7 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+app.UseSerilogRequestLogging();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
