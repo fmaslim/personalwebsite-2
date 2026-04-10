@@ -2,10 +2,10 @@
 {
     public class CustomerDetailsDto
     {
-        public string CustomerId { get; set; } = string.Empty;
-        public string CompanyName { get; set; } = string.Empty;
-        public string ContactName { get; set; } = string.Empty;
-        public string City { get; set; } = string.Empty;
-        public string Country { get; set; } = string.Empty;
+        public int CustomerId { get; set; }
+        public string StoreName { get; set; } = string.Empty;
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public int? TerritoryId { get; set; }
     }
 }

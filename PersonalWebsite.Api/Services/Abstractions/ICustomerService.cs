@@ -6,5 +6,12 @@ namespace PersonalWebsite.Api.Services.Abstractions
     {
         Task<IEnumerable<CustomerDto>> GetAllCustomersAsync();
         Task<CustomerDetailsDto?> GetCustomerByIdAsync(int customerId);
+        Task<IEnumerable<CustomerDetailsDto>> SearchCustomersAsync(string? name,
+            string? accountNumber,
+            int? territoryId,
+            int page,
+            int pageSize,
+            string? sortBy,
+            string? sortDir);
     }
 }

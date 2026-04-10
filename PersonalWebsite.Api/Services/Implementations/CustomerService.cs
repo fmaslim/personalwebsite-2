@@ -40,17 +40,86 @@ namespace PersonalWebsite.Api.Services.Implementations
                 .Where(c => c.CustomerId == customerId)
                 .Select(c => new CustomerDetailsDto
                 {
-                    CustomerId = c.CustomerId.ToString(),
-                    CompanyName = c.Store != null ? c.Store.Name : string.Empty,
-                    ContactName = c.Person == null
-                        ? string.Empty
-                        : ((c.Person.FirstName ?? "") + " " + (c.Person.LastName ?? "")).Trim(),
-                    City = string.Empty,
-                    Country = string.Empty
+                    CustomerId = c.CustomerId,
+                    StoreName = c.Store != null ? c.Store.Name ?? string.Empty : string.Empty,
+                    FirstName = c.Person != null ? c.Person.FirstName ?? string.Empty : string.Empty,
+                    LastName = c.Person != null ? c.Person.LastName ?? string.Empty : string.Empty,                    
                 })
                 .FirstOrDefaultAsync();
 
             return customer;
+        }
+
+        public async Task<IEnumerable<CustomerDetailsDto>> SearchCustomersAsync(string? name,
+            string? accountNumber,
+            int? territoryId,
+            int page,
+            int pageSize,
+            string? sortBy,
+            string? sortDir)
+        {
+            var query = _context.Customers.AsNoTracking();
+
+            page = page <= 0 ? 1 : page;
+            pageSize = pageSize <= 0 ? 10 : pageSize;
+            pageSize = pageSize > 50 ? 50 : pageSize;
+
+            name = string.IsNullOrWhiteSpace(name) ? null : name.Trim();
+            accountNumber = string.IsNullOrWhiteSpace(accountNumber) ? null : accountNumber.Trim();
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                query = query.Where(c =>
+                    (c.Person != null && (c.Person.FirstName.Contains(name) || c.Person.LastName.Contains(name))) ||
+                    (c.Store != null && c.Store.Name.Contains(name)));
+            }
+
+            if (!string.IsNullOrEmpty(accountNumber)) {
+                query = query.Where(c => c.AccountNumber.Contains(accountNumber));
+            }
+
+            if (territoryId.HasValue) {
+                query = query.Where(c => c.TerritoryId == territoryId.Value);
+            }
+
+            sortBy = sortBy?.Trim().ToLower();
+            sortDir = sortDir?.Trim().ToLower();
+
+            bool desc = sortDir == "desc";
+
+            if (sortBy == "accountnumber")
+            {
+                query = desc ? query.OrderByDescending(c => c.AccountNumber) : query.OrderBy(c => c.AccountNumber);
+            }
+            else if (sortBy == "territoryId")
+            {
+                query = desc ? query.OrderByDescending(c => c.TerritoryId) : query.OrderBy(c => c.TerritoryId);
+            }
+            else if (sortBy == "lastname")
+            {
+                query = desc
+                    ? query.OrderByDescending(c => c.Person != null ? c.Person.LastName : string.Empty)
+                    : query.OrderBy(c => c.Person != null ? c.Person.LastName : string.Empty);
+            }
+            else
+            {
+                query = desc
+                    ? query.OrderByDescending(c => c.CustomerId)
+                    : query.OrderBy(c => c.CustomerId);
+            }
+
+            query = query.Skip((page - 1) * pageSize).Take(pageSize);
+            var customers = query.Select(c => new CustomerDetailsDto
+            {
+                CustomerId = c.CustomerId,
+                StoreName = c.Store != null ? c.Store.Name ?? string.Empty : string.Empty,
+                FirstName = c.Person != null ? c.Person.FirstName ?? string.Empty : string.Empty,
+                LastName = c.Person != null ? c.Person.LastName ?? string.Empty : string.Empty,
+                TerritoryId = c.TerritoryId
+            })
+            .ToListAsync();
+
+            return await customers;
         }
     }
 }

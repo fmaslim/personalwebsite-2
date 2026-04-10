@@ -31,5 +31,19 @@ namespace PersonalWebsite.Api.Controllers
             }
             return Ok(customer);
         }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<CustomerDetailsDto>>> SearchCustomersAsync(
+            [FromQuery] string? name = null,
+            [FromQuery] string? accountNumber = null,
+            [FromQuery] int? territoryId = null,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? sortBy = "customerId",
+            [FromQuery] string? sortDir = "asc")
+        {
+            var customers = await _customerService.SearchCustomersAsync(name, accountNumber, territoryId, page, pageSize, sortBy, sortDir);
+            return Ok(customers);
+        }
     }
 }
