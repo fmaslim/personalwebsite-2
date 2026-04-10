@@ -53,12 +53,16 @@ namespace PersonalWebsite.Api.Services.Implementations
         public async Task<IEnumerable<CustomerDetailsDto>> SearchCustomersAsync(string? name,
             string? accountNumber,
             int? territoryId,
+            string? customerType,
             int page,
             int pageSize,
             string? sortBy,
             string? sortDir)
         {
             var query = _context.Customers.AsNoTracking();
+
+            // normalize param
+            customerType = string.IsNullOrWhiteSpace(customerType) ? "all" : customerType.Trim().ToLower();
 
             page = page <= 0 ? 1 : page;
             pageSize = pageSize <= 0 ? 10 : pageSize;
@@ -82,6 +86,15 @@ namespace PersonalWebsite.Api.Services.Implementations
                 query = query.Where(c => c.TerritoryId == territoryId.Value);
             }
 
+            if (customerType == "store")
+            {
+                query = query.Where(c => c.Store != null);
+            }
+            else if (customerType == "person")
+            {
+                query = query.Where(c => c.Person != null);
+            }
+
             sortBy = sortBy?.Trim().ToLower();
             sortDir = sortDir?.Trim().ToLower();
 
@@ -94,7 +107,7 @@ namespace PersonalWebsite.Api.Services.Implementations
             else if (sortBy == "territoryId")
             {
                 query = desc ? query.OrderByDescending(c => c.TerritoryId) : query.OrderBy(c => c.TerritoryId);
-            }
+            }            
             else if (sortBy == "lastname")
             {
                 query = desc

@@ -9,9 +9,11 @@ namespace PersonalWebsite.Api.Services.Abstractions
         Task<IEnumerable<CustomerDetailsDto>> SearchCustomersAsync(string? name,
             string? accountNumber,
             int? territoryId,
+            string? customerType,
             int page,
             int pageSize,
             string? sortBy,
-            string? sortDir);
+            string? sortDir
+            );
     }
 }
