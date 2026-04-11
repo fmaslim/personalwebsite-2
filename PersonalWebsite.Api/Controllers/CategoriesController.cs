@@ -33,5 +33,17 @@ namespace PersonalWebsite.Api.Controllers
             }
             return Ok(category);
         }
+    
+
+    [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<ProductCategoryDto>>> SearchCategoryAsync(string? name = null,
+        int page = 1,
+        int pageSize = 10,
+        string? sortBy = "categoryid",
+        string? sortDir = "asc")
+        {
+            var categories = await _categoryService.SearchCategoryAsync(name, page, pageSize, sortBy, sortDir);
+            return Ok(categories);
+        }
     }
 }

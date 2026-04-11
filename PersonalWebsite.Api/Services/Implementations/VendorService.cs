@@ -42,30 +42,47 @@ namespace PersonalWebsite.Api.Services.Implementations
             return await vendor;
         }
 
-        public async Task<IEnumerable<VendorDto>> SearchVendorsByNameAsync(string? name, int page, int pageSize, string sortBy, string sortDir)
+        public async Task<IEnumerable<VendorDto>> SearchVendorsByNameAsync(string? name, int page, int pageSize, string? sortBy, string? sortDir)
         {
             // pagination
             if (page < 1) page = 1;
             if (pageSize < 1) pageSize = 10;
+            if (pageSize > 50) pageSize = 50;
             var skip = (page - 1) * pageSize;
+            sortBy = sortBy?.Trim().ToLower();
+            sortDir= sortDir?.Trim().ToLower();
 
-            //query = query.Skip(skip).Take(pageSize);
+            bool desc = sortDir == "desc";
+            
 
             var query = _context.Vendors
             .AsNoTracking()
             .Where(v => string.IsNullOrEmpty(name) || v.Name.Contains(name));
 
-            if (sortDir?.ToLower() == "asc")
+            if (sortBy == "vendorid")
             {
-                query = query.OrderBy(v => v.Name);
+                query = desc
+                    ? query.OrderByDescending(v => v.BusinessEntityId)
+                    : query.OrderBy(v => v.BusinessEntityId);
             }
             else
             {
-                query = query.OrderByDescending(v => v.Name);
+                query = desc
+                    ? query.OrderByDescending(v => v.Name)
+                    : query.OrderBy(v => v.Name);
             }
 
+            //if (sortDir?.ToLower() == "asc")
+            //{
+            //    query = query.OrderBy(v => v.Name);
+            //}
+            //else
+            //{
+            //    query = query.OrderByDescending(v => v.Name);
+            //}
+
             var vendors = await query
-                .Skip((page - 1) * pageSize)
+                .Skip(skip)
                 .Take(pageSize)
                 .Select(v => new VendorDto
                 {

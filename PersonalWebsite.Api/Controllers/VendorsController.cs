@@ -32,7 +32,7 @@ namespace PersonalWebsite.Api.Controllers
             return Ok(vendor);
         }
 
-        [HttpGet()]
+        [HttpGet("search")]
         public async Task<ActionResult<IEnumerable<VendorDto>>> SearchVendorsByNameAsync(
             [FromQuery] string? name = null,
             [FromQuery] int page = 1,
