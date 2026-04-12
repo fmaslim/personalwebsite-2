@@ -30,7 +30,7 @@ namespace PersonalWebsite.Api.Services.Implementations
         }
 
         public async Task<IEnumerable<EmployeeLookupDto>> SearchEmployeesAsync(
-            // string? name, // skip this for now since it requires concatenation of first and last name which is a bit more complex to do efficiently in EF Core
+            string? name, // skip this for now since it requires concatenation of first and last name which is a bit more complex to do efficiently in EF Core
             string? jobTitle, 
             bool? currentFlag, 
             int page, 
@@ -44,7 +44,7 @@ namespace PersonalWebsite.Api.Services.Implementations
                 .AsQueryable();
 
             // 2. normalize params
-            // name = name?.Trim().ToLower();
+            name = name?.Trim().ToLower();
             jobTitle = jobTitle?.Trim().ToLower();
             sortBy = sortBy?.Trim().ToLower();
             sortDir = sortDir?.Trim().ToLower();
@@ -55,11 +55,12 @@ namespace PersonalWebsite.Api.Services.Implementations
 
             bool desc = sortDir == "desc";
 
-            // skip name for now since it requires concatenation of first and last name which is a bit more complex to do efficiently in EF Core
-            //if(!string.IsNullOrEmpty(name))
-            //{
-            //    query = query.Where(e => (e.FirstName + " " + e.LastName).ToLower().Contains(name));
-            //}
+            if (!string.IsNullOrEmpty(name))
+            {
+                query = query.Where(e => (e.BusinessEntity.FirstName + " " + e.BusinessEntity.LastName).ToLower().Contains(name)
+                || e.BusinessEntity.FirstName.ToLower().Contains(name)
+                || e.BusinessEntity.LastName.ToLower().Contains(name));
+            }
             if (!string.IsNullOrEmpty(jobTitle))
             {
                 query = query.Where(e => e.JobTitle.ToLower().Contains(jobTitle));
@@ -93,6 +94,7 @@ namespace PersonalWebsite.Api.Services.Implementations
                 .Select(e => new EmployeeLookupDto
                 {
                     EmployeeId = e.BusinessEntityId,
+                    FullName = e.BusinessEntity.FirstName + " " + e.BusinessEntity.LastName,
                     JobTitle = e.JobTitle,
                     HireDate = e.HireDate,
                     CurrentFlag = e.CurrentFlag

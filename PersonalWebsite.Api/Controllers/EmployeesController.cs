@@ -36,7 +36,7 @@ namespace PersonalWebsite.Api.Controllers
 
         [HttpGet("search")]
         public async Task<ActionResult<IEnumerable<EmployeeLookupDto>>> SearchEmployeesAsync(
-            // [FromQuery] string? name,
+            [FromQuery] string? name,
             [FromQuery] string? jobTitle = null,
             [FromQuery] bool? currentFlag = null,
             [FromQuery] int page = 1,
@@ -44,7 +44,7 @@ namespace PersonalWebsite.Api.Controllers
             [FromQuery] string? sortBy = "employeeId",
             [FromQuery] string? sortDir = "asc")
         {
-            var employees = await _employeeService.SearchEmployeesAsync(jobTitle, currentFlag, page, pageSize, sortBy, sortDir);
+            var employees = await _employeeService.SearchEmployeesAsync(name, jobTitle, currentFlag, page, pageSize, sortBy, sortDir);
             return Ok(employees);
         }
     }
