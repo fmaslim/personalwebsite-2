@@ -73,13 +73,18 @@ namespace PersonalWebsite.Api.Services.Implementations
                 // filter first, then sort after to ensure sorting is applied to the filtered results
                 // query = desc ? query.OrderByDescending(e => e.CurrentFlag) : query.OrderBy(e => e.CurrentFlag);
             }
-            if(sortBy == "jobTitle")
+            if (sortBy == "jobtitle")
             {
                 query = desc ? query.OrderByDescending(e => e.JobTitle) : query.OrderBy(e => e.JobTitle);
             }
-            else if(sortBy == "hiredate")
+            else if (sortBy == "hiredate")
             {
                 query = desc ? query.OrderByDescending(e => e.HireDate) : query.OrderBy(e => e.HireDate);
+            }
+            else if (sortBy == "fullname")
+            {
+                query = desc ? query.OrderByDescending(e => e.BusinessEntity.LastName).ThenByDescending(e => e.BusinessEntity.FirstName)
+                    : query.OrderBy(e => e.BusinessEntity.LastName).ThenBy(e => e.BusinessEntity.FirstName);
             }
             else
             {
