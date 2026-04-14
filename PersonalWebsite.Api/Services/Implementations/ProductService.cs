@@ -154,7 +154,7 @@ return NotFound() if no product exists
             return employees;
         }
 
-        public async Task<IEnumerable<ProductSearchDto>> SearchProductsAsync(string? name, string? category, int page = 1, int pageSize = 10)
+        public async Task<IEnumerable<ProductSearchDto>> SearchProductsAsync(string? name, string? category, int page = 1, int pageSize = 10, string? sortBy = null, string? sortDir = null)
         {
             var query = _context.Products.AsNoTracking().AsQueryable();
 
@@ -170,11 +170,25 @@ return NotFound() if no product exists
                 query = query.Where(p => p.ProductSubcategory != null && p.ProductSubcategory.ProductCategory != null && p.ProductSubcategory.ProductCategory.Name.Contains(category));
             }
 
+            // sorting
+            var sortByNormalized = sortBy?.Trim().ToLower();
+            var sortDirNormalized = sortDir?.Trim().ToLower();
+            query = (sortByNormalized, sortDirNormalized) switch
+            {
+                ("name", "asc") => query.OrderBy(p => p.Name),
+                ("name", "desc") => query.OrderByDescending(p => p.Name),
+                ("listprice", "asc") => query.OrderBy(p => p.ListPrice),
+                ("listprice", "desc") => query.OrderByDescending(p => p.ListPrice),
+                ("id", "asc") => query.OrderBy(p => p.ProductId),
+                ("id", "desc") => query.OrderByDescending(p => p.ProductId),
+                _ => query.OrderBy(p => p.ProductId)
+            };
+
             // pagination
             if (page < 1) page = 1;
             if (pageSize < 1) pageSize = 10;
             var skip = (page - 1) * pageSize;
-            query = query.OrderBy(p => p.ProductId).Skip(skip).Take(pageSize);
+            query = query.Skip(skip).Take(pageSize);            
 
             var products = query.Select(p => new ProductSearchDto
             {

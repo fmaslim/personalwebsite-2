@@ -19,6 +19,8 @@ namespace PersonalWebsite.Api.Services.Abstractions
         Task<IEnumerable<ProductSearchDto>> SearchProductsAsync(string? name,
             string? category,
             int page = 1,
-            int pageSize = 10);
+            int pageSize = 10,
+            string? sortBy = null,
+            string? sortDir = null);
     }
 }

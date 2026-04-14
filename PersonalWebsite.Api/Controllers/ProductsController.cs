@@ -57,12 +57,14 @@ namespace PersonalWebsite.Api.Controllers
         //}
 
         [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<ProductSearchDto>>> SearchProductsAsync(string? name,
-            string? category,
-            int page = 1,
-            int pageSize = 10)
+        public async Task<ActionResult<IEnumerable<ProductSearchDto>>> SearchProductsAsync([FromQuery] string? name,
+            [FromQuery] string? category,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? sortBy = null,
+            [FromQuery] string? sortDir = null)
         {
-            var result = await _prodService.SearchProductsAsync(name, category, page, pageSize);
+            var result = await _prodService.SearchProductsAsync(name, category, page, pageSize, sortBy, sortDir);
             return Ok(result);
         }
     }
