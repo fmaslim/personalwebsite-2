@@ -44,15 +44,25 @@ namespace PersonalWebsite.Api.Controllers
         //    return Ok(result);
         //}
 
+        //[HttpGet("search")]
+        //public async Task<ActionResult<IEnumerable<ProductSearchDto>>> SearchProductsAsync(
+        //    [FromQuery]string? name,
+        //    [FromQuery] int page = 1,
+        //    [FromQuery] int pageSize = 10,
+        //    [FromQuery] string? sortBy = null,
+        //    [FromQuery] string? sortDir = null)
+        //{
+        //    var result = await _prodService.SearchProductsAsync(name, page, pageSize, sortBy, sortDir);
+        //    return Ok(result);
+        //}
+
         [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<ProductSearchDto>>> SearchProductsAsync(
-            [FromQuery]string? name,
-            [FromQuery] int page = 1,
-            [FromQuery] int pageSize = 10,
-            [FromQuery] string? sortBy = null,
-            [FromQuery] string? sortDir = null)
+        public async Task<ActionResult<IEnumerable<ProductSearchDto>>> SearchProductsAsync(string? name,
+            string? category,
+            int page = 1,
+            int pageSize = 10)
         {
-            var result = await _prodService.SearchProductsAsync(name, page, pageSize, sortBy, sortDir);
+            var result = await _prodService.SearchProductsAsync(name, category, page, pageSize);
             return Ok(result);
         }
     }
