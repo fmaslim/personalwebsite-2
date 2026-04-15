@@ -45,6 +45,24 @@ namespace PersonalWebsite.Api.Services.Implementations
                     StatusCode = 404
                 };
             }
+            // check for same/duplicate order - same customer, same order date, same total amount
+            var duplicateOrderExists = await _context.SalesOrderHeaders.AnyAsync(o =>
+            o.CustomerId == dto.CustomerId &&
+            o.OrderDate == dto.OrderDate &&
+            o.SubTotal == dto.TotalAmount &&
+            o.BillToAddressId == dto.BillToAddressId &&
+            o.ShipToAddressId == dto.ShipToAddressId &&
+            o.ShipMethodId == dto.ShipMethodId
+            );
+            if (duplicateOrderExists)
+            {
+                return new ServiceResult<int>
+                {
+                    Success = false,
+                    Message = "A similar order already exists..",
+                    StatusCode = 409
+                };
+            }
             var order = new SalesOrderHeader
             {
                 CustomerId = dto.CustomerId,
