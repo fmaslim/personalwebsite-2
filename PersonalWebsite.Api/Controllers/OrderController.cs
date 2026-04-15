@@ -17,7 +17,15 @@ namespace PersonalWebsite.Api.Controllers
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto dto)
         {
             var orderId = await _orderService.CreateOrderAsync(dto);
-            return Ok(new { id = orderId });
+            // return Ok(new { id = orderId });
+            var apiResponse = new ApiResponse<object>
+            {
+                Success = true,
+                Message = "Order created successfully",
+                Data = new { id = orderId }
+            };
+            //return Ok(apiResponse);
+            return StatusCode(201, apiResponse); // 201 Created
         }
 
         [HttpGet("search")]
