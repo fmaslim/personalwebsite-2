@@ -12,7 +12,7 @@ namespace PersonalWebsite.Api.Services.Implementations
         {
             _context = context;
         }
-        public async Task<int> CreateOrderAsync(CreateOrderDto dto)
+        public async Task<ServiceResult<int>> CreateOrderAsync(CreateOrderDto dto)
         {
             if (dto == null)
             {
@@ -34,6 +34,17 @@ namespace PersonalWebsite.Api.Services.Implementations
             {
                 throw new ArgumentException("TotalAmount must be greater than zero.");
             }
+            // business rule: check if customer exists. If not, return error
+            var customerExists = await _context.Customers.AnyAsync(c => c.CustomerId == dto.CustomerId);
+            if (!customerExists)
+            {
+                return new ServiceResult<int>
+                {
+                    Success = false,
+                    Message = $"Customer with id {dto.CustomerId} does not exist.",
+                    StatusCode = 404
+                };
+            }
             var order = new SalesOrderHeader
             {
                 CustomerId = dto.CustomerId,
@@ -54,7 +65,14 @@ namespace PersonalWebsite.Api.Services.Implementations
             _context.SalesOrderHeaders.Add(order);
             await _context.SaveChangesAsync();
 
-            return order.SalesOrderId;
+            // return order.SalesOrderId;
+            return new ServiceResult<int>
+            {
+                Success = true,
+                Message = "Order created successfully.",
+                StatusCode = 201,
+                Data = order.SalesOrderId
+            };
         }
 
         public async Task<OrderDetailsDto?> GetOrderByIdAsync(int orderId)

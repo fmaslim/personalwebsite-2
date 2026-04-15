@@ -16,16 +16,26 @@ namespace PersonalWebsite.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto dto)
         {
-            var orderId = await _orderService.CreateOrderAsync(dto);
+            // var orderId = await _orderService.CreateOrderAsync(dto);
+            var result = await _orderService.CreateOrderAsync(dto);
             // return Ok(new { id = orderId });
+            if (!result.Success)
+            {
+                var errorResponse = new ApiResponse<object>
+                {
+                    Success = false,
+                    Message = result.Message,
+                };
+                return StatusCode(result.StatusCode, errorResponse);
+            }
             var apiResponse = new ApiResponse<object>
             {
                 Success = true,
-                Message = "Order created successfully",
-                Data = new { id = orderId }
+                Message = result.Message,
+                Data = new { id = result.Data }
             };
             //return Ok(apiResponse);
-            return StatusCode(201, apiResponse); // 201 Created
+            return StatusCode(result.StatusCode, apiResponse); // 201 Created
         }
 
         [HttpGet("search")]
