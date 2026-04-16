@@ -14,6 +14,16 @@ namespace PersonalWebsite.Api.Controllers
             {
                 return BadRequest("File is required");
             }
+            if(file.Length > 1 * 1024 * 1024) // Limit file size to 1 MB
+            {
+                return BadRequest("File size exceeds the limit of 1 MB");
+            }
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".pdf", ".docx" };
+            var fileExtension = Path.GetExtension(file.FileName).ToLower();
+            if (!allowedExtensions.Contains(fileExtension))
+            {
+                return BadRequest("Unsupported file type. Only .jpg, .jpeg, .png, .pdf, .docx files are allowed.");
+            }
 
             var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
             if (!Directory.Exists(uploadsFolder))
