@@ -23,6 +23,20 @@ namespace PersonalWebsite.Api.Controllers
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10)
         {
+            // Thursday, 04/06/2026: Added validation for query params, return 400 Bad Request if invalid
+                if (pageNumber <= 0)
+                {
+                    return BadRequest("Page number must be greater than 0.");
+                }
+                if (pageSize <= 0)
+                {
+                    return BadRequest("Page size must be greater than 0.");
+                }
+                if (pageSize > 100)
+                {
+                    return BadRequest("Page size must be less than or equal to 100.");
+                }
+
             var result = await _patientService.SearchPatientsAsync(firstName, lastName, sortBy, sortDir, pageNumber, pageSize);
             return Ok(result);
         }

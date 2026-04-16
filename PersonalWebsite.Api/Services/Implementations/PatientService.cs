@@ -52,9 +52,9 @@ namespace PersonalWebsite.Api.Services.Implementations
             // get TotalCount after filtering but before paging
             var totalCount = await query.CountAsync();
             // paging
-            pageNumber = pageNumber <= 0 ? 1 : pageNumber;            
-            pageSize = pageSize <= 0 ? 10 : pageSize;
-            pageSize = pageSize > 100 ? 100 : pageSize; // limit page size to 100
+            //pageNumber = pageNumber <= 0 ? 1 : pageNumber;            
+            //pageSize = pageSize <= 0 ? 10 : pageSize;
+            //pageSize = pageSize > 100 ? 100 : pageSize; // limit page size to 100
             query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
 
             // get items after filtering, sorting and paging
