@@ -12,9 +12,9 @@ namespace PersonalWebsite.Api.Services.Implementations
         {
             _context = context;
         }
-        public async Task<IEnumerable<PatientSearchResultDto>> SearchPatientsAsync(string? firstName, string? lastName, int pageNumber, int pageSize)
+        public async Task<IEnumerable<PatientSearchResultDto>> SearchPatientsAsync(string? firstName, string? lastName, string? sortBy, string? sortDir, int pageNumber, int pageSize)
         {
-            var query = _context.People.AsNoTracking().AsQueryable();
+            var query = _context.People.AsNoTracking();
 
             // filter by firstName, check if null
             if ((!string.IsNullOrEmpty(firstName)))
@@ -25,6 +25,29 @@ namespace PersonalWebsite.Api.Services.Implementations
             if ((!string.IsNullOrEmpty(lastName)))
             {
                 query = query.Where(p => p.LastName.Contains(lastName));
+            }
+            // check if SortDir is null, default to ascending
+            sortDir = string.IsNullOrEmpty(sortDir) ? "asc" : sortDir;
+            if ((!string.IsNullOrEmpty(sortBy)))
+                {
+                if (sortBy.Equals("firstName", StringComparison.OrdinalIgnoreCase))
+                {
+                    query = sortDir.Equals("desc", StringComparison.OrdinalIgnoreCase) ? query.OrderByDescending(p => p.FirstName) : query.OrderBy(p => p.FirstName);
+                }
+                else if (sortBy.Equals("lastName", StringComparison.OrdinalIgnoreCase))
+                {
+                    query = sortDir.Equals("desc", StringComparison.OrdinalIgnoreCase) ? query.OrderByDescending(p => p.LastName) : query.OrderBy(p => p.LastName);
+                }
+                else
+                {
+                    // default sorting by Id
+                    query = sortDir.Equals("desc", StringComparison.OrdinalIgnoreCase) ? query.OrderByDescending(p => p.BusinessEntityId) : query.OrderBy(p => p.BusinessEntityId);
+                }
+            }
+            else
+            {
+                // default sorting by Id
+                query = sortDir.Equals("desc", StringComparison.OrdinalIgnoreCase) ? query.OrderByDescending(p => p.BusinessEntityId) : query.OrderBy(p => p.BusinessEntityId);
             }
             // paging
             pageNumber = pageNumber <= 0 ? 1 : pageNumber;

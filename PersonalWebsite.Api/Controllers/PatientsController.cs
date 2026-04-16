@@ -18,10 +18,12 @@ namespace PersonalWebsite.Api.Controllers
         public async Task<ActionResult<IEnumerable<PatientSearchResultDto>>> SearchPatientsAsync(
             [FromQuery] string? firstName,
             [FromQuery] string? lastName,
+            [FromQuery] string? sortBy,
+            [FromQuery] string? sortDir,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10)
         {
-            var result = await _patientService.SearchPatientsAsync(firstName, lastName, pageNumber, pageSize);
+            var result = await _patientService.SearchPatientsAsync(firstName, lastName, sortBy, sortDir, pageNumber, pageSize);
             return Ok(result);
         }
     }

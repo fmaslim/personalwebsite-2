@@ -8,7 +8,9 @@ namespace PersonalWebsite.Api.Services.Abstractions
             string? firstName,
             string? lastName,
             // string? city,
-            // bool? isActive,
+            // bool? isActive,            
+            string? sortBy,
+            string? sortDir,
             int pageNumber,
             int pageSize);
     }
