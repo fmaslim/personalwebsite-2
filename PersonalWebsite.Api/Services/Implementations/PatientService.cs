@@ -12,7 +12,7 @@ namespace PersonalWebsite.Api.Services.Implementations
         {
             _context = context;
         }
-        public async Task<IEnumerable<PatientSearchResultDto>> SearchPatientsAsync(string? firstName, string? lastName, string? sortBy, string? sortDir, int pageNumber, int pageSize)
+        public async Task<PagedPatientSearchResponseDto> SearchPatientsAsync(string? firstName, string? lastName, string? sortBy, string? sortDir, int pageNumber, int pageSize)
         {
             var query = _context.People.AsNoTracking();
 
@@ -49,19 +49,37 @@ namespace PersonalWebsite.Api.Services.Implementations
                 // default sorting by Id
                 query = sortDir.Equals("desc", StringComparison.OrdinalIgnoreCase) ? query.OrderByDescending(p => p.BusinessEntityId) : query.OrderBy(p => p.BusinessEntityId);
             }
+            // get TotalCount after filtering but before paging
+            var totalCount = await query.CountAsync();
             // paging
             pageNumber = pageNumber <= 0 ? 1 : pageNumber;
             pageSize = pageSize <= 0 ? 10 : pageSize;
             query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
 
-            var result = query.Select(p => new PatientSearchResultDto
+            // get items after filtering, sorting and paging
+            var items = await query.Select(p => new PatientSearchResultDto
             {
                 Id = p.BusinessEntityId,
                 FirstName = p.FirstName,
                 LastName = p.LastName                
             }).ToListAsync();
 
-            return await result;
+            return new PagedPatientSearchResponseDto
+            {
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                Items = items
+            };
+
+            //var result = query.Select(p => new PatientSearchResultDto
+            //{
+            //    Id = p.BusinessEntityId,
+            //    FirstName = p.FirstName,
+            //    LastName = p.LastName                
+            //}).ToListAsync();
+
+            //return await result;
         }
     }
 }

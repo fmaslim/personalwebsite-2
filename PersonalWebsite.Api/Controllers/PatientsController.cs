@@ -15,7 +15,7 @@ namespace PersonalWebsite.Api.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<PatientSearchResultDto>>> SearchPatientsAsync(
+        public async Task<ActionResult<PagedPatientSearchResponseDto>> SearchPatientsAsync(
             [FromQuery] string? firstName,
             [FromQuery] string? lastName,
             [FromQuery] string? sortBy,

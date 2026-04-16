@@ -4,11 +4,9 @@ namespace PersonalWebsite.Api.Services.Abstractions
 {
     public interface IPatientService
     {
-        Task<IEnumerable<PatientSearchResultDto>> SearchPatientsAsync(
+        Task<PagedPatientSearchResponseDto> SearchPatientsAsync(
             string? firstName,
             string? lastName,
-            // string? city,
-            // bool? isActive,            
             string? sortBy,
             string? sortDir,
             int pageNumber,
