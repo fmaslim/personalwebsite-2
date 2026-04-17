@@ -32,6 +32,7 @@ builder.Services.AddScoped<IVendorService, VendorService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IPatientService, PatientService>();
+builder.Services.AddScoped<IFileService, FileService>();
 
 builder.Services.AddCors(options =>
 {

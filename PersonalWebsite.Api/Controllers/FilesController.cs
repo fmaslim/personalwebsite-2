@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PersonalWebsite.Api.DTOs;
+using PersonalWebsite.Api.Services.Abstractions;
 
 namespace PersonalWebsite.Api.Controllers
 {
@@ -7,49 +8,35 @@ namespace PersonalWebsite.Api.Controllers
     [Route("api/[controller]")]
     public class FilesController : ControllerBase
     {
-        [HttpPost("upload")]
-        public async Task<ActionResult<FileUploadResponseDto>> UploadFile(IFormFile file)
+        private readonly IFileService _fileService;
+        public FilesController(IFileService fileService)
         {
-            if (file == null || file.Length == 0)
-            {
-                return BadRequest("File is required");
-            }
-            var maxFileSize = 1 * 1024 * 1024; // 1 MB
-            if (file.Length > maxFileSize) // Limit file size to 1 MB
-            {
-                return BadRequest($"File size exceeds the limit of {maxFileSize / (1024 * 1024)} MB");
-            }
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".pdf", ".docx" };
-            var fileExtension = Path.GetExtension(file.FileName).ToLower();
+            _fileService = fileService;
+        }
 
-            // Thursday, 04/16/2026
-            // added unique identifier to file name to prevent overwriting existing files
-            var uniqueFileName = $"{Path.GetFileNameWithoutExtension(file.FileName)}_{Guid.NewGuid()}{fileExtension}";
+        [HttpPost("upload")]
+        public async Task<IActionResult> UploadFile(IFormFile file)
+        {
 
-            if (!allowedExtensions.Contains(fileExtension))
-            {
-                return BadRequest("Unsupported file type. Only .jpg, .jpeg, .png, .pdf, .docx files are allowed.");
-            }
+            var response = await _fileService.UploadFileAsync(file);
+            return StatusCode(response.StatusCode, response);
+        }
 
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
-            if (!Directory.Exists(uploadsFolder))
+        [HttpGet("download/{fileName}")]
+        public IActionResult DownloadFile(string fileName)
+        {
+            // get the folder path where files are stored
+            var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
+            var filePath = Path.Combine(uploadFolder, fileName);
+
+            if (!System.IO.File.Exists(filePath))
             {
-                Directory.CreateDirectory(uploadsFolder);
+                return NotFound();
             }
 
-            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-            var response = new FileUploadResponseDto
-            {
-                FilePath = filePath,
-                FileName = file.FileName,
-                FileSize = file.Length,
-                Message = "File uploaded successfully"
-            };
-            return Ok(response);
+            var fileBytes = System.IO.File.ReadAllBytes(filePath);
+            var contentType = "application/octet-stream";
+            return File(fileBytes, contentType, fileName);
         }
     }
 }
