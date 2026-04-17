@@ -7,9 +7,9 @@ namespace PersonalWebsite.Api.Services.Implementations
     public class FileService : IFileService
     {
         private readonly AdventureWorksContext _context;
-        public FileService(AdventureWorksContext context) 
-        { 
-            _context = context; 
+        public FileService(AdventureWorksContext context)
+        {
+            _context = context;
         }
 
         public Task<ServiceResult<string>> DeleteFileAsync(string fileName)
@@ -70,11 +70,12 @@ namespace PersonalWebsite.Api.Services.Implementations
             }
 
             var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+            var fileExtension = Path.GetExtension(fileName).ToLowerInvariant();
             var response = new FileDownloadResponseDto
             {
                 FileBytes = fileBytes,
                 FileName = fileName,
-                ContentType = "application/octet-stream"
+                ContentType = GetContentType(fileExtension)
             };
             return new ServiceResult<FileDownloadResponseDto>
             {
@@ -86,7 +87,7 @@ namespace PersonalWebsite.Api.Services.Implementations
 
         public async Task<ServiceResult<FileUploadResponseDto>> UploadFileAsync(IFormFile file)
         {
-            if(file == null || file.Length == 0)
+            if (file == null || file.Length == 0)
             {
                 return new ServiceResult<FileUploadResponseDto>
                 {
@@ -148,6 +149,19 @@ namespace PersonalWebsite.Api.Services.Implementations
                 Success = true,
                 Data = response,
                 StatusCode = 200
+            };
+        }
+
+        private string GetContentType(string fileExtension)
+        {
+            return fileExtension.ToLower() switch
+            {
+                ".jpg" => "image/jpeg",
+                ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".pdf" => "application/pdf",
+                ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                _ => "application/octet-stream"
             };
         }
     }
