@@ -40,6 +40,13 @@ namespace PersonalWebsite.Api.Controllers
             var response = await _fileService.DeleteFileAsync(fileName);
             return StatusCode(response.StatusCode, response);
         }
+        
+        [HttpGet("all")]
+        public async Task<ActionResult<List<FileListItemDto>>> GetAllFiles()
+        {
+            var files = await _fileService.GetAllFilesAsync();
+            return Ok(files);
+        }
     }
 }
  

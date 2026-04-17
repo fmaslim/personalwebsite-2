@@ -1,4 +1,5 @@
-﻿using PersonalWebsite.Api.DTOs;
+﻿using Microsoft.EntityFrameworkCore;
+using PersonalWebsite.Api.DTOs;
 using PersonalWebsite.Api.Models;
 using PersonalWebsite.Api.Services.Abstractions;
 
@@ -83,6 +84,22 @@ namespace PersonalWebsite.Api.Services.Implementations
                 Data = response,
                 StatusCode = 200
             };
+        }
+
+        public async Task<List<FileListItemDto>> GetAllFilesAsync()
+        {
+            var query = _context.FileRecords.AsNoTracking().Select(f => new FileListItemDto
+            {
+                Id = f.Id,
+                OriginalFileName = f.OriginalFileName,
+                StoredFileName = f.StoredFileName,
+                Size = f.Size,
+                ContentType = f.ContentType,
+                UploadedAt = f.UploadedAt
+            });
+
+            query = query.OrderByDescending(f => f.UploadedAt);
+            return await query.ToListAsync();
         }
 
         public async Task<ServiceResult<FileUploadResponseDto>> UploadFileAsync(IFormFile file)
