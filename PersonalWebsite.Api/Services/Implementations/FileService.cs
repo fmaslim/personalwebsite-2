@@ -12,6 +12,39 @@ namespace PersonalWebsite.Api.Services.Implementations
             _context = context; 
         }
 
+        public Task<ServiceResult<string>> DeleteFileAsync(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                return Task.FromResult(new ServiceResult<string>
+                {
+                    Success = false,
+                    Message = "File name is required.",
+                    StatusCode = 400
+                });
+            }
+
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
+            var filePath = Path.Combine(uploadsFolder, fileName);
+            if (!System.IO.File.Exists(filePath))
+            {
+                return Task.FromResult(new ServiceResult<string>
+                {
+                    Success = false,
+                    Message = "File not found.",
+                    StatusCode = 404
+                });
+            }
+
+            System.IO.File.Delete(filePath);
+            return Task.FromResult(new ServiceResult<string>
+            {
+                Success = true,
+                Message = "File deleted successfully.",
+                StatusCode = 200
+            });
+        }
+
         public async Task<ServiceResult<FileDownloadResponseDto>> DownloadFileAsync(string fileName)
         {
             if (string.IsNullOrEmpty(fileName))

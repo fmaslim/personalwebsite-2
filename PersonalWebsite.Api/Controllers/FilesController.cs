@@ -33,6 +33,13 @@ namespace PersonalWebsite.Api.Controllers
 
             return File(response.Data.FileBytes, response.Data.ContentType, response.Data.FileName);
         }
+
+        [HttpDelete("delete/{fileName}")]
+        public async Task<IActionResult> DeleteFile(string fileName)
+        {
+            var response = await _fileService.DeleteFileAsync(fileName);
+            return StatusCode(response.StatusCode, response);
+        }
     }
 }
  
