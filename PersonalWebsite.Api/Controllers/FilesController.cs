@@ -14,12 +14,18 @@ namespace PersonalWebsite.Api.Controllers
             {
                 return BadRequest("File is required");
             }
-            if(file.Length > 1 * 1024 * 1024) // Limit file size to 1 MB
+            var maxFileSize = 1 * 1024 * 1024; // 1 MB
+            if (file.Length > maxFileSize) // Limit file size to 1 MB
             {
-                return BadRequest("File size exceeds the limit of 1 MB");
+                return BadRequest($"File size exceeds the limit of {maxFileSize / (1024 * 1024)} MB");
             }
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".pdf", ".docx" };
             var fileExtension = Path.GetExtension(file.FileName).ToLower();
+
+            // Thursday, 04/16/2026
+            // added unique identifier to file name to prevent overwriting existing files
+            var uniqueFileName = $"{Path.GetFileNameWithoutExtension(file.FileName)}_{Guid.NewGuid()}{fileExtension}";
+
             if (!allowedExtensions.Contains(fileExtension))
             {
                 return BadRequest("Unsupported file type. Only .jpg, .jpeg, .png, .pdf, .docx files are allowed.");
@@ -31,7 +37,7 @@ namespace PersonalWebsite.Api.Controllers
                 Directory.CreateDirectory(uploadsFolder);
             }
 
-            var filePath = Path.Combine(uploadsFolder, file.FileName);
+            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
