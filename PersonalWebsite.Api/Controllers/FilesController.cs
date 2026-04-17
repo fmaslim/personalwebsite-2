@@ -23,20 +23,16 @@ namespace PersonalWebsite.Api.Controllers
         }
 
         [HttpGet("download/{fileName}")]
-        public IActionResult DownloadFile(string fileName)
+        public async Task<IActionResult> DownloadFile(string fileName)
         {
-            // get the folder path where files are stored
-            var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
-            var filePath = Path.Combine(uploadFolder, fileName);
-
-            if (!System.IO.File.Exists(filePath))
+            var response = await _fileService.DownloadFileAsync(fileName);
+            if (!response.Success || response.Data == null)
             {
-                return NotFound();
+                return StatusCode(response.StatusCode, response);
             }
 
-            var fileBytes = System.IO.File.ReadAllBytes(filePath);
-            var contentType = "application/octet-stream";
-            return File(fileBytes, contentType, fileName);
+            return File(response.Data.FileBytes, response.Data.ContentType, response.Data.FileName);
         }
     }
 }
+ 

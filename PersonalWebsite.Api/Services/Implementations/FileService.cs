@@ -11,6 +11,46 @@ namespace PersonalWebsite.Api.Services.Implementations
         { 
             _context = context; 
         }
+
+        public async Task<ServiceResult<FileDownloadResponseDto>> DownloadFileAsync(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                return new ServiceResult<FileDownloadResponseDto>
+                {
+                    Success = false,
+                    Message = "File name is required.",
+                    StatusCode = 400
+                };
+            }
+
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
+            var filePath = Path.Combine(uploadsFolder, fileName);
+            if (!System.IO.File.Exists(filePath))
+            {
+                return new ServiceResult<FileDownloadResponseDto>
+                {
+                    Success = false,
+                    Message = "File not found.",
+                    StatusCode = 404
+                };
+            }
+
+            var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+            var response = new FileDownloadResponseDto
+            {
+                FileBytes = fileBytes,
+                FileName = fileName,
+                ContentType = "application/octet-stream"
+            };
+            return new ServiceResult<FileDownloadResponseDto>
+            {
+                Success = true,
+                Data = response,
+                StatusCode = 200
+            };
+        }
+
         public async Task<ServiceResult<FileUploadResponseDto>> UploadFileAsync(IFormFile file)
         {
             if(file == null || file.Length == 0)
