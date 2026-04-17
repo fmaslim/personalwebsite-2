@@ -134,15 +134,29 @@ namespace PersonalWebsite.Api.Services.Implementations
             var filePath = Path.Combine(uploadsFolder, uniqueFileName);
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
-                await file.CopyToAsync(stream);
+                await file.CopyToAsync(stream);                
             }
+            // Thursday, 04/17/2026 - Added save metadata to db
+            var fileRecord = new FileRecord
+            {
+                OriginalFileName = file.FileName,
+                StoredFileName = uniqueFileName,
+                FilePath = filePath,
+                ContentType = file.ContentType,
+                Size = file.Length,
+                UploadedAt = DateTime.UtcNow
+            };
+
+            _context.FileRecords.Add(fileRecord);
+            await _context.SaveChangesAsync();
 
             var response = new FileUploadResponseDto
             {
                 FilePath = filePath,
                 FileName = uniqueFileName,
                 FileSize = file.Length,
-                // Message = "File uploaded successfully"
+                OriginalFileName = file.FileName,
+                ContentType = file.ContentType
             };
             return new ServiceResult<FileUploadResponseDto>
             {

@@ -14,6 +14,8 @@ public partial class AdventureWorksContext : DbContext
         : base(options)
     {
     }
+    // Thursday, 04/17/2026 - Added a new table for file metadata
+    public DbSet<FileRecord> FileRecords { get; set; }
 
     public virtual DbSet<Address> Addresses { get; set; }
 
