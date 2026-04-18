@@ -179,45 +179,30 @@ namespace PersonalWebsite.Api.Services.Implementations
                     StatusCode = 400
                 };
             }
-            var maxFileSize = 1 * 1024 * 1024; // 1 MB
-            if (newFile.Length > maxFileSize) // Limit file size to 1 MB
+            var fileSizeValidationResult = ValidateFileSize(newFile);
+            if (fileSizeValidationResult != null)
             {
-                return new ServiceResult<FileDetailsResponseDto>
-                {
-                    Success = false,
-                    Message = $"File size exceeds the limit of {maxFileSize / (1024 * 1024)} MB",
-                    StatusCode = 400
-                };
+                return fileSizeValidationResult;
             }
             // 4. validate file type
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".pdf", ".docx" };
-            var fileExtension = Path.GetExtension(newFile.FileName).ToLowerInvariant();
-            if (!allowedExtensions.Contains(fileExtension))
+            var fileExtensionValidationResult = ValidateFileExtension(newFile);
+            if (fileExtensionValidationResult != null)
             {
-                return new ServiceResult<FileDetailsResponseDto>
-                {
-                    Success = false,
-                    Message = "Unsupported file type. Only .jpg, .jpeg, .png, .pdf, .docx files are allowed.",
-                    StatusCode = 400
-                };
+                return fileExtensionValidationResult;
             }
             // 5. generate unique file name and save new file to disk
-            var uniqueFileName = $"{Path.GetFileNameWithoutExtension(newFile.FileName)}_{Guid.NewGuid()}{fileExtension}";
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
-            if (!Directory.Exists(uploadsFolder))
-            {
-                Directory.CreateDirectory(uploadsFolder);
-            }
+            // var uniqueFileName = $"{Path.GetFileNameWithoutExtension(newFile.FileName)}_{Guid.NewGuid()}{Path.GetExtension(newFile.FileName).ToLowerInvariant()}";
+            var uniqueFileName = GenerateUniqueFileName(newFile);
+            var uploadsFolder = EnsureUploadsFolderExists();
             var newFilePath = Path.Combine(uploadsFolder, uniqueFileName);
             using (var stream = new FileStream(newFilePath, FileMode.Create))
             {
                 await newFile.CopyToAsync(stream);
             }
             // 6. delete old file from disk
-            if (System.IO.File.Exists(file.FilePath))
+            if (!string.IsNullOrEmpty(file.FilePath) && System.IO.File.Exists(file.FilePath))
             {
                 System.IO.File.Delete(file.FilePath);
-                // _context.FileRecords.Remove(file);
             }
             // 7. update db record with new file info
             // FileRecord fileRecord = new FileRecord();
@@ -300,7 +285,7 @@ namespace PersonalWebsite.Api.Services.Implementations
             var filePath = Path.Combine(uploadsFolder, uniqueFileName);
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
-                await file.CopyToAsync(stream);                
+                await file.CopyToAsync(stream);
             }
             // Thursday, 04/17/2026 - Added save metadata to db
             var fileRecord = new FileRecord
@@ -343,6 +328,55 @@ namespace PersonalWebsite.Api.Services.Implementations
                 ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 _ => "application/octet-stream"
             };
+        }
+
+        private ServiceResult<FileDetailsResponseDto>? ValidateFileSize(IFormFile file)
+        {
+            var maxFileSize = 5 * 1024 * 1024; // 5 MB
+            if (file.Length > maxFileSize) // Limit file size to 5 MB
+            {
+                return new ServiceResult<FileDetailsResponseDto>
+                {
+                    Success = false,
+                    Message = $"File size exceeds the limit of {maxFileSize / (1024 * 1024)} MB",
+                    StatusCode = 400
+                };
+            }
+            return null;
+        }
+
+        private ServiceResult<FileDetailsResponseDto>? ValidateFileExtension(IFormFile file)
+        {
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".pdf", ".docx" };
+            var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!allowedExtensions.Contains(fileExtension))
+            {
+                return new ServiceResult<FileDetailsResponseDto>
+                {
+                    Success = false,
+                    Message = "Unsupported file type. Only .jpg, .jpeg, .png, .pdf, .docx files are allowed.",
+                    StatusCode = 400
+                };
+            }
+            return null;
+        }
+
+        private string GenerateUniqueFileName(IFormFile file)
+        {
+            var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            var uniqueFileName = $"{Path.GetFileNameWithoutExtension(file.FileName)}_{Guid.NewGuid()}{fileExtension}";
+
+            return uniqueFileName;
+        }
+
+        private string EnsureUploadsFolderExists()
+        {
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+            return uploadsFolder;
         }
     }
 }

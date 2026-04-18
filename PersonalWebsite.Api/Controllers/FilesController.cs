@@ -87,11 +87,12 @@ namespace PersonalWebsite.Api.Controllers
         public async Task<IActionResult> UpdateFileByIdAsync(int id, IFormFile file)
         {
             var fileDetails = await _fileService.UpdateFileByIdAsync(id, file);
-            if (fileDetails == null)
+            
+            if(!fileDetails.Success)
             {
-                return NotFound();
+                return StatusCode(fileDetails.StatusCode, fileDetails.Message);
             }
-            return Ok(fileDetails);
+            return Ok(fileDetails.Data);
         }
     }
 }
