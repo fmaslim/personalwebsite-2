@@ -72,32 +72,21 @@ namespace PersonalWebsite.Api.Controllers
             return Ok(files);
         }
 
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<FileDownloadResponseDto>> GetFileById(int id)
-        //{
-        //    var file = await _fileService.GetFileByIdAsync(id);
-
-        //    if (file == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    var response = new FileDownloadResponseDto
-        //    {
-
-        //        // FileBytes = await System.IO.File.ReadAllBytesAsync(Path.Combine(Directory.GetCurrentDirectory(), "Uploads", file.StoredFileName)),
-        //        FileName = file.OriginalFileName,
-        //        ContentType = file.ContentType
-
-        //    };
-
-        //    return Ok(response);
-        //}
-
         [HttpGet("{id}")]
         public async Task<ActionResult<FileDetailsResponseDto>> GetFileDetailsById(int id)
         {
             var fileDetails = await _fileService.GetFileDetailsByIdAsync(id);
+            if (fileDetails == null)
+            {
+                return NotFound();
+            }
+            return Ok(fileDetails);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateFileByIdAsync(int id, IFormFile file)
+        {
+            var fileDetails = await _fileService.UpdateFileByIdAsync(id, file);
             if (fileDetails == null)
             {
                 return NotFound();

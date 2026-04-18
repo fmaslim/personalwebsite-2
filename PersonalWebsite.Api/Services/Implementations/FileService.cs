@@ -153,6 +153,104 @@ namespace PersonalWebsite.Api.Services.Implementations
             return await item;
         }
 
+        public async Task<ServiceResult<FileDetailsResponseDto>> UpdateFileByIdAsync(int id, IFormFile newFile)
+        {
+            // 1. find existing record by id
+            var file = await _context.FileRecords
+                .FirstOrDefaultAsync(f => f.Id == id);
+
+            if (file == null)
+            {
+                // 2. return 404 if not found
+                return new ServiceResult<FileDetailsResponseDto>
+                {
+                    Success = false,
+                    Message = "File record not found.",
+                    StatusCode = 404
+                };
+            }
+            // 3. validate new file (size, type)
+            if (newFile == null || newFile.Length == 0)
+            {
+                return new ServiceResult<FileDetailsResponseDto>
+                {
+                    Success = false,
+                    Message = "No file uploaded.",
+                    StatusCode = 400
+                };
+            }
+            var maxFileSize = 1 * 1024 * 1024; // 1 MB
+            if (newFile.Length > maxFileSize) // Limit file size to 1 MB
+            {
+                return new ServiceResult<FileDetailsResponseDto>
+                {
+                    Success = false,
+                    Message = $"File size exceeds the limit of {maxFileSize / (1024 * 1024)} MB",
+                    StatusCode = 400
+                };
+            }
+            // 4. validate file type
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".pdf", ".docx" };
+            var fileExtension = Path.GetExtension(newFile.FileName).ToLowerInvariant();
+            if (!allowedExtensions.Contains(fileExtension))
+            {
+                return new ServiceResult<FileDetailsResponseDto>
+                {
+                    Success = false,
+                    Message = "Unsupported file type. Only .jpg, .jpeg, .png, .pdf, .docx files are allowed.",
+                    StatusCode = 400
+                };
+            }
+            // 5. generate unique file name and save new file to disk
+            var uniqueFileName = $"{Path.GetFileNameWithoutExtension(newFile.FileName)}_{Guid.NewGuid()}{fileExtension}";
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+            var newFilePath = Path.Combine(uploadsFolder, uniqueFileName);
+            using (var stream = new FileStream(newFilePath, FileMode.Create))
+            {
+                await newFile.CopyToAsync(stream);
+            }
+            // 6. delete old file from disk
+            if (System.IO.File.Exists(file.FilePath))
+            {
+                System.IO.File.Delete(file.FilePath);
+                // _context.FileRecords.Remove(file);
+            }
+            // 7. update db record with new file info
+            // FileRecord fileRecord = new FileRecord();
+            file.OriginalFileName = newFile.FileName;
+            file.StoredFileName = uniqueFileName;
+            file.FilePath = newFilePath;
+            file.ContentType = newFile.ContentType;
+            file.Size = newFile.Length;
+            file.UploadedAt = DateTime.UtcNow;
+
+            // _context.FileRecords.Update(file);
+            await _context.SaveChangesAsync();
+
+            // 8. return updated file details
+            var response = new FileDetailsResponseDto
+            {
+                Id = file.Id,
+                OriginalFileName = file.OriginalFileName,
+                StoredFileName = file.StoredFileName,
+                FilePath = file.FilePath,
+                ContentType = file.ContentType,
+                FileSize = file.Size,
+                UploadedAt = file.UploadedAt
+            };
+            return new ServiceResult<FileDetailsResponseDto>
+            {
+                Success = true,
+                Message = "File updated successfully.",
+                Data = response,
+                StatusCode = 200
+            };
+        }
+
         public async Task<ServiceResult<FileUploadResponseDto>> UploadFileAsync(IFormFile file)
         {
             if (file == null || file.Length == 0)

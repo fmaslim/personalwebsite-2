@@ -12,5 +12,6 @@ namespace PersonalWebsite.Api.Services.Abstractions
         Task<List<FileListItemDto>> GetAllFilesAsync();
         Task<FileRecord?> GetFileByIdAsync(int id);
         Task<FileDetailsResponseDto?> GetFileDetailsByIdAsync(int id);
+        Task<ServiceResult<FileDetailsResponseDto>> UpdateFileByIdAsync(int id, IFormFile newFile);
     }
 }
