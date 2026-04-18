@@ -9,7 +9,7 @@ namespace PersonalWebsite.Api.Services.Abstractions
         Task<ServiceResult<FileDownloadResponseDto>> DownloadFileAsync(string fileName);
         Task<ServiceResult<string>> DeleteFileAsync(string fileName);
         Task<ServiceResult<bool>> DeleteFileByIdAsync(int id);
-        Task<List<FileListItemDto>> GetAllFilesAsync(string? search);
+        Task<List<FileListItemDto>> GetAllFilesAsync(string? search, string? sortBy, string? sortDirection, int pageNumber, int pageSize);
         Task<FileRecord?> GetFileByIdAsync(int id);
         Task<FileDetailsResponseDto?> GetFileDetailsByIdAsync(int id);
         Task<ServiceResult<FileDetailsResponseDto>> UpdateFileByIdAsync(int id, IFormFile newFile);

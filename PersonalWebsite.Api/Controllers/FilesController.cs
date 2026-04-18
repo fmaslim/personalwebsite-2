@@ -51,9 +51,13 @@ namespace PersonalWebsite.Api.Controllers
         }
 
         [HttpGet("all")]
-        public async Task<ActionResult<List<FileListItemDto>>> GetAllFiles([FromQuery] string? search)
+        public async Task<ActionResult<List<FileListItemDto>>> GetAllFiles([FromQuery] string? search,
+            [FromQuery] string? sortBy,
+            [FromQuery] string? sortDirection,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
         {
-            var files = await _fileService.GetAllFilesAsync(search);
+            var files = await _fileService.GetAllFilesAsync(search, sortBy, sortDirection, pageNumber, pageSize);
             return Ok(files);
         }
 

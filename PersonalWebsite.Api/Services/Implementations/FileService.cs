@@ -111,7 +111,7 @@ namespace PersonalWebsite.Api.Services.Implementations
             };
         }
 
-        public async Task<List<FileListItemDto>> GetAllFilesAsync(string? search)
+        public async Task<List<FileListItemDto>> GetAllFilesAsync(string? search, string? sortBy, string? sortDirection, int pageNumber, int pageSize)
         {
             var query = _context.FileRecords.AsNoTracking().Select(f => new FileListItemDto
             {
@@ -127,7 +127,29 @@ namespace PersonalWebsite.Api.Services.Implementations
                 ? query
                 : query.Where(f => f.OriginalFileName.Contains(search) || f.StoredFileName.Contains(search));
 
-            query = query.OrderByDescending(f => f.UploadedAt);
+            // normalize sort inputs
+            sortBy = sortBy?.Trim().ToLower();
+            sortDirection = string.IsNullOrEmpty(sortDirection) ? "desc" : sortDirection.ToLower();
+
+            query = (sortBy, sortDirection) switch
+            {
+                ("originalfilename", "asc") => query.OrderBy(f => f.OriginalFileName),
+                ("originalfilename", "desc") => query.OrderByDescending(f => f.OriginalFileName),
+                ("size", "asc") => query.OrderBy(f => f.Size),
+                ("size", "desc") => query.OrderByDescending(f => f.Size),
+                ("contenttype", "asc") => query.OrderBy(f => f.ContentType),
+                ("contenttype", "desc") => query.OrderByDescending(f => f.ContentType),
+                ("uploadedat", "asc") => query.OrderBy(f => f.UploadedAt),
+                ("uploadedat", "desc") => query.OrderByDescending(f => f.UploadedAt),
+                _ => query.OrderByDescending(f => f.UploadedAt)
+            };
+
+            // paging
+            pageNumber = pageNumber < 1 ? 1 : pageNumber;
+            pageSize = pageSize < 1 ? 10 : pageSize;
+            pageSize = pageSize > 100 ? 100 : pageSize;
+            query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+            
             return await query.ToListAsync();
         }
 
