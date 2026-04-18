@@ -248,40 +248,30 @@ namespace PersonalWebsite.Api.Services.Implementations
                 };
             }
 
-            var maxFileSize = 1 * 1024 * 1024; // 1 MB
-            if (file.Length > maxFileSize) // Limit file size to 1 MB
+            var fileSizeValidationResult = ValidateFileSize(file);
+            if (fileSizeValidationResult != null)
             {
                 return new ServiceResult<FileUploadResponseDto>
                 {
                     Success = false,
-                    Message = $"File size exceeds the limit of {maxFileSize / (1024 * 1024)} MB",
-                    StatusCode = 400
+                    Message = fileSizeValidationResult.Message,
+                    StatusCode = fileSizeValidationResult.StatusCode
                 };
             }
 
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".pdf", ".docx" };
-            var fileExtension = Path.GetExtension(file.FileName).ToLower();
-
-            // Thursday, 04/16/2026
-            // added unique identifier to file name to prevent overwriting existing files
-            var uniqueFileName = $"{Path.GetFileNameWithoutExtension(file.FileName)}_{Guid.NewGuid()}{fileExtension}";
-
-            if (!allowedExtensions.Contains(fileExtension))
+            var fileExtensionValidationResult = ValidateFileExtension(file);
+            if (fileExtensionValidationResult != null)
             {
                 return new ServiceResult<FileUploadResponseDto>
                 {
                     Success = false,
-                    Message = "Unsupported file type. Only .jpg, .jpeg, .png, .pdf, .docx files are allowed.",
-                    StatusCode = 400
+                    Message = fileExtensionValidationResult.Message,
+                    StatusCode = fileExtensionValidationResult.StatusCode
                 };
             }
 
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
-            if (!Directory.Exists(uploadsFolder))
-            {
-                Directory.CreateDirectory(uploadsFolder);
-            }
-
+            var uniqueFileName = GenerateUniqueFileName(file);
+            var uploadsFolder = EnsureUploadsFolderExists();
             var filePath = Path.Combine(uploadsFolder, uniqueFileName);
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
@@ -347,14 +337,14 @@ namespace PersonalWebsite.Api.Services.Implementations
 
         private ServiceResult<FileDetailsResponseDto>? ValidateFileExtension(IFormFile file)
         {
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".pdf", ".docx" };
+            var allowedExtensions = new[] { ".jpg", ".jpeg", "", ".pdf", ".docx" };
             var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
             if (!allowedExtensions.Contains(fileExtension))
             {
                 return new ServiceResult<FileDetailsResponseDto>
                 {
                     Success = false,
-                    Message = "Unsupported file type. Only .jpg, .jpeg, .png, .pdf, .docx files are allowed.",
+                    Message = "Unsupported file type. Only .jpg, .jpeg, , .pdf, .docx files are allowed.",
                     StatusCode = 400
                 };
             }

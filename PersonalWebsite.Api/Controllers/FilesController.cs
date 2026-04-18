@@ -20,20 +20,12 @@ namespace PersonalWebsite.Api.Controllers
         {
 
             var response = await _fileService.UploadFileAsync(file);
-            return StatusCode(response.StatusCode, response);
+            if (!response.Success)
+            {
+                return StatusCode(response.StatusCode, response.Message);
+            }
+            return Ok(response.Data);
         }
-
-        //[HttpGet("download/{fileName}")]
-        //public async Task<IActionResult> DownloadFile(string fileName)
-        //{
-        //    var response = await _fileService.DownloadFileAsync(fileName);
-        //    if (!response.Success || response.Data == null)
-        //    {
-        //        return StatusCode(response.StatusCode, response);
-        //    }
-
-        //    return File(response.Data.FileBytes, response.Data.ContentType, response.Data.FileName);
-        //}
 
         [HttpGet("{id}/download")]
         public async Task<IActionResult> DownloadFile(int id)
@@ -50,13 +42,6 @@ namespace PersonalWebsite.Api.Controllers
             var fileBytes = await System.IO.File.ReadAllBytesAsync(response.FilePath);
             return File(fileBytes, response.ContentType, response.OriginalFileName);
         }
-
-        //[HttpDelete("delete/{fileName}")]
-        //public async Task<IActionResult> DeleteFile(string fileName)
-        //{
-        //    var response = await _fileService.DeleteFileAsync(fileName);
-        //    return StatusCode(response.StatusCode, response);
-        //}
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteFileById(int id)
