@@ -46,6 +46,31 @@ namespace PersonalWebsite.Api.Services.Implementations
             });
         }
 
+        public async Task<ServiceResult<bool>> DeleteFileByIdAsync(int id)
+        {
+            var fileRecord = _context.FileRecords.FirstOrDefault(f => f.Id == id);
+            if (fileRecord == null)
+            {
+                return await Task.FromResult(new ServiceResult<bool>
+                {
+                    Success = false,
+                    Message = "File record not found.",
+                    StatusCode = 404,
+                    Data = false
+                });
+            }
+
+            _context.FileRecords.Remove(fileRecord);
+            await _context.SaveChangesAsync();
+            return new ServiceResult<bool>
+            {
+                Success = true,
+                Message = "File record deleted successfully.",
+                StatusCode = 200,
+                Data = true
+            };
+        }
+
         public async Task<ServiceResult<FileDownloadResponseDto>> DownloadFileAsync(string fileName)
         {
             if (string.IsNullOrEmpty(fileName))
@@ -100,6 +125,32 @@ namespace PersonalWebsite.Api.Services.Implementations
 
             query = query.OrderByDescending(f => f.UploadedAt);
             return await query.ToListAsync();
+        }
+
+        public async Task<FileRecord?> GetFileByIdAsync(int id)
+        {
+            return await _context.FileRecords
+                .AsNoTracking()
+                .FirstOrDefaultAsync(f => f.Id == id);
+        }
+
+        public async Task<FileDetailsResponseDto?> GetFileDetailsByIdAsync(int id)
+        {
+            var item = _context.FileRecords
+                .AsNoTracking()
+                .Where(f => f.Id == id)
+                .Select(f => new FileDetailsResponseDto
+                {
+                    Id = f.Id,
+                    OriginalFileName = f.OriginalFileName,
+                    StoredFileName = f.StoredFileName,
+                    FilePath = f.FilePath,
+                    ContentType = f.ContentType,
+                    FileSize = f.Size,
+                    UploadedAt = f.UploadedAt
+                }).FirstOrDefaultAsync();
+
+            return await item;
         }
 
         public async Task<ServiceResult<FileUploadResponseDto>> UploadFileAsync(IFormFile file)
