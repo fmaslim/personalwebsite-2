@@ -111,7 +111,7 @@ namespace PersonalWebsite.Api.Services.Implementations
             };
         }
 
-        public async Task<List<FileListItemDto>> GetAllFilesAsync()
+        public async Task<List<FileListItemDto>> GetAllFilesAsync(string? search)
         {
             var query = _context.FileRecords.AsNoTracking().Select(f => new FileListItemDto
             {
@@ -122,6 +122,10 @@ namespace PersonalWebsite.Api.Services.Implementations
                 ContentType = f.ContentType,
                 UploadedAt = f.UploadedAt
             });
+
+            query = string.IsNullOrWhiteSpace(search)
+                ? query
+                : query.Where(f => f.OriginalFileName.Contains(search) || f.StoredFileName.Contains(search));
 
             query = query.OrderByDescending(f => f.UploadedAt);
             return await query.ToListAsync();
@@ -191,30 +195,41 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return fileExtensionValidationResult;
             }
             // 5. generate unique file name and save new file to disk
-            // var uniqueFileName = $"{Path.GetFileNameWithoutExtension(newFile.FileName)}_{Guid.NewGuid()}{Path.GetExtension(newFile.FileName).ToLowerInvariant()}";
-            var uniqueFileName = GenerateUniqueFileName(newFile);
-            var uploadsFolder = EnsureUploadsFolderExists();
-            var newFilePath = Path.Combine(uploadsFolder, uniqueFileName);
-            using (var stream = new FileStream(newFilePath, FileMode.Create))
+            try
             {
-                await newFile.CopyToAsync(stream);
-            }
-            // 6. delete old file from disk
-            if (!string.IsNullOrEmpty(file.FilePath) && System.IO.File.Exists(file.FilePath))
-            {
-                System.IO.File.Delete(file.FilePath);
-            }
-            // 7. update db record with new file info
-            // FileRecord fileRecord = new FileRecord();
-            file.OriginalFileName = newFile.FileName;
-            file.StoredFileName = uniqueFileName;
-            file.FilePath = newFilePath;
-            file.ContentType = newFile.ContentType;
-            file.Size = newFile.Length;
-            file.UploadedAt = DateTime.UtcNow;
+                var uniqueFileName = GenerateUniqueFileName(newFile);
+                var uploadsFolder = EnsureUploadsFolderExists();
+                var newFilePath = Path.Combine(uploadsFolder, uniqueFileName);
+                using (var stream = new FileStream(newFilePath, FileMode.Create))
+                {
+                    await newFile.CopyToAsync(stream);
+                }
+                // 6. delete old file from disk
+                if (!string.IsNullOrEmpty(file.FilePath) && System.IO.File.Exists(file.FilePath))
+                {
+                    System.IO.File.Delete(file.FilePath);
+                }
+                // 7. update db record with new file info
+                // FileRecord fileRecord = new FileRecord();
+                file.OriginalFileName = newFile.FileName;
+                file.StoredFileName = uniqueFileName;
+                file.FilePath = newFilePath;
+                file.ContentType = newFile.ContentType;
+                file.Size = newFile.Length;
+                file.UploadedAt = DateTime.UtcNow;
 
-            // _context.FileRecords.Update(file);
-            await _context.SaveChangesAsync();
+                // _context.FileRecords.Update(file);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                return new ServiceResult<FileDetailsResponseDto>
+                {
+                    Success = false,
+                    Message = "An error occurred while updating the file.",
+                    StatusCode = 500
+                };
+            }
 
             // 8. return updated file details
             var response = new FileDetailsResponseDto
@@ -273,23 +288,35 @@ namespace PersonalWebsite.Api.Services.Implementations
             var uniqueFileName = GenerateUniqueFileName(file);
             var uploadsFolder = EnsureUploadsFolderExists();
             var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            try
             {
-                await file.CopyToAsync(stream);
-            }
-            // Thursday, 04/17/2026 - Added save metadata to db
-            var fileRecord = new FileRecord
-            {
-                OriginalFileName = file.FileName,
-                StoredFileName = uniqueFileName,
-                FilePath = filePath,
-                ContentType = file.ContentType,
-                Size = file.Length,
-                UploadedAt = DateTime.UtcNow
-            };
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+                // Thursday, 04/17/2026 - Added save metadata to db
+                var fileRecord = new FileRecord
+                {
+                    OriginalFileName = file.FileName,
+                    StoredFileName = uniqueFileName,
+                    FilePath = filePath,
+                    ContentType = file.ContentType,
+                    Size = file.Length,
+                    UploadedAt = DateTime.UtcNow
+                };
 
-            _context.FileRecords.Add(fileRecord);
-            await _context.SaveChangesAsync();
+                _context.FileRecords.Add(fileRecord);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                return new ServiceResult<FileUploadResponseDto>
+                {
+                    Success = false,
+                    Message = "An error occurred while uploading the file.",
+                    StatusCode = 500
+                };
+            }
 
             var response = new FileUploadResponseDto
             {
