@@ -14,6 +14,9 @@ public partial class AdventureWorksContext : DbContext
         : base(options)
     {
     }
+    // Sunday, 04/19/2026 - Added new tables for user roles
+    public DbSet<Role> Roles { get; set; }
+    public DbSet<UserRole> UserRoles { get; set; }
     // Saturday, 04/18/2026 - Added a new table for user information
     public DbSet<User> Users { get; set; } = null!;
     // Thursday, 04/17/2026 - Added a new table for file metadata
@@ -208,6 +211,19 @@ public partial class AdventureWorksContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<UserRole>()
+        .HasKey(ur => new { ur.UserId, ur.RoleId });
+
+        modelBuilder.Entity<UserRole>()
+            .HasOne(ur => ur.User)
+            .WithMany(u => u.UserRoles)
+            .HasForeignKey(ur => ur.UserId);
+
+        modelBuilder.Entity<UserRole>()
+            .HasOne(ur => ur.Role)
+            .WithMany(r => r.UserRoles)
+            .HasForeignKey(ur => ur.RoleId);
+
         modelBuilder.Entity<Address>(entity =>
         {
             entity.HasKey(e => e.AddressId).HasName("PK_Address_AddressID");

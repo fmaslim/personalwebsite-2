@@ -11,5 +11,7 @@
         public string Role { get; set; } = string.Empty;
 
         public bool IsActive { get; set; } = true;
+
+        public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
     }
 }
