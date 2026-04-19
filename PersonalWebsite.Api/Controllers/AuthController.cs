@@ -38,17 +38,12 @@ namespace PersonalWebsite.Api.Controllers
             {
                 return Unauthorized("Invalid username or password");
             }
-            //var claims = new[]
-            //{
-            //    new Claim(ClaimTypes.Name, user.Username),
-            //    new Claim(ClaimTypes.Role, "Admin"),
-            //    new Claim(ClaimTypes.Role, "Manager"),
-            //    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            //};
+            
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
+                //new Claim(ClaimTypes.Role, user.Role),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
             foreach (var userRole in user.UserRoles)
