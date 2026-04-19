@@ -30,14 +30,15 @@ namespace PersonalWebsite.Api.Controllers
             {
                 return Unauthorized("Invalid username or password");
             }
-            if(user.PasswordHash != dto.Password) 
+            if (user.PasswordHash != dto.Password)
             {
                 return Unauthorized("Invalid username or password");
             }
             var claims = new[]
             {
                 new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Role, user.Role),
+                new Claim(ClaimTypes.Role, "Admin"),
+                new Claim(ClaimTypes.Role, "Manager"),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
@@ -82,6 +83,13 @@ namespace PersonalWebsite.Api.Controllers
         public IActionResult AdminOnly()
         {
             return Ok("You are an admin.");
+        }
+
+        [Authorize(Roles = "Manager")]
+        [HttpGet("manager")]
+        public IActionResult Manager()
+        {
+            return Ok("You are a manager.");
         }
     }
 }
