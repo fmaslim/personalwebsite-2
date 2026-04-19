@@ -137,25 +137,42 @@ namespace PersonalWebsite.Api.Controllers
         {
             var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
-            if(string.IsNullOrEmpty(userIdClaim))
+            if (string.IsNullOrEmpty(userIdClaim))
             {
                 return Unauthorized("User id claim is missing.");
             }
-            if(!int.TryParse(userIdClaim, out int userId))
+            if (!int.TryParse(userIdClaim, out int userId))
             {
                 return Unauthorized("Invalid user id claim.");
             }
             var order = _orders.FirstOrDefault(o => o.Id == id);
-            if(order == null)
+            if (order == null)
             {
                 return NotFound("Order not found.");
             }
-            if(order.UserId != userId) // ownership check - only the user who owns the order can access it
+            if (order.UserId != userId) // ownership check - only the user who owns the order can access it
             {
                 // return Forbid("You are not authorized to access this order.");
                 return Forbid();
             }
             return Ok(order);
+        }
+
+        [Authorize]
+        [HttpGet("my-orders")]
+        public IActionResult GetMyOrders()
+        {
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim))
+            {
+                return Unauthorized("User id claim is missing.");
+            }
+            if (!int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized("Invalid user id claim.");
+            }
+            var orders = _orders.Where(o => o.UserId == userId).ToList();
+            return Ok(orders);
         }
     }
 }
