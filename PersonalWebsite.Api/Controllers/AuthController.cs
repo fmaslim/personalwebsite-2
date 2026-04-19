@@ -174,5 +174,31 @@ namespace PersonalWebsite.Api.Controllers
             var orders = _orders.Where(o => o.UserId == userId).ToList();
             return Ok(orders);
         }
+
+        [Authorize]
+        [HttpPost("orders")]
+        public IActionResult CreateOrder(CreateOrderRequestDto dto)
+        {
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if(string.IsNullOrEmpty(userIdClaim))
+            {
+                return Unauthorized("User id claim is missing.");
+            }
+            if(!int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized("Invalid user id claim.");
+            }
+            var newOrder = new Order
+            {
+                Id = _orders.Max(o => o.Id) + 1,
+                UserId = userId,
+                ProductName = dto.ProductName,
+                TotalAmount = dto.TotalAmount
+            };
+            _orders.Add(newOrder);
+            return Ok(newOrder);
+        }
     }
+
+    
 }
