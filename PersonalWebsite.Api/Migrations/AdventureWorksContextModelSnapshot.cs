@@ -1030,7 +1030,7 @@ namespace PersonalWebsite.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EmployeeMock");
+                    b.ToTable("EmployeeMock", (string)null);
                 });
 
             modelBuilder.Entity("PersonalWebsite.Api.Models.EmployeePayHistory", b =>
@@ -1139,7 +1139,7 @@ namespace PersonalWebsite.Api.Migrations
                         .HasColumnType("nvarchar(50)")
                         .HasColumnName("ID");
 
-                    b.ToTable("Files");
+                    b.ToTable("Files", (string)null);
                 });
 
             modelBuilder.Entity("PersonalWebsite.Api.Models.FileRecord", b =>
@@ -1174,7 +1174,7 @@ namespace PersonalWebsite.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("FileRecords");
+                    b.ToTable("FileRecords", (string)null);
                 });
 
             modelBuilder.Entity("PersonalWebsite.Api.Models.Illustration", b =>
@@ -1309,7 +1309,7 @@ namespace PersonalWebsite.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("NewEmployee");
+                    b.ToTable("NewEmployee", (string)null);
                 });
 
             modelBuilder.Entity("PersonalWebsite.Api.Models.Password", b =>

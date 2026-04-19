@@ -14,6 +14,8 @@ public partial class AdventureWorksContext : DbContext
         : base(options)
     {
     }
+    // Saturday, 04/18/2026 - Added a new table for user information
+    public DbSet<User> Users { get; set; } = null!;
     // Thursday, 04/17/2026 - Added a new table for file metadata
     public DbSet<FileRecord> FileRecords { get; set; }
 
