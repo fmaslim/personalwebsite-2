@@ -120,5 +120,12 @@ namespace PersonalWebsite.Api.Controllers
                 IsManager = User.IsInRole("Manager")
             });
         }
+
+        [Authorize(Roles = "Admin,Manager")]
+        [HttpGet("manage-content")]
+        public IActionResult ManageContent()
+        {
+            return Ok("You are either an admin or manager. You canb manage content.");
+        }
     }
 }
