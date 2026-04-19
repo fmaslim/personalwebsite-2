@@ -15,6 +15,14 @@ namespace PersonalWebsite.Api.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
+        // Sunday, 04/16/2026 - hardoded fake orders for training purposes. In a real application, you would query the database for the user's orders.
+        private static readonly List<Order> _orders = new()
+        {
+            new Order { Id = 1, UserId = 1, ProductName = "Laptop", TotalAmount = 1200 },
+            new Order { Id = 2, UserId = 2, ProductName = "Phone", TotalAmount = 800 },
+            new Order { Id = 3, UserId = 1, ProductName = "Keyboard", TotalAmount = 100 }
+        };
+
         private readonly AdventureWorksContext _context;
         private readonly IConfiguration _configuration;
         public AuthController(AdventureWorksContext context, IConfiguration configuration)
@@ -38,7 +46,7 @@ namespace PersonalWebsite.Api.Controllers
             {
                 return Unauthorized("Invalid username or password");
             }
-            
+
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -121,6 +129,33 @@ namespace PersonalWebsite.Api.Controllers
         public IActionResult ManageContent()
         {
             return Ok("You are either an admin or manager. You canb manage content.");
+        }
+
+        [Authorize]
+        [HttpGet("{id}")]
+        public IActionResult GetOrderById(int id)
+        {
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            if(string.IsNullOrEmpty(userIdClaim))
+            {
+                return Unauthorized("User id claim is missing.");
+            }
+            if(!int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized("Invalid user id claim.");
+            }
+            var order = _orders.FirstOrDefault(o => o.Id == id);
+            if(order == null)
+            {
+                return NotFound("Order not found.");
+            }
+            if(order.UserId != userId) // ownership check - only the user who owns the order can access it
+            {
+                // return Forbid("You are not authorized to access this order.");
+                return Forbid();
+            }
+            return Ok(order);
         }
     }
 }
