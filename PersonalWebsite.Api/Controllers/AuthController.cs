@@ -65,5 +65,23 @@ namespace PersonalWebsite.Api.Controllers
         {
             return Ok("This is a secret endpoint!");
         }
+
+        // This endpoint reads the claims from the JWT token and returns the username and role of the authenticated user
+        [Authorize]
+        [HttpGet("claims")]
+        public IActionResult Me()
+        {
+            var username = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+            var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            var jti = User.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti)?.Value;
+            return Ok(new { Username = username, Role = role, Jti = jti });
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("admin")]
+        public IActionResult AdminOnly()
+        {
+            return Ok("You are an admin.");
+        }
     }
 }
