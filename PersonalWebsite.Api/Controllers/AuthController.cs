@@ -235,7 +235,7 @@ namespace PersonalWebsite.Api.Controllers
 
         [Authorize]
         [HttpPut("orders/{id}")]
-        public IActionResult UpdateOrderByIdAsync(UpdateOrderRequestDto dto, int id)
+        public IActionResult UpdateOrderById(UpdateOrderRequestDto dto, int id)
         {
             var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdClaim))
@@ -258,6 +258,40 @@ namespace PersonalWebsite.Api.Controllers
             }
             order.ProductName = dto.ProductName;
             order.TotalAmount = dto.TotalAmount;
+            return Ok(order);
+        }
+
+        [Authorize]
+        [HttpPatch("orders/{id}")]
+        public IActionResult PatchOrderById(PatchOrderRequestDto dto, int id)
+        {
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim))
+            { 
+                return Unauthorized("User id claim is missing.");
+            }
+            if (!int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized("Invalid user id claim.");
+            }
+            var order = _orders.FirstOrDefault(o => o.Id == id);
+            if (order == null)
+            {
+                return NotFound("Order not found.");
+            }
+            if (order.UserId != userId) // ownership check - only the user who owns the order can access it
+            {
+                // return Forbid("You are not authorized to access this order.");
+                return Forbid();
+            }
+            if (!string.IsNullOrEmpty(dto.ProductName))
+            {
+                order.ProductName = dto.ProductName;
+            }
+            if (dto.TotalAmount.HasValue)
+            {
+                order.TotalAmount = dto.TotalAmount.Value;
+            }
             return Ok(order);
         }
     }
