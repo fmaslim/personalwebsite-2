@@ -82,6 +82,10 @@ builder.Services.AddAuthorization(options =>
         policy.RequireRole("State-User"));
     options.AddPolicy("Auditor", policy =>
         policy.RequireRole("State-Admin", "Auditor"));
+
+    options.AddPolicy("MixedPolicy", policy =>
+        policy.RequireRole("Auditor")
+              .RequireClaim("Department", "IT"));
 });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
