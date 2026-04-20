@@ -124,7 +124,7 @@ namespace PersonalWebsite.Api.Controllers
             });
         }
 
-        [Authorize(Roles = "Admin,Manager")]
+        [Authorize(Policy = "CanManageContent")]
         [HttpGet("manage-content")]
         public IActionResult ManageContent()
         {

@@ -70,6 +70,12 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<IFileService, FileService>();
 
+// Monday, 04/20/2026 - Added policy-based authz
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("CanManageContent", policy => policy.RequireRole("Admin", "Manager"));    
+});
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
