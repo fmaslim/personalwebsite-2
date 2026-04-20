@@ -325,5 +325,12 @@ namespace PersonalWebsite.Api.Controllers
         {
             return Ok("You are a state user.");
         }
+
+        [Authorize(Policy = "Auditor")]
+        [HttpGet("auditor")]
+        public IActionResult Auditor()
+        {
+            return Ok("You are either a state admin or an auditor.");
+        }
     }
 }
