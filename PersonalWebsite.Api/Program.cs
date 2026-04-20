@@ -75,6 +75,11 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("CanManageContent", policy => policy.RequireRole("Admin", "Manager")); 
     options.AddPolicy("CanAccessInternalTools", policy => policy.RequireClaim("Department", "IT"));
+    
+    options.AddPolicy("CanStateAdminOnly", policy =>
+        policy.RequireRole("State-Admin"));
+    options.AddPolicy("CanStateUserOnly", policy =>
+        policy.RequireRole("State-User"));
 });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

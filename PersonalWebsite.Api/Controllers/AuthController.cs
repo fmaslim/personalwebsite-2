@@ -311,5 +311,19 @@ namespace PersonalWebsite.Api.Controllers
         {
             return Ok("You have access to internal tools because you have the Department claim with value IT.");
         }
+
+        [Authorize(Policy = "CanStateAdminOnly")]
+        [HttpGet("state-admin-only")]
+        public IActionResult StateAdminOnly()
+        {
+            return Ok("You are a state admin.");
+        }
+
+        [Authorize(Policy = "CanStateUserOnly")]
+        [HttpGet("state-user-only")]
+        public IActionResult StateUserOnly()
+        {
+            return Ok("You are a state user.");
+        }
     }
 }
