@@ -180,11 +180,11 @@ namespace PersonalWebsite.Api.Controllers
         public IActionResult CreateOrder(CreateOrderRequestDto dto)
         {
             var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-            if(string.IsNullOrEmpty(userIdClaim))
+            if (string.IsNullOrEmpty(userIdClaim))
             {
                 return Unauthorized("User id claim is missing.");
             }
-            if(!int.TryParse(userIdClaim, out int userId))
+            if (!int.TryParse(userIdClaim, out int userId))
             {
                 return Unauthorized("Invalid user id claim.");
             }
@@ -198,7 +198,39 @@ namespace PersonalWebsite.Api.Controllers
             _orders.Add(newOrder);
             return Ok(newOrder);
         }
-    }
 
-    
+        [Authorize]
+        [HttpDelete("orders/{id}")]
+        public IActionResult DeleteOrder(int id)
+        {
+            // same claim reading
+            // find order
+            // if null -> NotFound
+            // if not owner -> Forbid
+            // remove from _orders
+            // return NoContent()
+
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim))
+            {
+                return Unauthorized("User id claim is missing.");
+            }
+            if (!int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized("Invalid user id claim.");
+            }
+            var order = _orders.FirstOrDefault(o => o.Id == id);
+            if (order == null)
+            {
+                return NotFound("Order not found.");
+            }
+            if (order.UserId != userId) // ownership check - only the user who owns the order can access it
+            {
+                // return Forbid("You are not authorized to access this order.");
+                return Forbid();
+            }
+            _orders.Remove(order);
+            return NoContent();
+        }
+    }
 }
