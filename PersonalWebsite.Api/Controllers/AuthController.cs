@@ -52,8 +52,18 @@ namespace PersonalWebsite.Api.Controllers
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
                 //new Claim(ClaimTypes.Role, user.Role),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                // new Claim("Department", "IT")
             };
+            // Monday, 04/20/2026 - Added a role here for logged in user
+            if (user.Username == "franky")
+            {
+                claims.Add(new Claim("Department", "IT"));
+            }
+            else if (user.Username == "alice")
+            {
+                claims.Add(new Claim("Department", "Sales"));
+            }
             foreach (var userRole in user.UserRoles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, userRole.Role.Name));
@@ -267,7 +277,7 @@ namespace PersonalWebsite.Api.Controllers
         {
             var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdClaim))
-            { 
+            {
                 return Unauthorized("User id claim is missing.");
             }
             if (!int.TryParse(userIdClaim, out int userId))
@@ -293,6 +303,13 @@ namespace PersonalWebsite.Api.Controllers
                 order.TotalAmount = dto.TotalAmount.Value;
             }
             return Ok(order);
+        }
+
+        [Authorize(Policy = "CanAccessInternalTools")]
+        [HttpGet("internal-tools")]
+        public IActionResult InternalTools()
+        {
+            return Ok("You have access to internal tools because you have the Department claim with value IT.");
         }
     }
 }

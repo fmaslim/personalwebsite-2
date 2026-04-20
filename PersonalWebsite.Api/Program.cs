@@ -73,7 +73,8 @@ builder.Services.AddScoped<IFileService, FileService>();
 // Monday, 04/20/2026 - Added policy-based authz
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("CanManageContent", policy => policy.RequireRole("Admin", "Manager"));    
+    options.AddPolicy("CanManageContent", policy => policy.RequireRole("Admin", "Manager")); 
+    options.AddPolicy("CanAccessInternalTools", policy => policy.RequireClaim("Department", "IT"));
 });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
