@@ -10,10 +10,15 @@ namespace PersonalWebsite.Api.Controllers
         [HttpPost("login")]
         public IActionResult Login(LoginRequestDto dto)
         {
-            dto.Username = dto.Username.ToLower() + " this is from request dto"; // Normalize username to lowercase
-            dto.Password = dto.Password.ToLower() + " this is from request dto"; // Normalize password to lowercase
+            var response = new LoginResponseV2Dto
+            {
+                Username = dto.Username,
+                Message = "Login successful",
+                Version = "v2",
+                ExpiresIn = 3600
+            };
             // Implement your login logic here
-            return Ok(dto);
+            return Ok(response);
         }
     }
 }
