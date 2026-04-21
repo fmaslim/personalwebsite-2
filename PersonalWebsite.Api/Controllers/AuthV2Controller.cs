@@ -1,6 +1,7 @@
 ﻿using Azure.Core;
 using Microsoft.AspNetCore.Mvc;
 using PersonalWebsite.Api.DTOs;
+using PersonalWebsite.Api.Services.Abstractions;
 
 namespace PersonalWebsite.Api.Controllers
 {
@@ -8,33 +9,37 @@ namespace PersonalWebsite.Api.Controllers
     [Route("api/v2/auth")]
     public class AuthV2Controller : ControllerBase
     {
+        private readonly IAuthService _authService;
+        public AuthV2Controller(IAuthService authService)
+        {
+            _authService = authService;
+        }
         [HttpPost("login")]
         [ProducesResponseType(typeof(LoginResponseV2Dto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(LoginErrorResponseV2Dto), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(LoginErrorResponseV2Dto), StatusCodes.Status401Unauthorized)]
-        public ActionResult<LoginResponseV2Dto> Login(LoginRequestDto dto)
+        public async Task<ActionResult<LoginResponseV2Dto>> Login(LoginRequestDto dto)
         {
-            // Tuesday, 04/21/2026 - added business/validation logic
-            if (string.IsNullOrWhiteSpace(dto.Username) || string.IsNullOrWhiteSpace(dto.Password))
+            // Tuesday, 04/21/2026 - refactored to service layer
+            var result = await _authService.LoginV2Async(dto);
+            if (result.StatusCode == 400)
             {
-                return BadRequest(new LoginErrorResponseV2Dto { Message = "Username and password are required." });
+                var errorResponse = new LoginErrorResponseV2Dto
+                {
+                    Message = result.Message
+                };
+                return BadRequest(errorResponse);
             }
-            if (dto.Username != "franky" || dto.Password != "123")
+            if (result.StatusCode == 401)
             {
-                return Unauthorized(new LoginErrorResponseV2Dto { Message = "Invalid username or password." });
+                var errorResponse = new LoginErrorResponseV2Dto
+                {
+                    Message = result.Message
+                };
+                return Unauthorized(errorResponse);
             }
-
-            var response = new LoginResponseV2Dto
-            {
-                Username = dto.Username,
-                Message = "Login successful from v2",
-                Version = "v2",
-                ExpiresIn = 3600,
-                Token = "fake-jwt-token-v2",
-                RefreshToken = "fake-refresh-token-v2"
-            };
             // Implement your login logic here
-            return Ok(response);
+            return Ok(result.Data);
         }
 
         //[HttpPost("login")]
