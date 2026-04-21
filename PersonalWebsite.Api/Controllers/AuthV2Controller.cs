@@ -11,6 +11,16 @@ namespace PersonalWebsite.Api.Controllers
         [HttpPost("login")]
         public ActionResult<LoginResponseV2Dto> Login(LoginRequestDto dto)
         {
+            // Tuesday, 04/21/2026 - added business/validation logic
+            if (string.IsNullOrWhiteSpace(dto.Username) || string.IsNullOrWhiteSpace(dto.Password))
+            {
+                return BadRequest(new { Message = "Username and password are required." });
+            }
+            if (dto.Username != "franky" || dto.Password != "123")
+            {
+                return Unauthorized(new { Message = "Invalid username or password." });
+            }
+
             var response = new LoginResponseV2Dto
             {
                 Username = dto.Username,
