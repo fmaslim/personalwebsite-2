@@ -48,5 +48,51 @@ namespace PersonalWebsite.Api.Services.Implementations
                 Data = response
             });
         }
+
+        public async Task<LoginV3ResultDto> LoginV3Async(LoginRequestV3Dto dto)
+        {
+            // if missing username or password, return 400 Bad Request
+            if (string.IsNullOrWhiteSpace(dto.Username) || string.IsNullOrWhiteSpace(dto.Password))
+            {                 
+                return new LoginV3ResultDto
+                {
+                    Success = false,
+                    StatusCode = 400,
+                    Message = "Username and password are required.",
+                    Data = null
+                };
+            }
+
+            // if invalid username or password, return 401 Unauthorized
+            if (dto.Username != "franky" || dto.Password != "123")
+            {
+                return new LoginV3ResultDto
+                {
+                    Success = false,
+                    StatusCode = 401,
+                    Message = "Invalid username or password.",
+                    Data = null
+                };
+            }
+
+            // if valid, return 200 OK with user info and token
+            var response = new LoginResponseV3Dto
+            {
+                Username = dto.Username,
+                Message = "Login successful from v3",
+                Version = "v3",
+                ExpiresIn = 3600,
+                Token = "fake-jwt-token-v3",
+                TokenType = "Bearer",
+                RefreshToken = "fake-refresh-token-v3"
+            };
+            return new LoginV3ResultDto
+            {
+                Success = true,
+                StatusCode = 200,
+                Message = "Login successful",
+                Data = response
+            };
+        }
     }
 }

@@ -40,6 +40,7 @@ builder.Services.AddSwaggerGen(options =>
         {
             "AuthV1" => new[] { "Auth v1" },
             "AuthV2" => new[] { "Auth v2" },
+            "AuthV3" => new[] { "Auth v3" },
             _ => new[] { controllerName! }
         };
     });
