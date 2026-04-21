@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore;
 namespace PersonalWebsite.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class AuthController : ControllerBase
+    [Route("api/v1/auth")]
+    public class AuthV1Controller : ControllerBase
     {
         // Sunday, 04/16/2026 - hardoded fake orders for training purposes. In a real application, you would query the database for the user's orders.
         private static readonly List<Order> _orders = new()
@@ -25,7 +25,7 @@ namespace PersonalWebsite.Api.Controllers
 
         private readonly AdventureWorksContext _context;
         private readonly IConfiguration _configuration;
-        public AuthController(AdventureWorksContext context, IConfiguration configuration)
+        public AuthV1Controller(AdventureWorksContext context, IConfiguration configuration)
         {
             _context = context;
             _configuration = configuration;

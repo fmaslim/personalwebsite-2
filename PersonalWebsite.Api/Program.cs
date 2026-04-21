@@ -28,8 +28,20 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "PersonalWebsite API",
+        Title = "PersonalWebsite API", 
         Version = "v1"
+    });
+
+    options.TagActionsBy(api =>
+    {
+        var controllerName = api.ActionDescriptor.RouteValues["controller"];
+
+        return controllerName switch
+        {
+            "AuthV1" => new[] { "Auth v1" },
+            "AuthV2" => new[] { "Auth v2" },
+            _ => new[] { controllerName! }
+        };
     });
 
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
