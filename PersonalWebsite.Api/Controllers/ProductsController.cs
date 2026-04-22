@@ -85,7 +85,7 @@ namespace PersonalWebsite.Api.Controllers
             return Ok(result.Data);
         }
 
-        [HttpPost("v2/createProduct")]
+        [HttpPost("v2")]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(CreateProductResponseV2Dto))]
         public async Task<ActionResult<CreateProductResponseV2Dto>> CreateProductV2Async(CreateProductRequestV2Dto request)
         {
@@ -96,6 +96,25 @@ namespace PersonalWebsite.Api.Controllers
             }
             // return CreatedAtAction(nameof(GetProductByIdV2Async), new { id = result.Data!.ProductId }, result.Data);
             return StatusCode(StatusCodes.Status201Created, result.Data);
+        }
+
+        [HttpPut("v2")]
+        [ProducesResponseType(typeof(UpdateProductResponseV2Dto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(UpdateProductErrorResponseV2Dto), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(UpdateProductErrorResponseV2Dto), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<UpdateProductResponseV2Dto>> UpdateProductV2Async(UpdateProductRequestV2Dto request)
+        {
+            var result = await _productServiceV2.UpdateProductV2Async(request);
+            if (result.StatusCode == StatusCodes.Status404NotFound)
+            {
+                return NotFound(new UpdateProductErrorResponseV2Dto { Message = result.Message });
+            }
+            if (result.StatusCode == StatusCodes.Status400BadRequest)
+            {
+                return BadRequest(new UpdateProductErrorResponseV2Dto { Message = result.Message });
+            }
+
+            return Ok(result.Data);
         }
     }
 }

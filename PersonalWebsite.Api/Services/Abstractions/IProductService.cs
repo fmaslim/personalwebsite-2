@@ -22,5 +22,6 @@ namespace PersonalWebsite.Api.Services.Abstractions
             int pageSize = 10,
             string? sortBy = null,
             string? sortDir = null);
+        Task<UpdateProductResultV2Dto> UpdateProductV2Async(UpdateProductRequestV2Dto request);
     }
 }

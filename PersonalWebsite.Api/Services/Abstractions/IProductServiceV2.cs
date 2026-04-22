@@ -6,5 +6,6 @@ namespace PersonalWebsite.Api.Services.Abstractions
     {
         Task<GetProductByIdResultDto> GetProductByIdV2Async(int id);
         Task<CreateProductResultV2Dto> CreateProductV2Async(CreateProductRequestV2Dto request);
+        Task<UpdateProductResultV2Dto> UpdateProductV2Async(UpdateProductRequestV2Dto request);
     }
 }

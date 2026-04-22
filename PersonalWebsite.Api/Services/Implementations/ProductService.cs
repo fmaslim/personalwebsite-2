@@ -201,6 +201,68 @@ return NotFound() if no product exists
             return await products;
         }
 
+        public async Task<UpdateProductResultV2Dto> UpdateProductV2Async(UpdateProductRequestV2Dto request)
+        {
+            var product = _context.Products.FirstOrDefault(p => p.ProductId == request.ProductId);
+            if (product == null)
+            {
+                return new UpdateProductResultV2Dto
+                {
+                    Success = false,
+                    StatusCode = 404,
+                    Message = $"Product with id {request.ProductId} not found"
+                };
+            }
+            if (string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.ProductNumber))
+            {
+                return new UpdateProductResultV2Dto
+                {
+                    Success = false,
+                    StatusCode = 400,
+                    Message = "Name and ProductNumber are required"
+                };
+            }
+            if (request.ListPrice == null)
+            {
+                return new UpdateProductResultV2Dto
+                {
+                    Success = false,
+                    StatusCode = 400,
+                    Message = "ListPrice is required"
+                };
+            }
+
+            if (request.ListPrice.Value < 0)
+            {
+                return new UpdateProductResultV2Dto
+                {
+                    Success = false,
+                    StatusCode = 400,
+                    Message = "ListPrice cannot be negative"
+                };
+            }
+
+            product.Name = request.Name;
+            product.ProductNumber = request.ProductNumber;
+            product.ListPrice = request.ListPrice.Value;
+
+            await _context.SaveChangesAsync();
+
+            return new UpdateProductResultV2Dto
+            {
+                Success = true,
+                StatusCode = 200,
+                Message = "Product updated successfully",
+                Data = new UpdateProductResponseV2Dto
+                {
+                    ProductId = product.ProductId,
+                    Name = product.Name,
+                    ProductNumber = product.ProductNumber,
+                    ListPrice = product.ListPrice
+                }
+            };
+        }
+
         //public async Task<IEnumerable<ProductSearchDto>> SearchProductsAsync(string? name, int page, int pageSize, string? sortBy, string? sortDir)
         //{
         //    var query = _context.Products.AsNoTracking();
