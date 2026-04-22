@@ -206,8 +206,8 @@ public partial class AdventureWorksContext : DbContext
 
     public virtual DbSet<WorkOrderRouting> WorkOrderRoutings { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Name=ConnectionStrings:AdventureWorks");
+    //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    //    => optionsBuilder.UseSqlServer("Name=ConnectionStrings:AdventureWorks");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

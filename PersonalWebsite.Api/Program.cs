@@ -119,7 +119,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthorization();
+//builder.Services.AddAuthorization();
 
 builder.Services.AddCors(options =>
 {
@@ -131,7 +131,9 @@ builder.Services.AddCors(options =>
     });
 });
 
+//Console.WriteLine("Before build");
 var app = builder.Build();
+//Console.WriteLine("After build");
 app.UseSerilogRequestLogging();
 
 // Configure the HTTP request pipeline.
@@ -149,4 +151,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
+app.MapGet("/health", () => Results.Ok(new
+{
+    status = "Healthy",
+    timestamp = DateTime.UtcNow
+}));
+
 app.Run();
+//app.Run("http://localhost:5065");
