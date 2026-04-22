@@ -12,9 +12,11 @@ namespace PersonalWebsite.Api.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly IProductService _prodService;
-        public ProductsController(IProductService productService)
+        private readonly IProductServiceV2 _productServiceV2;
+        public ProductsController(IProductService productService, IProductServiceV2 productServiceV2)
         {
             _prodService = productService;
+            _productServiceV2 = productServiceV2;
         }
 
         [HttpGet]
@@ -66,6 +68,21 @@ namespace PersonalWebsite.Api.Controllers
         {
             var result = await _prodService.SearchProductsAsync(name, category, page, pageSize, sortBy, sortDir);
             return Ok(result);
+        }
+
+        [HttpGet("v2/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductDetailsDto))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ProductDetailsDto>> GetProductByIdV2Async(int id)
+        {
+            var result = await _productServiceV2.GetProductByIdV2Async(id);
+
+            if (!result.Success)
+            {
+                return NotFound(new ProductErrorResponseDto { Message = result.Message });
+            }
+
+            return Ok(result.Data);
         }
     }
 }
