@@ -28,7 +28,7 @@ namespace PersonalWebsite.Api.Controllers
             var result = await _orderServiceV2.CreateOrderAsync(dto);
             if (!result.Success)
             {
-                return StatusCode(result.StatusCode, result.Message);
+                return StatusCode(result.StatusCode, result.Errors);
             }
             return Ok(result.Data);
         }

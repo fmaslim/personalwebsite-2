@@ -31,7 +31,15 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<CreateOrderResponseV2Dto>
                 {
                     Success = false,
-                    Message = "Order must contain at least one item.",
+                    Errors = new List<ServiceError> 
+                    { 
+                        new ServiceError 
+                        { 
+                            Field = "Items", 
+                            Message = "Order must contain at least one item.",
+                            Code = "EmptyItems"
+                        } 
+                    },
                     StatusCode = 400
                 };
             }
@@ -44,7 +52,15 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<CreateOrderResponseV2Dto>
                 {
                     Success = false,
-                    Message = "Duplicate product IDs are not allowed in the same order.",
+                    Errors = new List<ServiceError> 
+                    { 
+                        new ServiceError 
+                        { 
+                            Field = "Items", 
+                            Message = "Duplicate product IDs are not allowed in the same order.",
+                            Code = "DuplicateProducts"
+                        } 
+                    },
                     StatusCode = 400
                 };
             }
@@ -57,7 +73,15 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<CreateOrderResponseV2Dto>
                 {
                     Success = false,
-                    Message = $"Customer with ID {dto.CustomerId} does not exist.",
+                    Errors = new List<ServiceError> 
+                    { 
+                        new ServiceError 
+                        { 
+                            Field = "CustomerId", 
+                            Message = $"Customer with ID {dto.CustomerId} does not exist.",
+                            Code = "CustomerNotFound"
+                        } 
+                    },
                     StatusCode = 400
                 };
             }
@@ -70,7 +94,15 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<CreateOrderResponseV2Dto>
                 {
                     Success = false,
-                    Message = $"Employee with ID {dto.EmployeeId} does not exist.",
+                    Errors = new List<ServiceError> 
+                    { 
+                        new ServiceError 
+                        { 
+                            Field = "EmployeeId", 
+                            Message = $"Employee with ID {dto.EmployeeId} does not exist.",
+                            Code = "EmployeeNotFound"
+                        } 
+                    },
                     StatusCode = 400
                 };
             }
@@ -86,7 +118,15 @@ namespace PersonalWebsite.Api.Services.Implementations
                     return new ServiceResult<CreateOrderResponseV2Dto>
                     {
                         Success = false,
-                        Message = "Quantity must be greater than zero.",
+                        Errors = new List<ServiceError> 
+                        { 
+                            new ServiceError 
+                            { 
+                                Field = "Quantity", 
+                                Message = "Quantity must be greater than zero.",
+                                Code = "InvalidQuantity"
+                            } 
+                        },
                         StatusCode = 400
                     };
                 }
@@ -97,7 +137,15 @@ namespace PersonalWebsite.Api.Services.Implementations
                     return new ServiceResult<CreateOrderResponseV2Dto>
                     {
                         Success = false,
-                        Message = $"Product with ID {item.ProductId} does not exist.",
+                        Errors = new List<ServiceError> 
+                        { 
+                            new ServiceError 
+                            { 
+                                Field = "ProductId", 
+                                Message = $"Product with ID {item.ProductId} does not exist.",
+                                Code = "ProductNotFound"
+                            } 
+                        },
                         StatusCode = 400
                     };
                 }

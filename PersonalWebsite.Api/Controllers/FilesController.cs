@@ -22,7 +22,7 @@ namespace PersonalWebsite.Api.Controllers
             var response = await _fileService.UploadFileAsync(file);
             if (!response.Success)
             {
-                return StatusCode(response.StatusCode, response.Message);
+                return StatusCode(response.StatusCode, response.Errors);
             }
             return Ok(response.Data);
         }
@@ -79,7 +79,7 @@ namespace PersonalWebsite.Api.Controllers
             
             if(!fileDetails.Success)
             {
-                return StatusCode(fileDetails.StatusCode, fileDetails.Message);
+                return StatusCode(fileDetails.StatusCode, fileDetails.Errors);
             }
             return Ok(fileDetails.Data);
         }

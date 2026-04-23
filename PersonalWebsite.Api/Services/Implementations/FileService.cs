@@ -20,7 +20,15 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return Task.FromResult(new ServiceResult<string>
                 {
                     Success = false,
-                    Message = "File name is required.",
+                    Errors = new List<ServiceError>
+                    {
+                        new ServiceError
+                        {
+                            Field = "fileName",
+                            Message = "File name cannot be null or empty.",
+                            Code = "InvalidFileName"
+                        }
+                    },
                     StatusCode = 400
                 });
             }
@@ -32,7 +40,15 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return Task.FromResult(new ServiceResult<string>
                 {
                     Success = false,
-                    Message = "File not found.",
+                    Errors = new List<ServiceError>
+                    {
+                        new ServiceError
+                        {
+                            Field = "fileName",
+                            Message = $"File '{fileName}' does not exist.",
+                            Code = "FileNotFound"
+                        }
+                    },
                     StatusCode = 404
                 });
             }
@@ -41,7 +57,15 @@ namespace PersonalWebsite.Api.Services.Implementations
             return Task.FromResult(new ServiceResult<string>
             {
                 Success = true,
-                Message = "File deleted successfully.",
+                Errors = new List<ServiceError>
+                    {
+                        new ServiceError
+                        {
+                            Field = "SuccessfulDelete",
+                            Message = $"File '{fileName}' deleted successfully.",
+                            Code = "FileDeleted"
+                        }
+                    },
                 StatusCode = 200
             });
         }
@@ -54,7 +78,15 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return await Task.FromResult(new ServiceResult<bool>
                 {
                     Success = false,
-                    Message = "File record not found.",
+                    Errors = new List<ServiceError>
+                    {
+                        new ServiceError
+                        {
+                            Field = "fileRecord",
+                            Message = "File record not found.",
+                            Code = "FileRecordNotFound"
+                        }
+                    },
                     StatusCode = 404,
                     Data = false
                 });
@@ -65,7 +97,15 @@ namespace PersonalWebsite.Api.Services.Implementations
             return new ServiceResult<bool>
             {
                 Success = true,
-                Message = "File record deleted successfully.",
+                Errors = new List<ServiceError>
+                    {
+                        new ServiceError
+                        {
+                            Field = "SuccessfulDelete",
+                            Message = $"File record with ID '{id}' deleted successfully.",
+                            Code = "FileRecordDeleted"
+                        }
+                    },
                 StatusCode = 200,
                 Data = true
             };
@@ -78,7 +118,15 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<FileDownloadResponseDto>
                 {
                     Success = false,
-                    Message = "File name is required.",
+                    Errors = new List<ServiceError>
+                    {
+                        new ServiceError
+                        {
+                            Field = "fileName",
+                            Message = "File name cannot be null or empty.",
+                            Code = "InvalidFileName"
+                        }
+                    },
                     StatusCode = 400
                 };
             }
@@ -90,7 +138,15 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<FileDownloadResponseDto>
                 {
                     Success = false,
-                    Message = "File not found.",
+                    Errors = new List<ServiceError>
+                    {
+                        new ServiceError
+                        {
+                            Field = "fileName",
+                            Message = $"File '{fileName}' does not exist.",
+                            Code = "FileNotFound"
+                        }
+                    },
                     StatusCode = 404
                 };
             }
@@ -191,7 +247,15 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<FileDetailsResponseDto>
                 {
                     Success = false,
-                    Message = "File record not found.",
+                    Errors = new List<ServiceError>
+                    {
+                        new ServiceError
+                        {
+                            Field = "fileRecord",
+                            Message = "File record not found.",
+                            Code = "FileRecordNotFound"
+                        }
+                    },
                     StatusCode = 404
                 };
             }
@@ -201,7 +265,15 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<FileDetailsResponseDto>
                 {
                     Success = false,
-                    Message = "No file uploaded.",
+                    Errors = new List<ServiceError>
+                    {
+                        new ServiceError
+                        {
+                            Field = "file",
+                            Message = "No file uploaded.",
+                            Code = "NoFileUploaded"
+                        }
+                    },
                     StatusCode = 400
                 };
             }
@@ -248,7 +320,15 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<FileDetailsResponseDto>
                 {
                     Success = false,
-                    Message = "An error occurred while updating the file.",
+                    Errors = new List<ServiceError>
+                    {
+                        new ServiceError
+                        {
+                            Field = "file",
+                            Message = "An error occurred while updating the file.",
+                            Code = "FileUpdateError"
+                        }
+                    },
                     StatusCode = 500
                 };
             }
@@ -267,7 +347,7 @@ namespace PersonalWebsite.Api.Services.Implementations
             return new ServiceResult<FileDetailsResponseDto>
             {
                 Success = true,
-                Message = "File updated successfully.",
+                Errors = null,
                 Data = response,
                 StatusCode = 200
             };
@@ -280,7 +360,15 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<FileUploadResponseDto>
                 {
                     Success = false,
-                    Message = "No file uploaded.",
+                    Errors = new List<ServiceError>
+                    {
+                        new ServiceError
+                        {
+                            Field = "file",
+                            Message = "No file uploaded.",
+                            Code = "NoFileUploaded"
+                        }
+                    },
                     StatusCode = 400
                 };
             }
@@ -291,7 +379,7 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<FileUploadResponseDto>
                 {
                     Success = false,
-                    Message = fileSizeValidationResult.Message,
+                    Errors = fileSizeValidationResult.Errors,
                     StatusCode = fileSizeValidationResult.StatusCode
                 };
             }
@@ -302,7 +390,7 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<FileUploadResponseDto>
                 {
                     Success = false,
-                    Message = fileExtensionValidationResult.Message,
+                    Errors = fileExtensionValidationResult.Errors,
                     StatusCode = fileExtensionValidationResult.StatusCode
                 };
             }
@@ -335,7 +423,15 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<FileUploadResponseDto>
                 {
                     Success = false,
-                    Message = "An error occurred while uploading the file.",
+                    Errors = new List<ServiceError>
+                    {
+                        new ServiceError
+                        {
+                            Field = "file",
+                            Message = "An error occurred while uploading the file.",
+                            Code = "FileUploadError"
+                        }
+                    },
                     StatusCode = 500
                 };
             }
@@ -377,7 +473,15 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<FileDetailsResponseDto>
                 {
                     Success = false,
-                    Message = $"File size exceeds the limit of {maxFileSize / (1024 * 1024)} MB",
+                    Errors = new List<ServiceError>
+                    {
+                        new ServiceError
+                        {
+                            Field = "file",
+                            Message = $"File size exceeds the limit of {maxFileSize / (1024 * 1024)} MB",
+                            Code = "FileSizeExceeded"
+                        }
+                    },
                     StatusCode = 400
                 };
             }
@@ -393,7 +497,15 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<FileDetailsResponseDto>
                 {
                     Success = false,
-                    Message = "Unsupported file type. Only .jpg, .jpeg, , .pdf, .docx files are allowed.",
+                    Errors = new List<ServiceError>
+                    {
+                        new ServiceError
+                        {
+                            Field = "file",
+                            Message = $"File type '{fileExtension}' is not allowed.",
+                            Code = "UnsupportedFileType"
+                        }
+                    },
                     StatusCode = 400
                 };
             }

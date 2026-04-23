@@ -41,7 +41,15 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<int>
                 {
                     Success = false,
-                    Message = $"Customer with id {dto.CustomerId} does not exist.",
+                    Errors = new List<ServiceError>
+                    {
+                        new ServiceError
+                        {
+                            Field = "CustomerId",
+                            Message = $"Customer with id {dto.CustomerId} does not exist.",
+                            Code = "CustomerNotFound"
+                        }
+                    },
                     StatusCode = 404
                 };
             }
@@ -59,7 +67,15 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<int>
                 {
                     Success = false,
-                    Message = "A similar order already exists..",
+                    Errors = new List<ServiceError>
+                    {
+                        new ServiceError
+                        {
+                            Field = "Order",
+                            Message = "A similar order already exists. Please check your order details.",
+                            Code = "DuplicateOrder"
+                        }
+                    },
                     StatusCode = 409
                 };
             }
@@ -87,7 +103,7 @@ namespace PersonalWebsite.Api.Services.Implementations
             return new ServiceResult<int>
             {
                 Success = true,
-                Message = "Order created successfully.",
+                Errors = null,
                 StatusCode = 201,
                 Data = order.SalesOrderId
             };

@@ -24,18 +24,18 @@ namespace PersonalWebsite.Api.Controllers
                 var errorResponse = new ApiResponse<object>
                 {
                     Success = false,
-                    Message = result.Message,
+                    Message = "Failed to create order.",
                 };
-                return StatusCode(result.StatusCode, errorResponse);
+                return StatusCode(result.StatusCode, errorResponse.Data);
             }
             var apiResponse = new ApiResponse<object>
             {
                 Success = true,
-                Message = result.Message,
+                Message = "Error creating order",
                 Data = new { id = result.Data }
             };
             //return Ok(apiResponse);
-            return StatusCode(result.StatusCode, apiResponse); // 201 Created
+            return StatusCode(result.StatusCode, apiResponse.Data); // 201 Created
         }
 
         [HttpGet("search")]

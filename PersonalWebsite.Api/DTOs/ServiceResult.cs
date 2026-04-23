@@ -5,7 +5,7 @@ namespace PersonalWebsite.Api.DTOs
     public class ServiceResult<T>
     {
         public bool Success { get; set; }
-        public string Message { get; set; } = string.Empty;
+        public List<ServiceError> Errors { get; set; } = new();
         public int StatusCode { get; set; }
         public T? Data { get; set; }
 
@@ -15,7 +15,7 @@ namespace PersonalWebsite.Api.DTOs
             return new ServiceResult<T>
             {
                 Success = true,
-                Message = message,
+                
                 StatusCode = statusCode,
                 Data = data
             };
@@ -26,7 +26,7 @@ namespace PersonalWebsite.Api.DTOs
             return new ServiceResult<T>
             {
                 Success = false,
-                Message = message,
+                
                 StatusCode = statusCode,
                 Data = default
             };
