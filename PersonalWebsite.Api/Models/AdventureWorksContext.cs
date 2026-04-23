@@ -14,6 +14,8 @@ public partial class AdventureWorksContext : DbContext
         : base(options)
     {
     }
+    // Thursday, 04/23/2026 - Added a new table for orders
+    public DbSet<Order> Orders { get; set; }
     // Sunday, 04/19/2026 - Added new tables for user roles
     public DbSet<Role> Roles { get; set; }
     public DbSet<UserRole> UserRoles { get; set; }

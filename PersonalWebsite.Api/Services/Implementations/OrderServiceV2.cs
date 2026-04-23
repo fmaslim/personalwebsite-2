@@ -161,17 +161,17 @@ namespace PersonalWebsite.Api.Services.Implementations
                 TotalAmount = totalAmount,
             };
 
-            /*
-             * Comment out temporarily to avoid affecting existing data. In real implementation, we would save the order and return the response.
-             * _context.Orders.Add(order);
-             * await _context.SaveChangesAsync();
-             */
+            // *Comment out temporarily to avoid affecting existing data. In real implementation, we would save the order and return the response.
+            
+             _context.Orders.Add(order);
+            await _context.SaveChangesAsync();
+
 
             // 7. return response
             var response = new CreateOrderResponseV2Dto
             {
                 //OrderId = order.Id,
-                OrderId = 0, // Since we are not actually saving to DB, we can return 0 or a dummy value
+                OrderId = order.Id,
                 CustomerId = dto.CustomerId,
                 EmployeeId = dto.EmployeeId,
                 OrderDate = DateTime.UtcNow,
