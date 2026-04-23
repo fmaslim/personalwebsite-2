@@ -181,6 +181,68 @@ namespace PersonalWebsite.Api.Services.Implementations
             return ServiceResult<CreateOrderResponseV2Dto>.Ok(response);
         }
 
+        public async Task<ServiceResult<CreateOrderResponseV2Dto>> CreateOrderMultiErrorAsync(CreateOrderRequestV2Dto dto)
+        {
+            var errors = new List<ServiceError>();
+            if (dto.Items == null || !dto.Items.Any())
+            {
+                errors.Add(new ServiceError
+                {
+                    Field = "Items",
+                    Message = "Order must contain at least one item.",
+                    Code = "EmptyItems"
+                });
+            }
+            if(dto.Items != null && dto.Items.Any())
+            {
+                var hasDuplicateProducts = dto.Items.GroupBy(i => i.ProductId).Any(g => g.Count() > 1);
+                if (hasDuplicateProducts)
+                {
+                    errors.Add(new ServiceError
+                    {
+                        Field = "Items",
+                        Message = "Duplicate product IDs are not allowed in the same order.",
+                        Code = "DuplicateProducts"
+                    });
+                }
+            }
+            for(int i = 0; i < dto.Items?.Count; i++)
+            {
+                var item = dto.Items[i];
+                if (item.Quantity <= 0)
+                {
+                    errors.Add(new ServiceError
+                    {
+                        Field = $"Items[{i}].Quantity",
+                        Message = "Quantity must be greater than zero.",
+                        Code = "InvalidQuantity"
+                    });
+                }
+                var productExists = await _context.Products.AnyAsync(p => p.ProductId == item.ProductId);
+                if (!productExists)
+                {
+                    errors.Add(new ServiceError
+                    {
+                        Field = $"Items[{i}].ProductId",
+                        Message = $"Product with ID {item.ProductId} does not exist.",
+                        Code = "ProductNotFound"
+                    });
+                }
+            }
+            if(errors.Any())
+            {
+                return new ServiceResult<CreateOrderResponseV2Dto>
+                {
+                    Success = false,
+                    Errors = errors,
+                    StatusCode = 400
+                };
+            }
+
+            // If no errors, proceed with order creation
+            return await CreateOrderAsync(dto);
+        }
+
         public string GetVersionMessage()
         {
             return "OrderServiceV2 is working.";

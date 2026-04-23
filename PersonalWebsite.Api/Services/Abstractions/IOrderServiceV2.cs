@@ -6,5 +6,7 @@ namespace PersonalWebsite.Api.Services.Abstractions
     {
         string GetVersionMessage();
         Task<ServiceResult<CreateOrderResponseV2Dto>> CreateOrderAsync(CreateOrderRequestV2Dto dto);
+
+        Task<ServiceResult<CreateOrderResponseV2Dto>> CreateOrderMultiErrorAsync(CreateOrderRequestV2Dto dto);
     }
 }

@@ -18,14 +18,26 @@ namespace PersonalWebsite.Api.Controllers
         [ProducesResponseType(statusCode: 200)]
         public IActionResult GetOrder()
         {
-                return Ok(new { Message = "This is the OrdersV2Controller" });
+            return Ok(new { Message = "This is the OrdersV2Controller" });
         }
-        
+
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> CreateOrder(CreateOrderRequestV2Dto dto)
         {
             var result = await _orderServiceV2.CreateOrderAsync(dto);
+            if (!result.Success)
+            {
+                return StatusCode(result.StatusCode, result.Errors);
+            }
+            return Ok(result.Data);
+        }
+
+        [HttpPost("multi-error")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> CreateOrderMultiError(CreateOrderRequestV2Dto dto)
+        {
+            var result = await _orderServiceV2.CreateOrderMultiErrorAsync(dto);
             if (!result.Success)
             {
                 return StatusCode(result.StatusCode, result.Errors);
