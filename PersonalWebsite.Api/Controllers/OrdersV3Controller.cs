@@ -26,5 +26,15 @@ namespace PersonalWebsite.Api.Controllers
             }
             return StatusCode(result.StatusCode, result);
         }
+
+        [HttpPatch("{orderId}/status")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateOrderStatus(int orderId, [FromBody] UpdateOrderStatusRequestDto dto)
+        {
+            var result = await _orderServiceV2.UpdateOrderStatusAsync(orderId, dto);
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }

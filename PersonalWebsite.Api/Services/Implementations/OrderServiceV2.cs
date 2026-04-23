@@ -420,5 +420,92 @@ namespace PersonalWebsite.Api.Services.Implementations
         {
             return "OrderServiceV2 is working.";
         }
+
+        public async Task<ServiceResult<UpdateOrderStatusResponseDto>> UpdateOrderStatusAsync(int orderId, UpdateOrderStatusRequestDto dto)
+        {
+            if (dto == null)
+            {
+                return new ServiceResult<UpdateOrderStatusResponseDto>
+                {
+                    Success = false,
+                    Errors = new List<ServiceError>
+                    {
+                        new ServiceError
+                        {
+                            Field = "Request",
+                            Message = "Request body cannot be null.",
+                            Code = "NullRequest"
+                        }
+                    },
+                    StatusCode = 400
+                };
+            }
+
+            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
+            if (order == null)
+            {
+                return new ServiceResult<UpdateOrderStatusResponseDto>
+                {
+                    Success = false,
+                    Errors = new List<ServiceError>
+                        {
+                            new ServiceError
+                            {
+                                Field = "OrderId",
+                                Message = $"Order with ID {orderId} does not exist.",
+                                Code = "OrderNotFound"
+                            }
+                        },
+                    StatusCode = 404
+                };
+            }
+            var oldStatus = order.Status;
+            var newStatus = dto.Status;
+            if (!IsValidStatusTransition(oldStatus, newStatus))
+            {
+                return new ServiceResult<UpdateOrderStatusResponseDto>
+                {
+                    Success = false,
+                    Errors = new List<ServiceError>
+                        {
+                            new ServiceError
+                            {
+                                Field = "Status",
+                                Message = $"Invalid status transition from {oldStatus} to {newStatus}.",
+                                Code = "InvalidStatusTransition"
+                            }
+                        },
+                    StatusCode = 400
+                };
+            }
+
+            order.Status = newStatus;
+            await _context.SaveChangesAsync();
+
+            return new ServiceResult<UpdateOrderStatusResponseDto>
+            {
+                Success = true,
+                Data = new UpdateOrderStatusResponseDto
+                {
+                    OrderId = order.Id,
+                    OldStatus = oldStatus.ToString(),
+                    NewStatus = newStatus.ToString()
+                },
+                StatusCode = 200
+            };
+        }
+
+        private bool IsValidStatusTransition(OrderStatus currentStatus, OrderStatus newStatus)
+        {
+            return currentStatus switch
+            { 
+                OrderStatus.Pending => newStatus == OrderStatus.Paid || newStatus == OrderStatus.Cancelled,
+                OrderStatus.Paid => newStatus == OrderStatus.Shipped || newStatus == OrderStatus.Cancelled,
+                OrderStatus.Shipped => newStatus == OrderStatus.Delivered,
+                OrderStatus.Delivered => false,
+                OrderStatus.Cancelled => false,
+                _ => false
+            };
+        }
     }
 }
