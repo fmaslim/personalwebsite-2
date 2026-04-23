@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PersonalWebsite.Api.DTOs;
+using PersonalWebsite.Api.Models;
 using PersonalWebsite.Api.Services.Abstractions;
 
 namespace PersonalWebsite.Api.Controllers
@@ -43,6 +44,17 @@ namespace PersonalWebsite.Api.Controllers
         public async Task<IActionResult> GetOrderByIdAsync(int orderId)
         {
             var result = await _orderServiceV2.GetOrderByIdAsync(orderId);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllOrdersAsync([FromQuery] int? userId, 
+            [FromQuery] OrderStatus? status,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            var result = await _orderServiceV2.GetAllOrdersAsync(userId, status, pageNumber, pageSize);
             return StatusCode(result.StatusCode, result);
         }
     }

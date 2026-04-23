@@ -416,6 +416,61 @@ namespace PersonalWebsite.Api.Services.Implementations
             };
         }
 
+        public async Task<ServiceResult<List<OrderSummaryResponseDto>>> GetAllOrdersAsync(int? userId, OrderStatus? status, int pageNumber, int pageSize)
+        {
+            if (pageNumber <= 0)
+            {
+                pageNumber = 1;
+            }
+
+            if (pageSize <= 0)
+            {
+                pageSize = 10;
+            }
+            if (pageSize > 100)
+            {
+                pageSize = 100; // max page size limit
+            }
+
+            var query = _context.Orders
+                .AsNoTracking()
+                //.Include(o => o.OrderDetails)
+                .AsQueryable();
+
+            if (userId.HasValue)
+            {
+                query = query.Where(o => o.UserId == userId.Value);
+            }
+
+            if (status.HasValue)
+            {
+                query = query.Where(o => o.Status == status.Value);
+            }
+            query = query
+                         .OrderByDescending(o => o.CreatedAtUtc)
+                         .Skip((pageNumber - 1) * pageSize)
+                         .Take(pageSize);
+
+            var orders = await query.ToListAsync();
+
+            var orderSummaries = orders.Select(o => new OrderSummaryResponseDto
+            {
+                OrderId = o.Id,
+                UserId = o.UserId,
+                Status = o.Status.ToString(),
+                TotalAmount = o.TotalAmount,
+                CreatedAtUtc = o.CreatedAtUtc
+            }).ToList();
+
+            var serviceResult = new ServiceResult<List<OrderSummaryResponseDto>>
+            {
+                Success = true,
+                Data = orderSummaries,
+                StatusCode = 200
+            };
+            return serviceResult;
+        }
+
         public async Task<ServiceResult<GetOrderByIdResponseDto>> GetOrderByIdAsync(int orderId)
         {
             var query = _context.Orders

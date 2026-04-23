@@ -1,4 +1,5 @@
 ﻿using PersonalWebsite.Api.DTOs;
+using PersonalWebsite.Api.Models;
 
 namespace PersonalWebsite.Api.Services.Abstractions
 {
@@ -12,5 +13,7 @@ namespace PersonalWebsite.Api.Services.Abstractions
         Task<ServiceResult<CreateOrderResponseV3Dto>> CreateOrderV3Async(CreateOrderRequestV3Dto dto);
         Task<ServiceResult<UpdateOrderStatusResponseDto>> UpdateOrderStatusAsync(int orderId, UpdateOrderStatusRequestDto dto);
         Task<ServiceResult<GetOrderByIdResponseDto>> GetOrderByIdAsync(int orderId);
+
+        Task<ServiceResult<List<OrderSummaryResponseDto>>> GetAllOrdersAsync(int? userId, OrderStatus? status, int pageNumber, int pageSize);
     }
 }
