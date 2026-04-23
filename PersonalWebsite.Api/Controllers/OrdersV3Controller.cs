@@ -36,5 +36,14 @@ namespace PersonalWebsite.Api.Controllers
             var result = await _orderServiceV2.UpdateOrderStatusAsync(orderId, dto);
             return StatusCode(result.StatusCode, result);
         }
+
+        [HttpGet("{orderId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetOrderByIdAsync(int orderId)
+        {
+            var result = await _orderServiceV2.GetOrderByIdAsync(orderId);
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }

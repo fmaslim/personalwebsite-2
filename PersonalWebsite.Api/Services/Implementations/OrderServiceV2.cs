@@ -416,6 +416,55 @@ namespace PersonalWebsite.Api.Services.Implementations
             };
         }
 
+        public async Task<ServiceResult<GetOrderByIdResponseDto>> GetOrderByIdAsync(int orderId)
+        {
+            var query = _context.Orders
+                .AsNoTracking()
+                .Include(o => o.OrderDetails)                        
+                .AsQueryable();
+            query = query.Where(o => o.Id == orderId);
+            var order = await query.FirstOrDefaultAsync();
+            if (order == null)
+            {
+                return new ServiceResult<GetOrderByIdResponseDto>
+                {
+                    Success = false,
+                    Errors = new List<ServiceError>
+                    {
+                        new ServiceError
+                        {
+                            Field = "OrderId",
+                            Message = $"Order with ID {orderId} does not exist.",
+                            Code = "OrderNotFound"
+                        }
+                    },
+                    StatusCode = 404
+                };
+            }
+
+            var response = new GetOrderByIdResponseDto
+            {
+                OrderId = order.Id,
+                UserId = order.UserId,
+                Status = order.Status.ToString(),
+                TotalAmount = order.TotalAmount,
+                CreatedAtUtc = order.CreatedAtUtc,
+                Items = order.OrderDetails.Select(od => new OrderDetailResponseDto
+                {
+                    ProductId = od.ProductId,
+                    Quantity = od.Quantity,
+                    UnitPrice = od.UnitPrice
+                }).ToList()
+            };
+
+            return new ServiceResult<GetOrderByIdResponseDto>
+            {
+                Success = true,
+                Data = response,
+                StatusCode = 200
+            };
+        }
+
         public string GetVersionMessage()
         {
             return "OrderServiceV2 is working.";
