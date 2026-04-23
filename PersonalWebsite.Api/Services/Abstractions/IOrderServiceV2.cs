@@ -5,6 +5,6 @@ namespace PersonalWebsite.Api.Services.Abstractions
     public interface IOrderServiceV2
     {
         string GetVersionMessage();
-        Task<CreateOrderResponseV2Dto> CreateOrderAsync(CreateOrderRequestV2Dto dto);
+        Task<ServiceResult<CreateOrderResponseV2Dto>> CreateOrderAsync(CreateOrderRequestV2Dto dto);
     }
 }

@@ -14,7 +14,7 @@ namespace PersonalWebsite.Api.Services.Implementations
             _context = context;
         }
 
-        public async Task<CreateOrderResponseV2Dto> CreateOrderAsync(CreateOrderRequestV2Dto dto)
+        public async Task<ServiceResult<CreateOrderResponseV2Dto>> CreateOrderAsync(CreateOrderRequestV2Dto dto)
         {
             /*
              * Service will:
@@ -27,28 +27,52 @@ namespace PersonalWebsite.Api.Services.Implementations
             // 2. check every quantity > 0
             if (dto.Items == null || !dto.Items.Any())
             {
-                throw new ArgumentException("Order must contain at least one item.");
+                // throw new ArgumentException("Order must contain at least one item.");
+                return new ServiceResult<CreateOrderResponseV2Dto>
+                {
+                    Success = false,
+                    Message = "Order must contain at least one item.",
+                    StatusCode = 400
+                };
             }
 
             // 2.1 added new rule: duplicate product id is not allowed in the same order
             var hasDuplicateProducts = dto.Items.GroupBy(i => i.ProductId).Any(g => g.Count() > 1);
             if (hasDuplicateProducts)
             {
-                throw new ArgumentException("Duplicate product IDs are not allowed in the same order.");
+                // throw new ArgumentException("Duplicate product IDs are not allowed in the same order.");
+                return new ServiceResult<CreateOrderResponseV2Dto>
+                {
+                    Success = false,
+                    Message = "Duplicate product IDs are not allowed in the same order.",
+                    StatusCode = 400
+                };
             }
 
             // 3. check customer exists
             var customerExists = await _context.Customers.AnyAsync(c => c.CustomerId == dto.CustomerId);
             if (!customerExists)
             {
-                throw new ArgumentException($"Customer with ID {dto.CustomerId} does not exist.");
+                // throw new ArgumentException($"Customer with ID {dto.CustomerId} does not exist.");
+                return new ServiceResult<CreateOrderResponseV2Dto>
+                {
+                    Success = false,
+                    Message = $"Customer with ID {dto.CustomerId} does not exist.",
+                    StatusCode = 400
+                };
             }
 
             // 4. check employee exists
             var employeeExists = await _context.Employees.AnyAsync(e => e.BusinessEntityId == dto.EmployeeId);
             if (!employeeExists)
             {
-                throw new ArgumentException($"Employee with ID {dto.EmployeeId} does not exist.");
+                // throw new ArgumentException($"Employee with ID {dto.EmployeeId} does not exist.");
+                return new ServiceResult<CreateOrderResponseV2Dto>
+                {
+                    Success = false,
+                    Message = $"Employee with ID {dto.EmployeeId} does not exist.",
+                    StatusCode = 400
+                };
             }
 
             // 5. check every product exists and calculate total
@@ -58,12 +82,24 @@ namespace PersonalWebsite.Api.Services.Implementations
             {
                 if (item.Quantity <= 0)
                 {
-                    throw new ArgumentException("Quantity must be greater than zero.");
+                    // throw new ArgumentException("Quantity must be greater than zero.");
+                    return new ServiceResult<CreateOrderResponseV2Dto>
+                    {
+                        Success = false,
+                        Message = "Quantity must be greater than zero.",
+                        StatusCode = 400
+                    };
                 }
                 var product = await _context.Products.FirstOrDefaultAsync(p => p.ProductId == item.ProductId);
                 if (product == null)
                 {
-                    throw new ArgumentException($"Product with ID {item.ProductId} does not exist.");
+                    // throw new ArgumentException($"Product with ID {item.ProductId} does not exist.");
+                    return new ServiceResult<CreateOrderResponseV2Dto>
+                    {
+                        Success = false,
+                        Message = $"Product with ID {item.ProductId} does not exist.",
+                        StatusCode = 400
+                    };
                 }
                 totalAmount += product.ListPrice * item.Quantity;
                 productNames.Add(product.Name);
@@ -94,7 +130,7 @@ namespace PersonalWebsite.Api.Services.Implementations
                 TotalAmount = totalAmount
             };
 
-            return response;
+            return ServiceResult<CreateOrderResponseV2Dto>.Ok(response);
         }
 
         public string GetVersionMessage()

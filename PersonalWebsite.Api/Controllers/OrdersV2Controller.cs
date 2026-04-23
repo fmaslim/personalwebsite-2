@@ -23,10 +23,14 @@ namespace PersonalWebsite.Api.Controllers
         
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<CreateOrderResponseV2Dto>> CreateOrder(CreateOrderRequestV2Dto dto)
+        public async Task<IActionResult> CreateOrder(CreateOrderRequestV2Dto dto)
         {
-            var response = await _orderServiceV2.CreateOrderAsync(dto);
-            return Ok(response);
+            var result = await _orderServiceV2.CreateOrderAsync(dto);
+            if (!result.Success)
+            {
+                return StatusCode(result.StatusCode, result.Message);
+            }
+            return Ok(result.Data);
         }
     }
 }
