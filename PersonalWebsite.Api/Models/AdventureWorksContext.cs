@@ -14,6 +14,8 @@ public partial class AdventureWorksContext : DbContext
         : base(options)
     {
     }
+    // Thursday, 04/26/2026 - added a new table for OrderDetails
+    public DbSet<OrderDetail> OrderDetails { get; set; }
     // Thursday, 04/23/2026 - Added a new table for orders
     public DbSet<Order> Orders { get; set; }
     // Sunday, 04/19/2026 - Added new tables for user roles
@@ -213,6 +215,26 @@ public partial class AdventureWorksContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Order>()
+            .HasMany(o => o.OrderDetails)
+            .WithOne(od => od.Order)
+            .HasForeignKey(od => od.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<OrderDetail>()
+            .HasOne(od => od.Product)
+            .WithMany()
+            .HasForeignKey(od => od.ProductId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Order>()
+            .Property(o => o.TotalAmount)
+            .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<OrderDetail>()
+            .Property(od => od.UnitPrice)
+            .HasColumnType("decimal(18,2)");
+
         modelBuilder.Entity<UserRole>()
         .HasKey(ur => new { ur.UserId, ur.RoleId });
 

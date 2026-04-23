@@ -157,7 +157,7 @@ namespace PersonalWebsite.Api.Services.Implementations
             var order = new Order
             {
                 UserId = dto.CustomerId, // Assuming UserId is same as CustomerId for simplicity
-                ProductName = string.Join(", ", productNames),
+                //ProductName = string.Join(", ", productNames),
                 TotalAmount = totalAmount,
             };
 
@@ -241,6 +241,179 @@ namespace PersonalWebsite.Api.Services.Implementations
 
             // If no errors, proceed with order creation
             return await CreateOrderAsync(dto);
+        }
+
+        public async Task<ServiceResult<CreateOrderResponseV3Dto>> CreateOrderV3Async(CreateOrderRequestV3Dto dto)
+        {
+            // validation
+            if (dto == null)
+            {                 
+                return new ServiceResult<CreateOrderResponseV3Dto>
+                {
+                    Success = false,
+                    Errors = new List<ServiceError>
+                    {
+                        new ServiceError
+                        {
+                            Field = "Request",
+                            Message = "Request body cannot be null.",
+                            Code = "NullRequest"
+                        }
+                    },
+                    StatusCode = 400
+                };
+            }
+
+            if (dto.Items == null || !dto.Items.Any())
+            {
+                return new ServiceResult<CreateOrderResponseV3Dto>
+                {
+                    Success = false,
+                    Errors = new List<ServiceError>
+                    {
+                        new ServiceError
+                        {
+                            Field = "Items",
+                            Message = "Order must contain at least one item.",
+                            Code = "EmptyItems"
+                        }
+                    },
+                    StatusCode = 400
+                };
+            }
+
+            if (dto.Items.Any(i => i.Quantity <= 0))
+            {
+                return new ServiceResult<CreateOrderResponseV3Dto>
+                {
+                    Success = false,
+                    Errors = new List<ServiceError>
+                    {
+                        new ServiceError
+                        {
+                            Field = "Quantity",
+                            Message = "Quantity must be greater than zero.",
+                            Code = "InvalidQuantity"
+                        }
+                    },
+                    StatusCode = 400
+                };
+            }
+
+            // user exists
+            var userExists = await _context.Users.AnyAsync(u => u.Id == dto.UserId);
+            if (!userExists)
+            {
+                return new ServiceResult<CreateOrderResponseV3Dto>
+                {
+                    Success = false,
+                    Errors = new List<ServiceError>
+                    {
+                        new ServiceError
+                        {
+                            Field = "UserId",
+                            Message = $"User with ID {dto.UserId} does not exist.",
+                            Code = "UserNotFound"
+                        }
+                    },
+                    StatusCode = 400
+                };
+            }
+
+            // Load products
+            var productIds = dto.Items.Select(i => i.ProductId).Distinct().ToList();
+
+            var products = await _context.Products
+             .Where(p => productIds.Contains(p.ProductId))
+             .ToListAsync();
+
+            if (products.Count != productIds.Count)
+            {
+                var existingProductIds = products.Select(p => p.ProductId);
+                var missingProductIds = productIds.Except(existingProductIds);
+                return new ServiceResult<CreateOrderResponseV3Dto>
+                {
+                    Success = false,
+                    Errors = missingProductIds.Select(id => new ServiceError
+                    {
+                        Field = "Items.ProductId",
+                        Message = $"Product with ID {id} does not exist.",
+                        Code = "ProductNotFound"
+                    }).ToList(),
+                    StatusCode = 400
+                };
+            }
+
+            // stock validation
+            // using SafetyStock Level for training purpose, in real scenario we should have a separate stock quantity field and update it when order is created.
+            foreach (var item in dto.Items)
+            {
+                var product = products.First(p => p.ProductId == item.ProductId);
+                if (item.Quantity > product.SafetyStockLevel)
+                {
+                    return new ServiceResult<CreateOrderResponseV3Dto>
+                    {
+                        Success = false,
+                        Errors = new List<ServiceError>
+                        {
+                            new ServiceError
+                            {
+                                Field = $"Items[ProductId={item.ProductId}].Quantity",
+                                Message = $"Only {product.SafetyStockLevel} items left in stock for product ID {item.ProductId}.",
+                                Code = "InsufficientStock"
+                            }
+                        },
+                        StatusCode = 400
+                    };
+                }
+            }
+
+            // create order
+
+            var order = new Order
+            {
+                UserId = dto.UserId,
+                CreatedAtUtc = DateTime.UtcNow,
+                Status = OrderStatus.Pending,
+                TotalAmount = 0
+            };
+
+            decimal totalAmount = 0;
+
+            foreach (var item in dto.Items)
+            {
+                var product = products.First(p => p.ProductId == item.ProductId);
+
+                var orderDetail = new OrderDetail
+                {
+                    ProductId = item.ProductId,
+                    Quantity = item.Quantity,
+                    UnitPrice = product.ListPrice
+                };
+
+                order.OrderDetails.Add(orderDetail);
+
+                totalAmount += item.Quantity * product.ListPrice;
+            }
+
+            order.TotalAmount = totalAmount;
+
+            _context.Orders.Add(order);
+            await _context.SaveChangesAsync();
+
+            return new ServiceResult<CreateOrderResponseV3Dto>
+            {
+                Success = true,
+                Data = new CreateOrderResponseV3Dto
+                {
+                    OrderId = order.Id,
+                    UserId = order.UserId,
+                    Status = order.Status.ToString(),
+                    TotalAmount = order.TotalAmount,
+                    CreatedAtUtc = order.CreatedAtUtc
+                },
+                StatusCode = 201
+            };
         }
 
         public string GetVersionMessage()

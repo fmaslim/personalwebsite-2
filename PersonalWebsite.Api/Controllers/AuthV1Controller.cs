@@ -18,9 +18,27 @@ namespace PersonalWebsite.Api.Controllers
         // Sunday, 04/16/2026 - hardoded fake orders for training purposes. In a real application, you would query the database for the user's orders.
         private static readonly List<Order> _orders = new()
         {
-            new Order { Id = 1, UserId = 1, ProductName = "Laptop", TotalAmount = 1200 },
-            new Order { Id = 2, UserId = 2, ProductName = "Phone", TotalAmount = 800 },
-            new Order { Id = 3, UserId = 1, ProductName = "Keyboard", TotalAmount = 100 }
+            new Order 
+            { 
+                Id = 1, 
+                UserId = 1, 
+                //ProductName = "Laptop", 
+                TotalAmount = 1200 
+            },
+            new Order 
+            { 
+                Id = 2, 
+                UserId = 2, 
+                //ProductName = "Phone", 
+                TotalAmount = 800 
+            },
+            new Order 
+            { 
+                Id = 3, 
+                UserId = 1, 
+                //ProductName = "Keyboard", 
+                TotalAmount = 100 
+            }
         };
 
         private readonly AdventureWorksContext _context;
