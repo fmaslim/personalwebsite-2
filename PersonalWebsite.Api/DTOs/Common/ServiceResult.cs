@@ -26,9 +26,9 @@ namespace PersonalWebsite.Api.DTOs.Common
             return new ServiceResult<T>
             {
                 Success = false,
-                
                 StatusCode = statusCode,
-                Data = default
+                Data = default,
+                Errors = new List<ServiceError> { new ServiceError { Message = message } }
             };
         }
     }

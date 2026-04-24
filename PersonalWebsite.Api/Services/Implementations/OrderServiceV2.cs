@@ -441,6 +441,16 @@ namespace PersonalWebsite.Api.Services.Implementations
                 pageSize = 100; // max page size limit
             }
 
+            // Friday, 04/24/2026 - added allowable Sort Fields
+            var allowedSortFields = new List<string> { "orderdate", "createdatutc", "status", "userid" };
+            var requestedSortBy = queryDto.SortBy?.ToLower() ?? "orderdate";
+            if (!allowedSortFields.Contains(requestedSortBy))
+            {
+                return ServiceResult<PagedOrderSummaryResponseDto>.Fail(
+        $"Invalid SortBy value. Allowed values: {string.Join(", ", allowedSortFields)}",
+        400);
+            }
+
             var query = _context.Orders
                 .AsNoTracking()
                 //.Include(o => o.OrderDetails)
@@ -486,7 +496,7 @@ namespace PersonalWebsite.Api.Services.Implementations
             var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
 
             var isDesc = sortOrder?.ToLower() != "asc";
-            query = sortBy?.ToLower() switch
+            query = requestedSortBy switch
             {
                 "orderdate" or "createdatutc" => isDesc ? query.OrderByDescending(o => o.CreatedAtUtc) : query.OrderBy(o => o.CreatedAtUtc),
                 "status" => isDesc ? query.OrderByDescending(o => o.Status) : query.OrderBy(o => o.Status),
