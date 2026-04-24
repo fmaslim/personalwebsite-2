@@ -501,6 +501,16 @@ namespace PersonalWebsite.Api.Services.Implementations
             {
                 query = query.Where(o => o.CreatedAtUtc <= toDate.Value);
             }
+            // Friday, 04/24/2026 - added validation MinTotalAmount cannot be greater than MaxTotalAmount
+            if (queryDto.MinTotalAmount.HasValue
+                && queryDto.MaxTotalAmount.HasValue
+                && queryDto.MinTotalAmount > queryDto.MaxTotalAmount)
+            {
+                return ServiceResult<PagedOrderSummaryResponseDto>.Fail(
+                    "MinTotalAmount cannot be greater than MaxTotalAmount",
+        400);
+            }
+
             if (!string.IsNullOrWhiteSpace(queryDto.Search))
             {
                 var search = queryDto.Search.ToLower();
