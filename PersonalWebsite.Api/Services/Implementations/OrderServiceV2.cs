@@ -461,6 +461,22 @@ namespace PersonalWebsite.Api.Services.Implementations
         400);
             }
 
+            // Friday, 04/26/2026 - FromDate cant be greater than ToDate validation
+            var fromDate = queryDto.FromDate?.Date;
+            var toDate = queryDto.ToDate?.Date.AddDays(1).AddTicks(-1); // include the entire ToDate day
+
+            // Future option:
+            // Use exclusive end date instead of AddTicks(-1):
+            // var toDateExclusive = queryDto.ToDate?.Date.AddDays(1);
+            // query = query.Where(o => o.CreatedAtUtc < toDateExclusive.Value);
+
+            if (fromDate.HasValue && toDate.HasValue && fromDate > toDate)
+            {
+                return ServiceResult<PagedOrderSummaryResponseDto>.Fail(
+        "FromDate cannot be greater than ToDate.",
+        400);
+            }
+
             var query = _context.Orders
                 .AsNoTracking()
                 //.Include(o => o.OrderDetails)
@@ -480,10 +496,10 @@ namespace PersonalWebsite.Api.Services.Implementations
             {
                 // add filter for order created date from
                 query = query.Where(o => o.CreatedAtUtc >= queryDto.FromDate.Value);
-            } if (queryDto.ToDate.HasValue)
+            }
+            if (toDate.HasValue)
             {
-                // add filter for order created date to
-                query = query.Where(o => o.CreatedAtUtc <= queryDto.ToDate.Value);
+                query = query.Where(o => o.CreatedAtUtc <= toDate.Value);
             }
             if (!string.IsNullOrWhiteSpace(queryDto.Search))
             {
