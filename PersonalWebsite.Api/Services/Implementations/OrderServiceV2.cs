@@ -442,14 +442,19 @@ namespace PersonalWebsite.Api.Services.Implementations
             }
 
             // Friday, 04/24/2026 - added allowable Sort Fields
-            var allowedSortFields = new List<string> { "orderdate", "createdatutc", "status", "userid" };
-            var requestedSortBy = queryDto.SortBy?.ToLower() ?? "orderdate";
-            if (!allowedSortFields.Contains(requestedSortBy))
+        //    var allowedSortFields = new List<string> { "orderdate", "createdatutc", "status", "userid" };
+        //    var requestedSortBy = queryDto.SortBy?.ToLower() ?? "orderdate";
+        //    if (!allowedSortFields.Contains(requestedSortBy))
+        //    {
+        //        return ServiceResult<PagedOrderSummaryResponseDto>.Fail(
+        //message: $"Invalid SortBy value. Allowed values: {string.Join(", ", allowedSortFields)}",        
+        //field: "SortBy", 
+        //statusCode: 400);
+        //    }
+        var sortByValidation = ValidateSortBy(queryDto.SortBy);
+            if (sortByValidation != null)
             {
-                return ServiceResult<PagedOrderSummaryResponseDto>.Fail(
-        message: $"Invalid SortBy value. Allowed values: {string.Join(", ", allowedSortFields)}",        
-        field: "SortBy", 
-        statusCode: 400);
+                return sortByValidation;
             }
 
             // Friday, 04/24/2026 - added sorting direction validation
@@ -541,13 +546,13 @@ namespace PersonalWebsite.Api.Services.Implementations
             var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
 
             var isDesc = sortOrder?.ToLower() != "asc";
-            query = requestedSortBy switch
-            {
-                "orderdate" or "createdatutc" => isDesc ? query.OrderByDescending(o => o.CreatedAtUtc) : query.OrderBy(o => o.CreatedAtUtc),
-                "status" => isDesc ? query.OrderByDescending(o => o.Status) : query.OrderBy(o => o.Status),
-                "userid" => isDesc ? query.OrderByDescending(o => o.UserId) : query.OrderBy(o => o.UserId),
-                _ => query.OrderByDescending(o => o.CreatedAtUtc)
-            };
+            //query = requestedSortBy switch
+            //{
+            //    "orderdate" or "createdatutc" => isDesc ? query.OrderByDescending(o => o.CreatedAtUtc) : query.OrderBy(o => o.CreatedAtUtc),
+            //    "status" => isDesc ? query.OrderByDescending(o => o.Status) : query.OrderBy(o => o.Status),
+            //    "userid" => isDesc ? query.OrderByDescending(o => o.UserId) : query.OrderBy(o => o.UserId),
+            //    _ => query.OrderByDescending(o => o.CreatedAtUtc)
+            //};
 
             query = query
                          // .OrderByDescending(o => o.CreatedAtUtc)
@@ -739,6 +744,22 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return ServiceResult<PagedOrderSummaryResponseDto>.Fail(
                     message: "Invalid SortDir value",
                     field: "SortDir", 
+                    statusCode: 400);
+            }
+
+            return null;
+        }
+
+        private ServiceResult<PagedOrderSummaryResponseDto>? ValidateSortBy(string? sortBy)
+        {
+            var allowedSortBy = new List<string> { "orderdate", "createdatutc", "status", "userid" };
+            var requestedSortBy = sortBy?.ToLower() ?? "createdatutc";
+
+            if (!allowedSortBy.Contains(requestedSortBy))
+            {
+                return ServiceResult<PagedOrderSummaryResponseDto>.Fail(
+                    message: "Invalid SortBy value",
+                    field: "SortBy",
                     statusCode: 400);
             }
 
