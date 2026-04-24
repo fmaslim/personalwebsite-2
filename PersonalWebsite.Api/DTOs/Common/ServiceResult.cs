@@ -7,8 +7,7 @@ namespace PersonalWebsite.Api.DTOs.Common
         public bool Success { get; set; }
         public List<ServiceError> Errors { get; set; } = new();
         public int StatusCode { get; set; }
-        public T? Data { get; set; }
-
+        public T? Data { get; set; }        
 
         public static ServiceResult<T> Ok(T data, string message = "Operation successful", int statusCode = 200)
         {
@@ -29,6 +28,17 @@ namespace PersonalWebsite.Api.DTOs.Common
                 StatusCode = statusCode,
                 Data = default,
                 Errors = new List<ServiceError> { new ServiceError { Message = message } }
+            };
+        }
+
+        public static ServiceResult<T> Fail(string message, int statusCode = 400, string? field = null)
+        {
+            return new ServiceResult<T>
+            {
+                Success = false,
+                StatusCode = statusCode,
+                Data = default,
+                Errors = new List<ServiceError> { new ServiceError { Message = message, Field = field } }                
             };
         }
     }

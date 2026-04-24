@@ -447,8 +447,9 @@ namespace PersonalWebsite.Api.Services.Implementations
             if (!allowedSortFields.Contains(requestedSortBy))
             {
                 return ServiceResult<PagedOrderSummaryResponseDto>.Fail(
-        $"Invalid SortBy value. Allowed values: {string.Join(", ", allowedSortFields)}",
-        400);
+        message: $"Invalid SortBy value. Allowed values: {string.Join(", ", allowedSortFields)}",        
+        field: "SortBy", 
+        statusCode: 400);
             }
 
             // Friday, 04/24/2026 - added sorting direction validation
@@ -457,8 +458,9 @@ namespace PersonalWebsite.Api.Services.Implementations
             if (!allowedSortDir.Contains(requestedSortDir))
             {
                 return ServiceResult<PagedOrderSummaryResponseDto>.Fail(
-        $"Invalid SortDir value. Allowed values: {string.Join(", ", allowedSortDir)}",
-        400);
+                message: "Invalid SortDir value",
+                field: "SortDir",
+                statusCode: 400);
             }
 
             // Friday, 04/26/2026 - FromDate cant be greater than ToDate validation
@@ -473,8 +475,9 @@ namespace PersonalWebsite.Api.Services.Implementations
             if (fromDate.HasValue && toDate.HasValue && fromDate > toDate)
             {
                 return ServiceResult<PagedOrderSummaryResponseDto>.Fail(
-        "FromDate cannot be greater than ToDate.",
-        400);
+        message: "FromDate cannot be greater than ToDate.",
+        field: "FromDate",
+        statusCode: 400);
             }
 
             var query = _context.Orders
@@ -507,8 +510,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 && queryDto.MinTotalAmount > queryDto.MaxTotalAmount)
             {
                 return ServiceResult<PagedOrderSummaryResponseDto>.Fail(
-                    "MinTotalAmount cannot be greater than MaxTotalAmount",
-        400);
+                    message:"MinTotalAmount cannot be greater than MaxTotalAmount",
+                    field: "MinTotalAmount",
+                    statusCode: 400);
             }
 
             if (!string.IsNullOrWhiteSpace(queryDto.Search))
