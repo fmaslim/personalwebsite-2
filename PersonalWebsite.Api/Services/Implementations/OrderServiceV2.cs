@@ -515,14 +515,19 @@ namespace PersonalWebsite.Api.Services.Implementations
                 query = query.Where(o => o.CreatedAtUtc <= toDate.Value);
             }
             // Friday, 04/24/2026 - added validation MinTotalAmount cannot be greater than MaxTotalAmount
-            if (queryDto.MinTotalAmount.HasValue
-                && queryDto.MaxTotalAmount.HasValue
-                && queryDto.MinTotalAmount > queryDto.MaxTotalAmount)
+            //if (queryDto.MinTotalAmount.HasValue
+            //    && queryDto.MaxTotalAmount.HasValue
+            //    && queryDto.MinTotalAmount > queryDto.MaxTotalAmount)
+            //{
+            //    return ServiceResult<PagedOrderSummaryResponseDto>.Fail(
+            //        message:"MinTotalAmount cannot be greater than MaxTotalAmount",
+            //        field: "MinTotalAmount",
+            //        statusCode: 400);
+            //}
+            var validateAmountRange = ValidateAmountRange(queryDto.MinTotalAmount, queryDto.MaxTotalAmount);
+            if (validateAmountRange != null)
             {
-                return ServiceResult<PagedOrderSummaryResponseDto>.Fail(
-                    message:"MinTotalAmount cannot be greater than MaxTotalAmount",
-                    field: "MinTotalAmount",
-                    statusCode: 400);
+                return validateAmountRange;
             }
 
             if (!string.IsNullOrWhiteSpace(queryDto.Search))
@@ -760,6 +765,21 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return ServiceResult<PagedOrderSummaryResponseDto>.Fail(
                     message: "Invalid SortBy value",
                     field: "SortBy",
+                    statusCode: 400);
+            }
+
+            return null;
+        }
+
+        private ServiceResult<PagedOrderSummaryResponseDto>? ValidateAmountRange(decimal? min, decimal? max)
+        {
+            if (min.HasValue 
+                && max.HasValue
+                && min.Value> max.Value)
+            {
+                return ServiceResult<PagedOrderSummaryResponseDto>.Fail(
+                    message: "MinTotalAmount cannot be greater than MaxTotalAmount",
+                    field: "MinTotalAmount",
                     statusCode: 400);
             }
 
