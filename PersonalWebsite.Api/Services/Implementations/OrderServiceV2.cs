@@ -1,9 +1,10 @@
-﻿using PersonalWebsite.Api.Models;
-using PersonalWebsite.Api.Services.Abstractions;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using PersonalWebsite.Api.DTOs.Orders;
+﻿using Microsoft.EntityFrameworkCore;
+using PersonalWebsite.Api.DTOs;
 using PersonalWebsite.Api.DTOs.Common;
+using PersonalWebsite.Api.DTOs.Orders;
+using PersonalWebsite.Api.Models;
+using PersonalWebsite.Api.Services.Abstractions;
+using System.Linq;
 
 namespace PersonalWebsite.Api.Services.Implementations
 {
@@ -417,8 +418,15 @@ namespace PersonalWebsite.Api.Services.Implementations
             };
         }
 
-        public async Task<ServiceResult<PagedOrderSummaryResponseDto>> GetAllOrdersAsync(int? userId, OrderStatus? status, int pageNumber, int pageSize, string? sortBy = "orderDate", string? sortOrder = "desc")
+        public async Task<ServiceResult<PagedOrderSummaryResponseDto>> GetAllOrdersAsync(OrderQueryParamsDto queryDto)
         {
+            var userId = queryDto.UserId;
+            var status = queryDto.Status;
+            var pageNumber = queryDto.PageNumber;
+            var pageSize = queryDto.PageSize;
+            var sortBy = queryDto.SortBy;
+            var sortOrder = queryDto.SortDir;
+
             if (pageNumber <= 0)
             {
                 pageNumber = 1;

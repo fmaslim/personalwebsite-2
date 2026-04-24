@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PersonalWebsite.Api.DTOs;
 using PersonalWebsite.Api.DTOs.Orders;
 using PersonalWebsite.Api.Models;
 using PersonalWebsite.Api.Services.Abstractions;
@@ -49,14 +50,9 @@ namespace PersonalWebsite.Api.Controllers
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllOrdersAsync([FromQuery] int? userId, 
-            [FromQuery] OrderStatus? status,
-            [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 10,
-            [FromQuery] string? sortBy = "orderDate",
-            [FromQuery] string? sortOrder = "desc")
+        public async Task<IActionResult> GetAllOrdersAsync([FromQuery] OrderQueryParamsDto queryDto)
         {
-            var result = await _orderServiceV2.GetAllOrdersAsync(userId, status, pageNumber, pageSize, sortBy, sortOrder);
+            var result = await _orderServiceV2.GetAllOrdersAsync(queryDto);
             return StatusCode(result.StatusCode, result);
         }
     }

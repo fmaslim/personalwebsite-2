@@ -1,4 +1,5 @@
-﻿using PersonalWebsite.Api.DTOs.Common;
+﻿using PersonalWebsite.Api.DTOs;
+using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.DTOs.Orders;
 using PersonalWebsite.Api.Models;
 
@@ -15,6 +16,6 @@ namespace PersonalWebsite.Api.Services.Abstractions
         Task<ServiceResult<UpdateOrderStatusResponseDto>> UpdateOrderStatusAsync(int orderId, UpdateOrderStatusRequestDto dto);
         Task<ServiceResult<GetOrderByIdResponseDto>> GetOrderByIdAsync(int orderId);
 
-        Task<ServiceResult<PagedOrderSummaryResponseDto>> GetAllOrdersAsync(int? userId, OrderStatus? status, int pageNumber, int pageSize, string? sortBy = "orderDate", string? sortOrder = "desc");
+        Task<ServiceResult<PagedOrderSummaryResponseDto>> GetAllOrdersAsync(OrderQueryParamsDto query);
     }
 }
