@@ -52,9 +52,11 @@ namespace PersonalWebsite.Api.Controllers
         public async Task<IActionResult> GetAllOrdersAsync([FromQuery] int? userId, 
             [FromQuery] OrderStatus? status,
             [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 10)
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? sortBy = "orderDate",
+            [FromQuery] string? sortOrder = "desc")
         {
-            var result = await _orderServiceV2.GetAllOrdersAsync(userId, status, pageNumber, pageSize);
+            var result = await _orderServiceV2.GetAllOrdersAsync(userId, status, pageNumber, pageSize, sortBy, sortOrder);
             return StatusCode(result.StatusCode, result);
         }
     }

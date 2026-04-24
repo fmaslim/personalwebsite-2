@@ -417,7 +417,7 @@ namespace PersonalWebsite.Api.Services.Implementations
             };
         }
 
-        public async Task<ServiceResult<PagedOrderSummaryResponseDto>> GetAllOrdersAsync(int? userId, OrderStatus? status, int pageNumber, int pageSize)
+        public async Task<ServiceResult<PagedOrderSummaryResponseDto>> GetAllOrdersAsync(int? userId, OrderStatus? status, int pageNumber, int pageSize, string? sortBy = "orderDate", string? sortOrder = "desc")
         {
             if (pageNumber <= 0)
             {
@@ -449,8 +449,18 @@ namespace PersonalWebsite.Api.Services.Implementations
             }
             var totalCount = await query.CountAsync();
             var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+            var isDesc = sortOrder?.ToLower() != "asc";
+            query = sortBy?.ToLower() switch
+            {
+                "orderdate" or "createdatutc" => isDesc ? query.OrderByDescending(o => o.CreatedAtUtc) : query.OrderBy(o => o.CreatedAtUtc),
+                "status" => isDesc ? query.OrderByDescending(o => o.Status) : query.OrderBy(o => o.Status),
+                "userid" => isDesc ? query.OrderByDescending(o => o.UserId) : query.OrderBy(o => o.UserId),
+                _ => query.OrderByDescending(o => o.CreatedAtUtc)
+            };
+
             query = query
-                         .OrderByDescending(o => o.CreatedAtUtc)
+                         // .OrderByDescending(o => o.CreatedAtUtc)
                          .Skip((pageNumber - 1) * pageSize)
                          .Take(pageSize);
 

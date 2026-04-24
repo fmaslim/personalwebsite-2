@@ -15,6 +15,6 @@ namespace PersonalWebsite.Api.Services.Abstractions
         Task<ServiceResult<UpdateOrderStatusResponseDto>> UpdateOrderStatusAsync(int orderId, UpdateOrderStatusRequestDto dto);
         Task<ServiceResult<GetOrderByIdResponseDto>> GetOrderByIdAsync(int orderId);
 
-        Task<ServiceResult<PagedOrderSummaryResponseDto>> GetAllOrdersAsync(int? userId, OrderStatus? status, int pageNumber, int pageSize);
+        Task<ServiceResult<PagedOrderSummaryResponseDto>> GetAllOrdersAsync(int? userId, OrderStatus? status, int pageNumber, int pageSize, string? sortBy = "orderDate", string? sortOrder = "desc");
     }
 }
