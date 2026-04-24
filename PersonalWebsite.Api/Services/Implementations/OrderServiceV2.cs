@@ -451,6 +451,16 @@ namespace PersonalWebsite.Api.Services.Implementations
         400);
             }
 
+            // Friday, 04/24/2026 - added sorting direction validation
+            var allowedSortDir = new List<string> { "asc", "desc" };
+            var requestedSortDir = queryDto.SortDir?.ToLower() ?? "desc";
+            if (!allowedSortDir.Contains(requestedSortDir))
+            {
+                return ServiceResult<PagedOrderSummaryResponseDto>.Fail(
+        $"Invalid SortDir value. Allowed values: {string.Join(", ", allowedSortDir)}",
+        400);
+            }
+
             var query = _context.Orders
                 .AsNoTracking()
                 //.Include(o => o.OrderDetails)
