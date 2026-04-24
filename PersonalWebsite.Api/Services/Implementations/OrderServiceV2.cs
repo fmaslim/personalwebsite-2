@@ -441,32 +441,12 @@ namespace PersonalWebsite.Api.Services.Implementations
                 pageSize = 100; // max page size limit
             }
 
-            // Friday, 04/24/2026 - added allowable Sort Fields
-        //    var allowedSortFields = new List<string> { "orderdate", "createdatutc", "status", "userid" };
-        //    var requestedSortBy = queryDto.SortBy?.ToLower() ?? "orderdate";
-        //    if (!allowedSortFields.Contains(requestedSortBy))
-        //    {
-        //        return ServiceResult<PagedOrderSummaryResponseDto>.Fail(
-        //message: $"Invalid SortBy value. Allowed values: {string.Join(", ", allowedSortFields)}",        
-        //field: "SortBy", 
-        //statusCode: 400);
-        //    }
-        var sortByValidation = ValidateSortBy(queryDto.SortBy);
+            var sortByValidation = ValidateSortBy(queryDto.SortBy);
             if (sortByValidation != null)
             {
                 return sortByValidation;
             }
 
-            // Friday, 04/24/2026 - added sorting direction validation
-            //var allowedSortDir = new List<string> { "asc", "desc" };
-            //var requestedSortDir = queryDto.SortDir?.ToLower() ?? "desc";
-            //if (!allowedSortDir.Contains(requestedSortDir))
-            //{
-            //    return ServiceResult<PagedOrderSummaryResponseDto>.Fail(
-            //    message: "Invalid SortDir value",
-            //    field: "SortDir",
-            //    statusCode: 400);
-            //}
             var sortDirValidation = ValidateSortDir(queryDto.SortDir);
             if (sortDirValidation != null)
             {
@@ -475,24 +455,15 @@ namespace PersonalWebsite.Api.Services.Implementations
 
             // Friday, 04/26/2026 - FromDate cant be greater than ToDate validation
             var fromDate = queryDto.FromDate?.Date;
-            var toDate = queryDto.ToDate?.Date.AddDays(1).AddTicks(-1); // include the entire ToDate day
-
-            // Future option:
-            // Use exclusive end date instead of AddTicks(-1):
-            // var toDateExclusive = queryDto.ToDate?.Date.AddDays(1);
-            // query = query.Where(o => o.CreatedAtUtc < toDateExclusive.Value);
-
-            if (fromDate.HasValue && toDate.HasValue && fromDate > toDate)
-            {
-                return ServiceResult<PagedOrderSummaryResponseDto>.Fail(
-        message: "FromDate cannot be greater than ToDate.",
-        field: "FromDate",
-        statusCode: 400);
+            var toDate = queryDto.ToDate?.Date.AddDays(1).AddTicks(-1); // include the entire ToDate day            
+            var validateDateRange = ValidateDateRange(fromDate, toDate);
+            if (validateDateRange != null)
+            { 
+                return validateDateRange; 
             }
 
             var query = _context.Orders
-                .AsNoTracking()
-                //.Include(o => o.OrderDetails)
+                .AsNoTracking()                
                 .AsQueryable();
 
             if (queryDto.MinTotalAmount.HasValue)
@@ -514,16 +485,7 @@ namespace PersonalWebsite.Api.Services.Implementations
             {
                 query = query.Where(o => o.CreatedAtUtc <= toDate.Value);
             }
-            // Friday, 04/24/2026 - added validation MinTotalAmount cannot be greater than MaxTotalAmount
-            //if (queryDto.MinTotalAmount.HasValue
-            //    && queryDto.MaxTotalAmount.HasValue
-            //    && queryDto.MinTotalAmount > queryDto.MaxTotalAmount)
-            //{
-            //    return ServiceResult<PagedOrderSummaryResponseDto>.Fail(
-            //        message:"MinTotalAmount cannot be greater than MaxTotalAmount",
-            //        field: "MinTotalAmount",
-            //        statusCode: 400);
-            //}
+            
             var validateAmountRange = ValidateAmountRange(queryDto.MinTotalAmount, queryDto.MaxTotalAmount);
             if (validateAmountRange != null)
             {
@@ -551,16 +513,8 @@ namespace PersonalWebsite.Api.Services.Implementations
             var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
 
             var isDesc = sortOrder?.ToLower() != "asc";
-            //query = requestedSortBy switch
-            //{
-            //    "orderdate" or "createdatutc" => isDesc ? query.OrderByDescending(o => o.CreatedAtUtc) : query.OrderBy(o => o.CreatedAtUtc),
-            //    "status" => isDesc ? query.OrderByDescending(o => o.Status) : query.OrderBy(o => o.Status),
-            //    "userid" => isDesc ? query.OrderByDescending(o => o.UserId) : query.OrderBy(o => o.UserId),
-            //    _ => query.OrderByDescending(o => o.CreatedAtUtc)
-            //};
-
-            query = query
-                         // .OrderByDescending(o => o.CreatedAtUtc)
+            
+            query = query                         
                          .Skip((pageNumber - 1) * pageSize)
                          .Take(pageSize);
 
@@ -575,13 +529,6 @@ namespace PersonalWebsite.Api.Services.Implementations
                 CreatedAtUtc = o.CreatedAtUtc
             }).ToList();
 
-            //var serviceResult = new ServiceResult<List<OrderSummaryResponseDto>>
-            //{
-            //    Success = true,
-            //    Data = orderSummaries,
-            //    StatusCode = 200
-            //};
-            // return serviceResult;
             var pagedResult = new PagedOrderSummaryResponseDto
             {
                 Items = orderSummaries,
@@ -781,6 +728,21 @@ namespace PersonalWebsite.Api.Services.Implementations
                     message: "MinTotalAmount cannot be greater than MaxTotalAmount",
                     field: "MinTotalAmount",
                     statusCode: 400);
+            }
+
+            return null;
+        }
+
+        private ServiceResult<PagedOrderSummaryResponseDto>? ValidateDateRange(DateTime? startDate, DateTime? endDate)
+        {
+            if (startDate.HasValue
+                && endDate.HasValue
+                && startDate.Value > endDate.Value)
+            {
+                return ServiceResult<PagedOrderSummaryResponseDto>.Fail(
+                message: "FromDate cannot be greater than ToDate.",
+                field: "FromDate",
+                statusCode: 400);
             }
 
             return null;
