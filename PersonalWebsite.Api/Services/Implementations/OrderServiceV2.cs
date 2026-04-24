@@ -453,14 +453,19 @@ namespace PersonalWebsite.Api.Services.Implementations
             }
 
             // Friday, 04/24/2026 - added sorting direction validation
-            var allowedSortDir = new List<string> { "asc", "desc" };
-            var requestedSortDir = queryDto.SortDir?.ToLower() ?? "desc";
-            if (!allowedSortDir.Contains(requestedSortDir))
+            //var allowedSortDir = new List<string> { "asc", "desc" };
+            //var requestedSortDir = queryDto.SortDir?.ToLower() ?? "desc";
+            //if (!allowedSortDir.Contains(requestedSortDir))
+            //{
+            //    return ServiceResult<PagedOrderSummaryResponseDto>.Fail(
+            //    message: "Invalid SortDir value",
+            //    field: "SortDir",
+            //    statusCode: 400);
+            //}
+            var sortDirValidation = ValidateSortDir(queryDto.SortDir);
+            if (sortDirValidation != null)
             {
-                return ServiceResult<PagedOrderSummaryResponseDto>.Fail(
-                message: "Invalid SortDir value",
-                field: "SortDir",
-                statusCode: 400);
+                return sortDirValidation;
             }
 
             // Friday, 04/26/2026 - FromDate cant be greater than ToDate validation
@@ -722,6 +727,22 @@ namespace PersonalWebsite.Api.Services.Implementations
                 OrderStatus.Cancelled => false,
                 _ => false
             };
+        }
+
+        private ServiceResult<PagedOrderSummaryResponseDto>? ValidateSortDir(string? sortDir)
+        {
+            var allowedSortDir = new List<string> { "desc", "asc" };
+            var requestedSortDir = sortDir?.ToLower() ?? "desc";
+
+            if (!allowedSortDir.Contains(requestedSortDir))
+            {
+                return ServiceResult<PagedOrderSummaryResponseDto>.Fail(
+                    message: "Invalid SortDir value",
+                    field: "SortDir", 
+                    statusCode: 400);
+            }
+
+            return null;
         }
     }
 }
