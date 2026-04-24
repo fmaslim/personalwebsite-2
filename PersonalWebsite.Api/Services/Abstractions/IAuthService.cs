@@ -1,4 +1,4 @@
-﻿using PersonalWebsite.Api.DTOs;
+﻿using PersonalWebsite.Api.DTOs.Auth;
 
 namespace PersonalWebsite.Api.Services.Abstractions
 {

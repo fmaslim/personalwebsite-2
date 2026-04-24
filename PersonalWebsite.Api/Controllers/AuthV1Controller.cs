@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using PersonalWebsite.Api.DTOs.Auth;
 
 namespace PersonalWebsite.Api.Controllers
 {

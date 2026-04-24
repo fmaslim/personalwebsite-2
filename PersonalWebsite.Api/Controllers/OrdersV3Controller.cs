@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PersonalWebsite.Api.DTOs;
+using PersonalWebsite.Api.DTOs.Orders;
 using PersonalWebsite.Api.Models;
 using PersonalWebsite.Api.Services.Abstractions;
 

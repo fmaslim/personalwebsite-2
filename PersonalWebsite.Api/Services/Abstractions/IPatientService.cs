@@ -1,4 +1,4 @@
-﻿using PersonalWebsite.Api.DTOs;
+﻿using PersonalWebsite.Api.DTOs.Patients;
 
 namespace PersonalWebsite.Api.Services.Abstractions
 {

@@ -1,4 +1,5 @@
-﻿using PersonalWebsite.Api.DTOs;
+﻿using PersonalWebsite.Api.DTOs.Common;
+using PersonalWebsite.Api.DTOs.Files;
 using PersonalWebsite.Api.Models;
 
 namespace PersonalWebsite.Api.Services.Abstractions

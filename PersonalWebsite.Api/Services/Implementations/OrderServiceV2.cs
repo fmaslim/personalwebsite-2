@@ -1,8 +1,9 @@
-﻿using PersonalWebsite.Api.DTOs;
-using PersonalWebsite.Api.Models;
+﻿using PersonalWebsite.Api.Models;
 using PersonalWebsite.Api.Services.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using PersonalWebsite.Api.DTOs.Orders;
+using PersonalWebsite.Api.DTOs.Common;
 
 namespace PersonalWebsite.Api.Services.Implementations
 {
@@ -416,7 +417,7 @@ namespace PersonalWebsite.Api.Services.Implementations
             };
         }
 
-        public async Task<ServiceResult<List<OrderSummaryResponseDto>>> GetAllOrdersAsync(int? userId, OrderStatus? status, int pageNumber, int pageSize)
+        public async Task<ServiceResult<PagedOrderSummaryResponseDto>> GetAllOrdersAsync(int? userId, OrderStatus? status, int pageNumber, int pageSize)
         {
             if (pageNumber <= 0)
             {
@@ -446,6 +447,8 @@ namespace PersonalWebsite.Api.Services.Implementations
             {
                 query = query.Where(o => o.Status == status.Value);
             }
+            var totalCount = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
             query = query
                          .OrderByDescending(o => o.CreatedAtUtc)
                          .Skip((pageNumber - 1) * pageSize)
@@ -462,13 +465,27 @@ namespace PersonalWebsite.Api.Services.Implementations
                 CreatedAtUtc = o.CreatedAtUtc
             }).ToList();
 
-            var serviceResult = new ServiceResult<List<OrderSummaryResponseDto>>
+            //var serviceResult = new ServiceResult<List<OrderSummaryResponseDto>>
+            //{
+            //    Success = true,
+            //    Data = orderSummaries,
+            //    StatusCode = 200
+            //};
+            // return serviceResult;
+            var pagedResult = new PagedOrderSummaryResponseDto
+            {
+                Items = orderSummaries,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                TotalPages = totalPages
+            };
+            return new ServiceResult<PagedOrderSummaryResponseDto>
             {
                 Success = true,
-                Data = orderSummaries,
+                Data = pagedResult,
                 StatusCode = 200
             };
-            return serviceResult;
         }
 
         public async Task<ServiceResult<GetOrderByIdResponseDto>> GetOrderByIdAsync(int orderId)

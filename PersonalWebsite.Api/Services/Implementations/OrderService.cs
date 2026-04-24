@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PersonalWebsite.Api.DTOs;
+using PersonalWebsite.Api.DTOs.Common;
+using PersonalWebsite.Api.DTOs.Orders;
 using PersonalWebsite.Api.Models;
 using PersonalWebsite.Api.Services.Abstractions;
 

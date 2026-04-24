@@ -1,4 +1,4 @@
-﻿using PersonalWebsite.Api.DTOs;
+﻿using PersonalWebsite.Api.DTOs.Products;
 using PersonalWebsite.Api.Models;
 using PersonalWebsite.Api.Services.Abstractions;
 

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PersonalWebsite.Api.DTOs;
 using PersonalWebsite.Api.Services.Abstractions;
 using Microsoft.AspNetCore.Http;
+using PersonalWebsite.Api.DTOs.Orders;
 
 namespace PersonalWebsite.Api.Controllers
 {
