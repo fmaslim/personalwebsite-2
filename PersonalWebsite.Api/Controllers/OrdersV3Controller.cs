@@ -48,7 +48,7 @@ namespace PersonalWebsite.Api.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        [HttpGet]
+        [HttpGet("")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllOrdersAsync([FromQuery] OrderQueryParamsDto queryDto)
         {

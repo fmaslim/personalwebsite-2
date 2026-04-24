@@ -426,7 +426,7 @@ namespace PersonalWebsite.Api.Services.Implementations
             var pageSize = queryDto.PageSize;
             var sortBy = queryDto.SortBy;
             var sortOrder = queryDto.SortDir;
-
+            
             if (pageNumber <= 0)
             {
                 pageNumber = 1;
@@ -446,6 +446,33 @@ namespace PersonalWebsite.Api.Services.Implementations
                 //.Include(o => o.OrderDetails)
                 .AsQueryable();
 
+            if (queryDto.MinTotalAmount.HasValue)
+            {
+                // add filter for minimum total amount
+                query = query.Where(o => o.TotalAmount >= queryDto.MinTotalAmount.Value);
+            }
+            if(queryDto.MaxTotalAmount.HasValue)
+            {
+                // add filter for maximum total amount
+                query = query.Where(o => o.TotalAmount <= queryDto.MaxTotalAmount.Value);
+            }
+             if (queryDto.FromDate.HasValue)
+            {
+                // add filter for order created date from
+                query = query.Where(o => o.CreatedAtUtc >= queryDto.FromDate.Value);
+            } if (queryDto.ToDate.HasValue)
+            {
+                // add filter for order created date to
+                query = query.Where(o => o.CreatedAtUtc <= queryDto.ToDate.Value);
+            }
+            if (!string.IsNullOrWhiteSpace(queryDto.Search))
+            {
+                var search = queryDto.Search.ToLower();
+
+                query = query.Where(o =>
+                    o.Id.ToString().Contains(search) ||
+                    o.UserId.ToString().Contains(search));
+            }
             if (userId.HasValue)
             {
                 query = query.Where(o => o.UserId == userId.Value);
