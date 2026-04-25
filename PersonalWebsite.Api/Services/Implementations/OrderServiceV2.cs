@@ -749,7 +749,7 @@ namespace PersonalWebsite.Api.Services.Implementations
             return null;
         }
 
-        public async Task<ServiceResult<List<OrderSearchResponseDto>>> SearchOrdersAsync(OrderSearchRequestDto request)
+        public async Task<ServiceResult<PagedResultDto<OrderSearchResponseDto>>> SearchOrdersAsync(OrderSearchRequestDto request)
         {
             var query = _context.Orders
                 .AsNoTracking()
@@ -777,6 +777,9 @@ namespace PersonalWebsite.Api.Services.Implementations
             {
                 query = query.Where(x => x.CreatedAtUtc <= request.ToDate.Value);
             }
+
+            // after all filters
+            var totalCount = await query.CountAsync();
 
             // Add sorting
             query = request.SortBy?.ToLower() switch
@@ -806,7 +809,16 @@ namespace PersonalWebsite.Api.Services.Implementations
                 TotalAmount = x.TotalAmount
             }).ToListAsync();
 
-            return ServiceResult<List<OrderSearchResponseDto>>.Ok(orders);
+            // return ServiceResult<List<OrderSearchResponseDto>>.Ok(orders);
+
+            var pagedResultDto = new PagedResultDto<OrderSearchResponseDto>();
+            pagedResultDto.Items = orders;
+            pagedResultDto.PageNumber = pageNumber;
+            pagedResultDto.PageSize = pageSize;
+            pagedResultDto.TotalCount = totalCount;
+            pagedResultDto.TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            return ServiceResult<PagedResultDto<OrderSearchResponseDto>>.Ok(pagedResultDto);
         }
     }
 }
