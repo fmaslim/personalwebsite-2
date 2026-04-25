@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PersonalWebsite.Api.DTOs;
 using PersonalWebsite.Api.DTOs.Orders;
+using PersonalWebsite.Api.DTOs.PerformanceTraining;
 using PersonalWebsite.Api.Models;
 using PersonalWebsite.Api.Services.Abstractions;
 
@@ -54,6 +55,18 @@ namespace PersonalWebsite.Api.Controllers
         {
             var result = await _orderServiceV2.GetAllOrdersAsync(queryDto);
             return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchOrdersAsync([FromQuery]OrderSearchRequestDto dto)
+        {
+            var result = await _orderServiceV2.SearchOrdersAsync(dto);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
         }
     }
 }

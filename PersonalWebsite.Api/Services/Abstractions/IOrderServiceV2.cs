@@ -1,6 +1,7 @@
 ﻿using PersonalWebsite.Api.DTOs;
 using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.DTOs.Orders;
+using PersonalWebsite.Api.DTOs.PerformanceTraining;
 using PersonalWebsite.Api.Models;
 
 namespace PersonalWebsite.Api.Services.Abstractions
@@ -15,7 +16,9 @@ namespace PersonalWebsite.Api.Services.Abstractions
         Task<ServiceResult<CreateOrderResponseV3Dto>> CreateOrderV3Async(CreateOrderRequestV3Dto dto);
         Task<ServiceResult<UpdateOrderStatusResponseDto>> UpdateOrderStatusAsync(int orderId, UpdateOrderStatusRequestDto dto);
         Task<ServiceResult<GetOrderByIdResponseDto>> GetOrderByIdAsync(int orderId);
-
         Task<ServiceResult<PagedOrderSummaryResponseDto>> GetAllOrdersAsync(OrderQueryParamsDto query);
+
+        // Performance Training
+        Task<ServiceResult<List<OrderSearchResponseDto>>> SearchOrdersAsync(OrderSearchRequestDto request);
     }
 }

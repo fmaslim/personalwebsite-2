@@ -2,6 +2,7 @@
 using PersonalWebsite.Api.DTOs;
 using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.DTOs.Orders;
+using PersonalWebsite.Api.DTOs.PerformanceTraining;
 using PersonalWebsite.Api.Models;
 using PersonalWebsite.Api.Services.Abstractions;
 using System.Linq;
@@ -746,6 +747,66 @@ namespace PersonalWebsite.Api.Services.Implementations
             }
 
             return null;
+        }
+
+        public async Task<ServiceResult<List<OrderSearchResponseDto>>> SearchOrdersAsync(OrderSearchRequestDto request)
+        {
+            var query = _context.Orders
+                .AsNoTracking()
+                .AsQueryable();
+
+            // add paging guardrails
+            var pageNumber = request.PageNumber <= 0 ? 1 : request.PageNumber;
+            var pageSize = request.PageSize <= 0 ? 25 : request.PageSize;
+            pageSize = pageSize > 100 ? 100 : pageSize;
+
+            // add filters
+            if (request.CustomerId.HasValue)
+            {
+                query = query.Where(x => x.UserId == request.CustomerId.Value);
+            }
+            if (request.Status.HasValue)
+            {
+                query = query.Where(x => x.Status == (OrderStatus)request.Status.Value);
+            }
+            if (request.FromDate.HasValue)
+            {
+                query = query.Where(x => x.CreatedAtUtc >= request.FromDate.Value);
+            }
+            if (request.ToDate.HasValue)
+            {
+                query = query.Where(x => x.CreatedAtUtc <= request.ToDate.Value);
+            }
+
+            // Add sorting
+            query = request.SortBy?.ToLower() switch
+            {
+                "totalamount" => request.SortDirection?.ToLower() == "asc"
+                                                ? query.OrderBy(x => x.TotalAmount)
+                                                : query.OrderByDescending(x => x.TotalAmount),
+                "status" => request.SortDirection?.ToLower() == "asc"
+                                    ? query.OrderBy(x => x.Status)
+                                    : query.OrderByDescending(x => x.Status),
+                _ => request.SortDirection?.ToLower() == "asc"
+                        ? query.OrderBy(x => x.CreatedAtUtc)
+                        : query.OrderByDescending(x => x.CreatedAtUtc)            
+            };
+
+            // Add paging
+            query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+
+            // Add projection
+            var orders = await query.Select(x => new OrderSearchResponseDto
+            {
+                OrderId = x.Id,
+                CustomerId = x.UserId,
+                CustomerName = null,
+                Status = (int)x.Status,
+                CreatedAtUtc = x.CreatedAtUtc,
+                TotalAmount = x.TotalAmount
+            }).ToListAsync();
+
+            return ServiceResult<List<OrderSearchResponseDto>>.Ok(orders);
         }
     }
 }
