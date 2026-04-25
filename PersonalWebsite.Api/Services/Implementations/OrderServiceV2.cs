@@ -751,14 +751,32 @@ namespace PersonalWebsite.Api.Services.Implementations
 
         public async Task<ServiceResult<PagedResultDto<OrderSearchResponseDto>>> SearchOrdersAsync(OrderSearchRequestDto request)
         {
+            // Sunday, 04/25/2026 - added protection against bad requests
+            if (request.PageNumber <= 0)
+            {
+                return ServiceResult<PagedResultDto<OrderSearchResponseDto>>.Fail(
+                    message: "PageNumber must be greater than 0.",
+                    statusCode: 400
+                    );
+            }
+            if (request.PageSize <= 0 || request.PageSize > 100)
+            {
+                return ServiceResult<PagedResultDto<OrderSearchResponseDto>>.Fail(
+                    message: "PageSize must be between 1 and 100.",
+                    statusCode: 400
+                    );
+            }
+
             var query = _context.Orders
                 .AsNoTracking()
                 .AsQueryable();
 
             // add paging guardrails
-            var pageNumber = request.PageNumber <= 0 ? 1 : request.PageNumber;
-            var pageSize = request.PageSize <= 0 ? 25 : request.PageSize;
-            pageSize = pageSize > 100 ? 100 : pageSize;
+            //var pageNumber = request.PageNumber <= 0 ? 1 : request.PageNumber;
+            //var pageSize = request.PageSize <= 0 ? 25 : request.PageSize;
+            //pageSize = pageSize > 100 ? 100 : pageSize;
+            var pageNumber = request.PageNumber;
+            var pageSize = request.PageSize;
 
             // add filters
             if (request.CustomerId.HasValue)
