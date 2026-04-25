@@ -215,6 +215,10 @@ public partial class AdventureWorksContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // Sunday, 04/25/2026 - added index to Order
+        modelBuilder.Entity<Order>()
+            .HasIndex(o => new { o.UserId, o.CreatedAtUtc });
+
         modelBuilder.Entity<Order>()
             .HasMany(o => o.OrderDetails)
             .WithOne(od => od.Order)
