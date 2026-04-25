@@ -767,14 +767,32 @@ namespace PersonalWebsite.Api.Services.Implementations
                     );
             }
 
+            // sortBy validation
+            var sortBy = request.SortBy?.ToLower() ?? "createdatutc";
+            var sortDir = request.SortDirection?.ToLower() ?? "desc";
+
+            var allowedFields = new List<string> { "createdatutc", "totalamount", "status" };
+            if (!allowedFields.Contains(sortBy))
+            {
+                return ServiceResult<PagedResultDto<OrderSearchResponseDto>>.Fail(
+                    message: "SortBy must be one of: createdAtUtc, totalAmount, status.",
+                    statusCode: 400
+                    );
+            }
+
+            if (sortDir != "asc" && sortDir != "desc")
+            {
+                return ServiceResult<PagedResultDto<OrderSearchResponseDto>>.Fail(
+                    message: "SortDirection must be either 'asc' or 'desc'.",
+                    statusCode: 400
+                    );
+            }
+
             var query = _context.Orders
                 .AsNoTracking()
                 .AsQueryable();
 
             // add paging guardrails
-            //var pageNumber = request.PageNumber <= 0 ? 1 : request.PageNumber;
-            //var pageSize = request.PageSize <= 0 ? 25 : request.PageSize;
-            //pageSize = pageSize > 100 ? 100 : pageSize;
             var pageNumber = request.PageNumber;
             var pageSize = request.PageSize;
 
@@ -800,15 +818,15 @@ namespace PersonalWebsite.Api.Services.Implementations
             var totalCount = await query.CountAsync();
 
             // Add sorting
-            query = request.SortBy?.ToLower() switch
+            query = sortBy switch
             {
-                "totalamount" => request.SortDirection?.ToLower() == "asc"
+                "totalamount" => sortDir == "asc"
                                                 ? query.OrderBy(x => x.TotalAmount)
                                                 : query.OrderByDescending(x => x.TotalAmount),
-                "status" => request.SortDirection?.ToLower() == "asc"
+                "status" => sortDir == "asc"
                                     ? query.OrderBy(x => x.Status)
                                     : query.OrderByDescending(x => x.Status),
-                _ => request.SortDirection?.ToLower() == "asc"
+                _ => sortDir == "asc"
                         ? query.OrderBy(x => x.CreatedAtUtc)
                         : query.OrderByDescending(x => x.CreatedAtUtc)            
             };
