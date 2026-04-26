@@ -54,5 +54,16 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
             var transactions = await _accountService.GetRecentTransactionsAsync(accountId, pageSize, pageNumber);
             return Ok(transactions);
         }
+
+        [HttpGet("{accountId}/spending-summary")]
+        public async Task<IActionResult> GetSpendingSummary(int accountId)
+        {
+            var summary = await _accountService.GetSpendingSummaryAsync(accountId);
+            if (summary == null)
+            {
+                return NotFound();
+            }
+            return Ok(summary);
+        }
     }
 }

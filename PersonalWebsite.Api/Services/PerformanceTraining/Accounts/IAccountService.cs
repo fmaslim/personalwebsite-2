@@ -8,5 +8,6 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Accounts
         Task<AccountBalanceDto>? GetBalanceAsync(int accountId);
         Task<List<AccountQuickActionDto>> GetQuickActionsAsync(int accountId);
         Task<RecentTransactionResponseDto> GetRecentTransactionsAsync(int accountId, int pageSize, int pageNumber);
+        Task<SpendingSummaryDto> GetSpendingSummaryAsync(int accountId);
     }
 }

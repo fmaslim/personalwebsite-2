@@ -87,5 +87,17 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Accounts
 
             return Task.FromResult(result);
         }
+
+        public Task<SpendingSummaryDto> GetSpendingSummaryAsync(int accountId)
+        {
+            var summary = new SpendingSummaryDto();
+            summary.AccountId = accountId;
+            summary.TotalSpentThisMonth = 12450.50m;
+            summary.TotalIncomeThisMonth = 3200.00m;
+            summary.NetCashFlow = summary.TotalIncomeThisMonth - summary.TotalSpentThisMonth;
+            summary.TopSpendingCategory = "Groceries";
+
+            return Task.FromResult(summary);
+        }
     }
 }
