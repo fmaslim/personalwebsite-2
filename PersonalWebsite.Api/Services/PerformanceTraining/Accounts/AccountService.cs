@@ -154,13 +154,47 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Accounts
             transactionC.TransactionType = "Credit";
             transactions.Add(transactionC);
 
-            var pagedTransactions = transactions
-            .Skip((requestDto.PageNumber - 1) * requestDto.PageSize)
-            .Take(requestDto.PageSize)
-            .ToList();
+            if (!string.IsNullOrEmpty(requestDto.Search))
+            {
+                transactions = transactions.Where(x => x.Description != null && x.Description.Contains(requestDto.Search, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+            if (!string.IsNullOrEmpty(requestDto.TransactionType))
+            {
+                transactions = transactions.Where(x => x.TransactionType != null && x.TransactionType.Contains(requestDto.TransactionType, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+            if (requestDto.MinAmount.HasValue)
+            {
+                transactions = transactions.Where(x => x.Amount >= requestDto.MinAmount.Value).ToList();
+            }
+            if(requestDto.MaxAmount.HasValue)
+            {
+                transactions = transactions.Where(x => x.Amount <= requestDto.MaxAmount.Value).ToList();
+            }
+
+            // Added sorting
+            var sortBy = requestDto.SortBy?.ToLower();
+            var sortDir = requestDto.SortDir?.ToLower();
+
+            transactions = sortBy switch
+            {
+                "amount" => sortDir == "asc" 
+                ? transactions.OrderBy(x => x.Amount).ToList()
+                : transactions.OrderByDescending(x => x.Amount).ToList(),
+                "description" => sortDir == "asc" 
+                ? transactions.OrderBy(x => x.Description).ToList()
+                 : transactions.OrderByDescending(x => x.Description).ToList(),
+                "type" or "transactiontype" => sortDir == "asc" 
+                ? transactions.OrderBy(x => x.TransactionType).ToList()
+                : transactions.OrderByDescending(x => x.TransactionType).ToList(),
+                "date" or "transactiondate" => sortDir == "asc" 
+                ? transactions.OrderBy(x => x.TransactionDate).ToList()
+                : transactions.OrderByDescending(x => x.TransactionDate).ToList(),
+                _ => sortDir == "asc"
+                ? transactions.OrderBy(x => x.TransactionDate).ToList()
+                : transactions.OrderByDescending(x => x.TransactionDate).ToList()
+            };
 
             var finalResult = transactions.ToPagedResponse(requestDto.PageNumber, requestDto.PageSize);
-
             return Task.FromResult(finalResult);
         }
 
