@@ -65,5 +65,23 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
             }
             return Ok(summary);
         }
+
+        [HttpGet("{accountId}/linked-accounts")]
+        public async Task<IActionResult> GetLinkedAccounts(int accountId)
+        {
+            var linkedAccounts = await _accountService.GetLinkedAccountsAsync(accountId);
+            return Ok(linkedAccounts);
+        }
+
+        [HttpGet("{accountId}/statements")]
+        public async Task<IActionResult> GetAccountStatements(int accountId, [FromQuery] int year = 2026)
+        {
+            var statements = await _accountService.GetAccountStatementsAsync(accountId, year);
+            if (statements == null)
+            {
+                return NotFound();
+            }
+            return Ok(statements);
+        }
     }
 }

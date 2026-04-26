@@ -4,6 +4,43 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Accounts
 {
     public class AccountService : IAccountService
     {
+        public Task<List<AccountStatementDto>> GetAccountStatementsAsync(int accountId, int year)
+        {
+            var accountStatements = new List<AccountStatementDto>();
+
+            var statementA = new AccountStatementDto();
+            statementA.StatementId = 301;
+            statementA.AccountId = accountId;
+            statementA.Year = year;
+            statementA.Month = 1;
+            statementA.StatementName = "January Statement";
+            statementA.StatementDate = new DateTime(year, 1, 31);
+            statementA.DownloadUrl = $"/api/accounts/{accountId}/statements/{301}/download";
+            accountStatements.Add(statementA);
+
+            var statementB = new AccountStatementDto();
+            statementB.StatementId = 302;
+            statementB.AccountId = accountId;
+            statementB.Year = year;
+            statementB.Month = 2;
+            statementB.StatementName = "February Statement";
+            statementB.StatementDate = new DateTime(year, 2, 28);
+            statementB.DownloadUrl = $"/api/accounts/{accountId}/statements/{302}/download";
+            accountStatements.Add(statementB);
+
+            var statementC = new AccountStatementDto();
+            statementC.StatementId = 303;
+            statementC.AccountId = accountId;
+            statementC.Year = year;
+            statementC.Month = 3;
+            statementC.StatementName = "March Statement";
+            statementC.StatementDate = new DateTime(year, 3, 31);
+            statementC.DownloadUrl = $"/api/accounts/{accountId}/statements/{303}/download";
+            accountStatements.Add(statementC);
+
+            return Task.FromResult(accountStatements);
+        }
+
         public Task<AccountBalanceDto>? GetBalanceAsync(int accountId)
         {
             var result = new AccountBalanceDto();
@@ -24,6 +61,43 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Accounts
             result.AccountType = "Checking";
 
             return Task.FromResult(result);
+        }
+
+        public Task<List<LinkedAccountDto>> GetLinkedAccountsAsync(int accountId)
+        {
+            var linkedAccounts = new List<LinkedAccountDto>();
+
+            var accountA = new LinkedAccountDto();
+            accountA.LinkedAccountId = 201;
+            accountA.InstitutionName = "Chase";
+            accountA.AccountName = "Everyday Checking";
+            accountA.AccountType = "Checking";
+            accountA.MaskedAccountNumber = "****1234";
+            accountA.Balance = 2450.75m;
+            accountA.IsActive = true;
+            linkedAccounts.Add(accountA);
+
+            var accountB = new LinkedAccountDto();
+            accountB.LinkedAccountId = 202;
+            accountB.InstitutionName = "Capital One";
+            accountB.AccountName = "High Yield Savings";
+            accountB.AccountType = "Savings";
+            accountB.MaskedAccountNumber = "****9876";
+            accountB.Balance = 8750.00m;
+            accountB.IsActive = true;
+            linkedAccounts.Add(accountB);
+
+            var accountC = new LinkedAccountDto();
+            accountC.LinkedAccountId = 203;
+            accountC.InstitutionName = "Fidelity";
+            accountC.AccountName = "Brokerage Account";
+            accountC.AccountType = "Brokerage";
+            accountC.MaskedAccountNumber = "****4567";
+            accountC.Balance = 15200.40m;
+            accountC.IsActive = true;
+            linkedAccounts.Add(accountC);
+
+            return Task.FromResult(linkedAccounts);
         }
 
         public Task<List<AccountQuickActionDto>> GetQuickActionsAsync(int accountId)
