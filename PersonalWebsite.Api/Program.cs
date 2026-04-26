@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using PersonalWebsite.Api.Services.PerformanceTraining.Accounts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -85,6 +86,9 @@ builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProductServiceV2, ProductServiceV2>();
 builder.Services.AddScoped<IOrderServiceV2, OrderServiceV2>();
+
+// Sunday, 04/26/2026 - Performance Training
+builder.Services.AddScoped<IAccountService, AccountService>();
 
 // Monday, 04/20/2026 - Added policy-based authz
 builder.Services.AddAuthorization(options =>
