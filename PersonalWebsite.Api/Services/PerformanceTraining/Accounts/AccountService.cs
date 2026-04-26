@@ -1,4 +1,5 @@
-﻿using PersonalWebsite.Api.DTOs.PerformanceTraining.Accounts;
+﻿using PersonalWebsite.Api.DTOs.Common;
+using PersonalWebsite.Api.DTOs.PerformanceTraining.Accounts;
 
 namespace PersonalWebsite.Api.Services.PerformanceTraining.Accounts
 {
@@ -125,7 +126,7 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Accounts
             return Task.FromResult(result);
         }
 
-        public Task<RecentTransactionResponseDto> GetRecentTransactionsAsync(int accountId, int pageSize, int pageNumber)
+        public Task<PagedResponse<RecentTransactionDto>> GetRecentTransactionsAsync(int accountId, RecentTransactionRequestDto requestDto)
         {
             var transactions = new List<RecentTransactionDto>();
             var transactionA = new RecentTransactionDto();
@@ -152,14 +153,21 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Accounts
             transactionC.TransactionType = "Credit";
             transactions.Add(transactionC);
 
-            var result = new RecentTransactionResponseDto();
-            result.AccountId = accountId;
-            result.Transactions = transactions;
-            result.PageSize = pageSize;
-            result.PageNumber = pageNumber;
-            result.TotalCount = transactions.Count;
+            var pagedTransactions = transactions
+            .Skip((requestDto.PageNumber - 1) * requestDto.PageSize)
+            .Take(requestDto.PageSize)
+            .ToList();
 
-            return Task.FromResult(result);
+            var finalResult = new PagedResponse<RecentTransactionDto>
+            {
+                Data = pagedTransactions,
+                PageNumber = requestDto.PageNumber,
+                PageSize = requestDto.PageSize,
+                TotalRecords = transactions.Count,
+                TotalPages = (int)Math.Ceiling(transactions.Count / (double)requestDto.PageSize)
+            };
+
+            return Task.FromResult(finalResult);
         }
 
         public Task<SpendingSummaryDto> GetSpendingSummaryAsync(int accountId)

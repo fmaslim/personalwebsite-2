@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PersonalWebsite.Api.DTOs.PerformanceTraining.Accounts;
 using PersonalWebsite.Api.Services.PerformanceTraining.Accounts;
 
 namespace PersonalWebsite.Api.Controllers.PerformanceTraining
@@ -48,10 +49,9 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
 
         [HttpGet("{accountId}/recent-transactions")]
         public async Task<IActionResult> GetRecentTransactions(int accountId, 
-            [FromQuery]int pageSize = 10,
-            [FromQuery] int pageNumber = 1)
+            [FromQuery] RecentTransactionRequestDto requestDto)
         {
-            var transactions = await _accountService.GetRecentTransactionsAsync(accountId, pageSize, pageNumber);
+            var transactions = await _accountService.GetRecentTransactionsAsync(accountId, requestDto);
             return Ok(transactions);
         }
 
