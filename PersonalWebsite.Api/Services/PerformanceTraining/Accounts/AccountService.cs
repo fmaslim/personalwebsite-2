@@ -1,5 +1,6 @@
 ﻿using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.DTOs.PerformanceTraining.Accounts;
+using PersonalWebsite.Api.Extensions;
 
 namespace PersonalWebsite.Api.Services.PerformanceTraining.Accounts
 {
@@ -158,14 +159,7 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Accounts
             .Take(requestDto.PageSize)
             .ToList();
 
-            var finalResult = new PagedResponse<RecentTransactionDto>
-            {
-                Data = pagedTransactions,
-                PageNumber = requestDto.PageNumber,
-                PageSize = requestDto.PageSize,
-                TotalRecords = transactions.Count,
-                TotalPages = (int)Math.Ceiling(transactions.Count / (double)requestDto.PageSize)
-            };
+            var finalResult = transactions.ToPagedResponse(requestDto.PageNumber, requestDto.PageSize);
 
             return Task.FromResult(finalResult);
         }
