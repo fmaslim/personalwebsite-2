@@ -6,7 +6,7 @@ namespace PersonalWebsite.Api.Extensions
     {
         public static PagedResponse<T> ToPagedResponse<T>(this List<T> source, int pageNumber, int pageSize) where T : class
         {
-            var pagedData = source.Skip(pageNumber - 1).Take(pageSize).ToList();
+            var pagedData = source.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
             return new PagedResponse<T>
             {
                 Data = pagedData,

@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using PersonalWebsite.Api.Services.PerformanceTraining.Accounts;
+using PersonalWebsite.Api.Services.PerformanceTraining.Orders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -89,6 +90,7 @@ builder.Services.AddScoped<IOrderServiceV2, OrderServiceV2>();
 
 // Sunday, 04/26/2026 - Performance Training
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IOrderSearchTrainingService, OrderSearchTrainingService>();
 
 // Monday, 04/20/2026 - Added policy-based authz
 builder.Services.AddAuthorization(options =>
