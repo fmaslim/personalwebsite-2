@@ -1,14 +1,15 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using PersonalWebsite.Api.Models;
 using PersonalWebsite.Api.Services.Abstractions;
 using PersonalWebsite.Api.Services.Implementations;
-using Serilog;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Microsoft.OpenApi.Models;
 using PersonalWebsite.Api.Services.PerformanceTraining.Accounts;
 using PersonalWebsite.Api.Services.PerformanceTraining.Orders;
+using PersonalWebsite.Api.Services.PerformanceTraining.Patients;
+using Serilog;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -91,6 +92,7 @@ builder.Services.AddScoped<IOrderServiceV2, OrderServiceV2>();
 // Sunday, 04/26/2026 - Performance Training
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IOrderSearchTrainingService, OrderSearchTrainingService>();
+builder.Services.AddScoped<IPatientSearchTrainingService, PatientSearchTrainingService>();
 
 // Monday, 04/20/2026 - Added policy-based authz
 builder.Services.AddAuthorization(options =>
