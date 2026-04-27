@@ -40,6 +40,29 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Orders
             orderC.OrderDate = DateTime.UtcNow.AddDays(-5);
             orders.Add(orderC);
 
+            // Added Search filter
+            if (!String.IsNullOrEmpty(dto.Search))
+            {
+                orders = orders.Where(x => x.CustomerName != null 
+                                                                                            && x.CustomerName.Contains(dto.Search, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+            //Added status filter
+            if(!String.IsNullOrEmpty(dto.Status))
+            {
+                orders = orders.Where(x => x.Status != null
+                                                                                            && x.Status.Equals(dto.Status, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+            // Added MinTotal filter
+            if (dto.MinTotal.HasValue)
+            {
+                orders = orders.Where(x => x.Total >= dto.MinTotal.Value).ToList();
+            }
+            // Added MaxTotal filter
+            if (dto.MaxTotal.HasValue)
+            {
+                orders = orders.Where(x => x.Total <= dto.MaxTotal.Value).ToList();
+            }
+
             var finalResult = orders.ToPagedResponse(
                 dto.PageNumber,
                 dto.PageSize);
