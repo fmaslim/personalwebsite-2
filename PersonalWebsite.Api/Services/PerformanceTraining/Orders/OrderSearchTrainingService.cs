@@ -63,6 +63,31 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Orders
                 orders = orders.Where(x => x.Total <= dto.MaxTotal.Value).ToList();
             }
 
+            var a = new OrderSearchResultDto();
+
+            // Added sorting
+            var sortBy = dto.SortBy?.ToLower() ?? dto.SortBy;
+            var sortDir = dto.SortDir?.ToLower() ?? dto.SortDir;
+
+            orders = sortBy switch
+            {
+                "total" => sortDir == "asc"
+                    ? orders.OrderBy(x => x.Total).ToList()
+                    : orders.OrderByDescending(x => x.Total).ToList(),
+                "customer" or "customername" => sortDir == "asc"
+                    ? orders.OrderBy(x => x.CustomerName).ToList()
+                    : orders.OrderByDescending(x => x.CustomerName).ToList(),
+                "status" => sortDir == "asc" 
+                    ? orders.OrderBy(x => x.Status).ToList()
+                    : orders.OrderByDescending(x => x.Status).ToList(),
+                "date" or "orderdate" => sortDir == "asc" 
+                    ? orders.OrderBy(x => x.OrderDate).ToList()
+                    : orders.OrderByDescending(x => x.OrderDate).ToList(),
+                _ => sortDir == "asc" 
+                    ? orders.OrderBy(x => x.OrderDate).ToList()
+                    : orders.OrderByDescending(x => x.OrderDate).ToList()
+            };
+
             var finalResult = orders.ToPagedResponse(
                 dto.PageNumber,
                 dto.PageSize);
