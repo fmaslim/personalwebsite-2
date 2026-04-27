@@ -38,6 +38,29 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Patients
             patientC.LastVisitDate = DateTime.UtcNow.AddDays(-45);
             patients.Add(patientC);
 
+            // Added filters
+            if (!string.IsNullOrEmpty(requestDto.Search))
+            {
+                patients = patients.Where(p => p.FullName != null 
+                && p.FullName.Contains(requestDto.Search, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+            if (!string.IsNullOrEmpty(requestDto.Status))
+            {
+                patients = patients.Where(p => p.Status != null && p.Status.Equals(requestDto.Status, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+            if (!string.IsNullOrEmpty(requestDto.Gender))
+            {
+                patients = patients.Where(p => p.Gender != null && p.Gender.Equals(requestDto.Gender, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+            if (requestDto.MinAge.HasValue)
+            {
+                patients = patients.Where(p => p.Age >= requestDto.MinAge.Value).ToList();
+            }
+            if (requestDto.MaxAge.HasValue)
+            {
+                patients = patients.Where(p => p.Age <= requestDto.MaxAge.Value).ToList();
+            }
+
             var finalResult = patients.ToPagedResponse(requestDto.PageNumber, requestDto.PageSize);
 
             return Task.FromResult(finalResult);
