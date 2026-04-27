@@ -6,6 +6,7 @@ using PersonalWebsite.Api.Models;
 using PersonalWebsite.Api.Services.Abstractions;
 using PersonalWebsite.Api.Services.Implementations;
 using PersonalWebsite.Api.Services.PerformanceTraining.Accounts;
+using PersonalWebsite.Api.Services.PerformanceTraining.Customers;
 using PersonalWebsite.Api.Services.PerformanceTraining.Orders;
 using PersonalWebsite.Api.Services.PerformanceTraining.Patients;
 using Serilog;
@@ -93,6 +94,7 @@ builder.Services.AddScoped<IOrderServiceV2, OrderServiceV2>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IOrderSearchTrainingService, OrderSearchTrainingService>();
 builder.Services.AddScoped<IPatientSearchTrainingService, PatientSearchTrainingService>();
+builder.Services.AddScoped<ICustomerSearchTraining, CustomerSearchTraining>();
 
 // Monday, 04/20/2026 - Added policy-based authz
 builder.Services.AddAuthorization(options =>

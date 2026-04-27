@@ -61,6 +61,19 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Patients
                 patients = patients.Where(p => p.Age <= requestDto.MaxAge.Value).ToList();
             }
 
+            // Added sorting
+            var sortBy = requestDto.SortBy?.ToLower();
+            var sortDir = requestDto.SortDir?.ToLower();
+            patients = sortBy switch
+            {
+                "age" => sortDir == "asc" ? patients.OrderBy(p => p.Age).ToList() : patients.OrderByDescending(p => p.Age).ToList(),
+                "name" or "fullname" => sortDir == "asc" ? patients.OrderBy(p => p.FullName).ToList() : patients.OrderByDescending(p => p.FullName).ToList(),
+                "gender" => sortDir == "asc" ? patients.OrderBy(p => p.Gender).ToList() : patients.OrderByDescending(p => p.Gender).ToList(),
+                "status" => sortDir == "asc" ? patients.OrderBy(p => p.Status).ToList() : patients.OrderByDescending(p => p.Status).ToList(),
+                "lastvisit" or "lastvisitdate" => sortDir == "asc" ? patients.OrderBy(p => p.LastVisitDate).ToList() : patients.OrderByDescending(p => p.LastVisitDate).ToList(),
+                _ => sortDir == "asc" ? patients.OrderBy(p => p.LastVisitDate).ToList() : patients.OrderByDescending(p => p.LastVisitDate).ToList()
+            };
+
             var finalResult = patients.ToPagedResponse(requestDto.PageNumber, requestDto.PageSize);
 
             return Task.FromResult(finalResult);
