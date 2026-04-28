@@ -1,5 +1,6 @@
 ﻿using PersonalWebsite.Api.DTOs.Common;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 namespace PersonalWebsite.Api.Extensions
 {
@@ -20,9 +21,22 @@ namespace PersonalWebsite.Api.Extensions
 
         public static async Task<PagedResponse<T>> ToPagedResponseAsync<T>(this IQueryable<T> query, int pageNumber, int pageSize) where T : class
         {
+            var countStopWatch = Stopwatch.StartNew();
             var totalRecords = await query.CountAsync();
+            countStopWatch.Stop();
 
+            Console.WriteLine("====================================");
+            Console.WriteLine($"COUNT QUERY TOOK: {countStopWatch.ElapsedMilliseconds} ms");
+            Console.WriteLine("====================================");
+
+            var dataStopwatch = Stopwatch.StartNew();
             var data = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            dataStopwatch.Stop();
+
+            Console.WriteLine("====================================");
+            Console.WriteLine($"DATA QUERY TOOK: {dataStopwatch.ElapsedMilliseconds} ms");
+            Console.WriteLine("====================================");
 
             return new PagedResponse<T>
             {

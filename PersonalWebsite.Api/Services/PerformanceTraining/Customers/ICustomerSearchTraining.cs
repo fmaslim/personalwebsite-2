@@ -6,5 +6,7 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Customers
     public interface ICustomerSearchTraining
     {
         Task<PagedResponse<CustomerSearchResultDto>> SearchCustomersAsync(CustomerSearchRequestDto requestDto);
+
+        Task<PagedResponse<CustomerSearchResultDto>> SearchCustomersBadFullEntityAsync(CustomerSearchRequestDto requestDto);
     }
 }

@@ -79,9 +79,14 @@ builder.Services.AddSwaggerGen(options =>
 //    options.UseSqlServer(builder.Configuration.GetConnectionString("AdventureWorks")));
 
 builder.Services.AddDbContext<AdventureWorksContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("AdventureWorks"))
-        .LogTo(Console.WriteLine, LogLevel.Information)
-        .EnableSensitiveDataLogging());
+    options.UseSqlServer(builder.Configuration.GetConnectionString("AdventureWorks")));
+        //.LogTo(Console.WriteLine, LogLevel.Information)
+        //.EnableSensitiveDataLogging());
+
+//builder.Services.AddDbContext<AdventureWorksContext>(options =>
+//    options.UseSqlServer(builder.Configuration.GetConnectionString("AdventureWorks"))
+//        .LogTo(Console.WriteLine, LogLevel.Information)
+//        .EnableSensitiveDataLogging());
 
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IProductCategoryService, ProductCategoryService>();
