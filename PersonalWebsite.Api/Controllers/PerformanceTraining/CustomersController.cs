@@ -20,7 +20,8 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
         {
             // var result = await _service.SearchCustomersAsync(requestDto);
             // var result = await _service.SearchCustomersBadFullEntityAsync(requestDto);
-            var result = await _service.SearchCustomersBadN1QueryAsync(requestDto);
+            // var result = await _service.SearchCustomersBadN1QueryAsync(requestDto);
+            var result = await _service.SearchCustomersGoodQueryAsync(requestDto);
             return Ok(result);
         }
     }

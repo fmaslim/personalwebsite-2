@@ -154,7 +154,9 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Customers
             // badStopwatch.Stop();
 
             var data = new List<CustomerSearchResultDto>();
-            // Intentionally bad N+1 part
+            // ************************************
+            // *** Intentionally bad N+1 part ***
+            // ************************************
             foreach (var customer in customers)
             {
                 var store = customer.StoreId != null
@@ -220,6 +222,42 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Customers
                 TotalRecords = data.Count,
                 TotalPages = (int)Math.Ceiling(data.Count / (double)requestDto.PageSize)
             };
+        }
+
+        public async Task<PagedResponse<CustomerSearchResultDto>> SearchCustomersGoodQueryAsync(CustomerSearchRequestDto requestDto)
+        {
+            var data = _context.Customers
+                .AsNoTracking()
+                /*
+                 * Go to SQL.
+                    Join what you need.
+                    Return only these DTO fields.
+                    Do it in one database trip.
+                 */
+                .Select(c => new CustomerSearchResultDto // instead of looping through all Customers, it's done through projection
+                {
+                    CustomerId = c.CustomerId,
+                    CompanyName = c.Store != null ? c.Store.Name : null,
+                    ContactName = c.Person != null ? c.Person.FirstName + " " + c.Person.LastName : null,
+                });
+
+            var totalCount = await data.CountAsync();
+
+            var pagedData = await data
+                .OrderBy(c => c.CustomerId)
+                .Skip((requestDto.PageNumber - 1) * requestDto.PageSize)
+                .Take(requestDto.PageSize)
+                .ToListAsync();
+
+            return new PagedResponse<CustomerSearchResultDto>
+            {
+                Data = pagedData,
+                PageNumber = requestDto.PageNumber,
+                PageSize = requestDto.PageSize,
+                TotalRecords = totalCount,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)requestDto.PageSize)
+            };
+                
         }
     }
 }
