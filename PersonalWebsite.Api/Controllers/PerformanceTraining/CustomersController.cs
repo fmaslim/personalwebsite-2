@@ -18,8 +18,9 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
         [HttpGet]
         public async Task<IActionResult> GetCustomersAsync([FromQuery]CustomerSearchRequestDto requestDto)
         {
-            var result = await _service.SearchCustomersAsync(requestDto);
+            // var result = await _service.SearchCustomersAsync(requestDto);
             // var result = await _service.SearchCustomersBadFullEntityAsync(requestDto);
+            var result = await _service.SearchCustomersBadN1QueryAsync(requestDto);
             return Ok(result);
         }
     }

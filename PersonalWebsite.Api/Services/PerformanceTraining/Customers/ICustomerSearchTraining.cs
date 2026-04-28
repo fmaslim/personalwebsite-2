@@ -8,5 +8,7 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Customers
         Task<PagedResponse<CustomerSearchResultDto>> SearchCustomersAsync(CustomerSearchRequestDto requestDto);
 
         Task<PagedResponse<CustomerSearchResultDto>> SearchCustomersBadFullEntityAsync(CustomerSearchRequestDto requestDto);
+
+        Task<PagedResponse<CustomerSearchResultDto>> SearchCustomersBadN1QueryAsync(CustomerSearchRequestDto requestDto);
     }
 }

@@ -140,5 +140,86 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Customers
                 TotalPages = (int)Math.Ceiling(data.Count / (double)requestDto.PageSize)
             };
         }
+
+        public async Task<PagedResponse<CustomerSearchResultDto>> SearchCustomersBadN1QueryAsync(CustomerSearchRequestDto requestDto)
+        {
+            var badStopwatch = Stopwatch.StartNew();
+            
+            var customers = await _context.Customers.AsNoTracking()
+                .OrderByDescending(c => c.CustomerId)
+                .Skip((requestDto.PageNumber - 1) * requestDto.PageSize)
+                .Take(requestDto.PageSize)
+                .ToListAsync();
+
+            // badStopwatch.Stop();
+
+            var data = new List<CustomerSearchResultDto>();
+            // Intentionally bad N+1 part
+            foreach (var customer in customers)
+            {
+                var store = customer.StoreId != null
+                        ? await _context.Stores
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync(s => s.BusinessEntityId == customer.StoreId)
+                        : null;
+
+                var person = customer.PersonId != null
+                    ? await _context.People
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(p => p.BusinessEntityId == customer.PersonId)
+                    : null;
+
+                data.Add(new CustomerSearchResultDto
+                {
+                    CustomerId = customer.CustomerId,
+                    CompanyName = store != null ? store.Name : null,
+                    ContactName = person != null
+                ? person.FirstName + " " + person.LastName
+                : null,
+                    City = "City Placeholder",
+                    Country = "Country Placeholder"
+                });
+            }
+
+            /*
+             * for API response DTOs, projection is usually the better move ✅
+            Include vs Projection
+            Use Include when you need the full related entity
+
+            Use projection when building an API response
+             var data = await _context.Customers
+            .AsNoTracking()
+            .OrderByDescending(c => c.CustomerId)
+            .Select(c => new CustomerSearchResultDto // *** here projection ***
+            {
+                CustomerId = c.CustomerId,
+                CompanyName = c.Store != null ? c.Store.Name : null, // *** here ***
+                ContactName = c.Person != null // *** here ***
+                    ? c.Person.FirstName + " " + c.Person.LastName
+                    : null,
+                City = "City Placeholder",
+                Country = "Country Placeholder"
+            })
+            .Skip((requestDto.PageNumber - 1) * requestDto.PageSize)
+            .Take(requestDto.PageSize)
+            .ToListAsync();
+             */
+
+            badStopwatch.Stop();
+
+            Console.WriteLine("====================================");
+            Console.WriteLine($"BAD N+1 QUERY TOOK: {badStopwatch.ElapsedMilliseconds} ms");
+            Console.WriteLine($"BAD N+1 CUSTOMERS LOADED: {customers.Count}");
+            Console.WriteLine("====================================");
+
+            return new PagedResponse<CustomerSearchResultDto>
+            {
+                Data = data,
+                PageNumber = requestDto.PageNumber,
+                PageSize = requestDto.PageSize,
+                TotalRecords = data.Count,
+                TotalPages = (int)Math.Ceiling(data.Count / (double)requestDto.PageSize)
+            };
+        }
     }
 }
