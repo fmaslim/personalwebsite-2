@@ -75,8 +75,14 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+//builder.Services.AddDbContext<AdventureWorksContext>(options =>
+//    options.UseSqlServer(builder.Configuration.GetConnectionString("AdventureWorks")));
+
 builder.Services.AddDbContext<AdventureWorksContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("AdventureWorks")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("AdventureWorks"))
+        .LogTo(Console.WriteLine, LogLevel.Information)
+        .EnableSensitiveDataLogging());
+
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IProductCategoryService, ProductCategoryService>();
 builder.Services.AddScoped<IShipperService, ShipperService>();
