@@ -14,8 +14,8 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
             _service = service;
         }
 
-        [HttpGet("orders")]
-        public async Task<IActionResult> GetSearchOrdersTrainingAsync([FromQuery]OrderSearchRequestDto dto)
+        [HttpGet("orders/search")]
+        public async Task<IActionResult> GetSearchOrdersTrainingAsync([FromQuery]SearchOrderRequestDto dto)
         {
             var result = await _service.SearchOrdersAsync(dto);
             return Ok(result);

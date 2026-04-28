@@ -6,6 +6,8 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Orders
 {
     public interface IOrderSearchTrainingService
     {
-        Task<PagedResponse<PT.OrderSearchResultDto>> SearchOrdersAsync(PT.OrderSearchRequestDto dto);
+        // Task<PagedResponse<PT.OrderSearchResultDto>> SearchOrdersAsync(PT.OrderSearchRequestDto dto);
+
+        Task<PagedResponse<PT.SearchOrderResultDto>> SearchOrdersAsync(PT.SearchOrderRequestDto dto);
     }
 }
