@@ -31,5 +31,12 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
             var result = await _orderService.SearchOrdersBadN1QueryAsync(requestDto);
             return Ok(result);
         }
+
+        [HttpGet("orders/search-goodn1query")]
+        public async Task<IActionResult> GetOrdersGoodQueryAsync([FromQuery] DTOs.PerformanceTraining.OrderSearchRequestDto requestDto)
+        {
+            var result = await _orderService.SearchOrdersGoodQueryAsync(requestDto);
+            return Ok(result);
+        }
     }
 }

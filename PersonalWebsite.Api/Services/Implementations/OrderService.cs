@@ -288,5 +288,42 @@ namespace PersonalWebsite.Api.Services.Implementations
             };
 
         }
+
+        public async Task<PagedResponse<OrderSearchResultDto>> SearchOrdersGoodQueryAsync(DTOs.PerformanceTraining.OrderSearchRequestDto requestDto)
+        {
+            var query = _context.SalesOrderHeaders.AsNoTracking()
+                .Select(o => new OrderSearchResultDto
+                {
+                    SalesOrderId = o.SalesOrderId,
+                    SalesOrderNumber = o.SalesOrderNumber,
+                    OrderDate = o.OrderDate,
+                    CustomerName = o.Customer != null
+                    ? o.Customer.Person != null
+                        ? o.Customer.Person.FirstName + " " + o.Customer.Person.LastName
+                        : o.Customer.Store != null
+                            ? o.Customer.Store.Name
+                            : null
+                    : null,
+                    TotalDue = o.TotalDue,
+                    ItemCount = o.SalesOrderDetails.Count()
+                });
+                
+            var totalCount = await query.CountAsync();
+
+            var data = await query
+            .OrderByDescending(o => o.OrderDate)
+            .Skip((requestDto.PageNumber - 1) * requestDto.PageSize)
+            .Take(requestDto.PageSize)
+            .ToListAsync();
+
+            return new PagedResponse<OrderSearchResultDto>
+            {
+                Data = data,
+                PageNumber = requestDto.PageNumber,
+                PageSize = requestDto.PageSize,
+                TotalRecords = totalCount,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)requestDto.PageSize)
+            };
+        }
     }
 }
