@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.DTOs.Orders;
+using PT = PersonalWebsite.Api.DTOs.PerformanceTraining.Orders;
 using PersonalWebsite.Api.Models;
 using PersonalWebsite.Api.Services.Abstractions;
 
@@ -212,6 +213,80 @@ namespace PersonalWebsite.Api.Services.Implementations
                     TotalDue = o.TotalDue,
                 })
                 .ToListAsync();
+        }
+
+        public async Task<PagedResponse<OrderSearchResultDto>> SearchOrdersBadN1QueryAsync(DTOs.PerformanceTraining.OrderSearchRequestDto requestDto)
+        {
+            // Newbie mistake:
+            // Load the page of orders first, then query related data inside the loop.
+
+            var orders = await _context.SalesOrderHeaders
+                                    .AsNoTracking()
+                                    .OrderByDescending(o => o.OrderDate)
+                                    .Skip((requestDto.PageNumber - 1) * requestDto.PageSize)
+                                    .Take(requestDto.PageSize)
+                                    .ToListAsync();
+
+            var totalCount = await _context.SalesOrderHeaders.CountAsync();
+
+            var data = new List<OrderSearchResultDto>();
+
+            // Bad: Loop through data to get other data to fill out a prop.
+            foreach (var order in orders)
+            {
+                var customer = await _context.Customers.Where(c => c.CustomerId == order.CustomerId).FirstOrDefaultAsync();
+
+                string? customerName = string.Empty;
+                if (customer != null)
+                {
+                    var person = customer.PersonId != null 
+                        ? await _context.People.AsNoTracking().FirstOrDefaultAsync(p => p.BusinessEntityId == customer.CustomerId) 
+                        : null;
+
+                    var store = customer.StoreId != null
+                        ? await _context.Stores.AsNoTracking().FirstOrDefaultAsync(s => s.BusinessEntityId == customer.StoreId) 
+                        : null;
+
+                    customerName = person != null
+                        ? person.FirstName + " " + person.LastName
+                        : store != null
+                            ? store.Name
+                            : null;
+
+                    var itemCount = await _context.SalesOrderDetails
+                        .AsNoTracking()
+                        .CountAsync(s => s.SalesOrderId == order.SalesOrderId);
+
+                    data.Add(new OrderSearchResultDto 
+                    {
+                        SalesOrderId = order.SalesOrderId,
+                        SalesOrderNumber = order.SalesOrderNumber,
+                        OrderDate = order.OrderDate,
+                        CustomerName = customerName,
+                        TotalDue = order.TotalDue,
+                        ItemCount = itemCount
+                    });
+
+                    //return new PagedResponse<OrderSearchResultDto>
+                    //{
+                    //    Data = data,
+                    //    PageNumber = requestDto.PageNumber,
+                    //    PageSize = requestDto.PageSize,
+                    //    TotalRecords = totalCount,
+                    //    TotalPages = (int)Math.Ceiling(totalCount / (double)requestDto.PageSize)
+                    //};
+                }
+            }
+
+            return new PagedResponse<OrderSearchResultDto>
+            {
+                Data = data,
+                PageNumber = requestDto.PageNumber,
+                PageSize = requestDto.PageSize,
+                TotalRecords = totalCount,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)requestDto.PageSize)
+            };
+
         }
     }
 }

@@ -13,5 +13,10 @@
         public DateTime OrderDate { get; set; }
 
         public decimal TotalAmount { get; set; }
+
+        public int SalesOrderId { get; set; }
+        public string SalesOrderNumber { get; set; } = string.Empty;
+        public decimal TotalDue { get; set; }
+        public int ItemCount { get; set; }
     }
 }

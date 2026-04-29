@@ -749,7 +749,7 @@ namespace PersonalWebsite.Api.Services.Implementations
             return null;
         }
 
-        public async Task<ServiceResult<PagedResultDto<OrderSearchResponseDto>>> SearchOrdersAsync(OrderSearchRequestDto request)
+        public async Task<ServiceResult<PagedResultDto<OrderSearchResponseDto>>> SearchOrdersAsync(DTOs.PerformanceTraining.OrderSearchRequestDto request)
         {
             // Sunday, 04/25/2026 - added protection against bad requests
             if (request.PageNumber <= 0)
@@ -855,6 +855,11 @@ namespace PersonalWebsite.Api.Services.Implementations
             pagedResultDto.TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
             return ServiceResult<PagedResultDto<OrderSearchResponseDto>>.Ok(pagedResultDto);
+        }
+
+        public Task<ServiceResult<PagedResultDto<OrderSearchResponseDto>>> SearchOrdersAsync(DTOs.Orders.OrderSearchRequestDto request)
+        {
+            throw new NotImplementedException();
         }
     }
 }

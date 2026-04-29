@@ -58,7 +58,7 @@ namespace PersonalWebsite.Api.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<IActionResult> SearchOrdersAsync([FromQuery]OrderSearchRequestDto dto)
+        public async Task<IActionResult> SearchOrdersAsync([FromQuery]DTOs.Orders.OrderSearchRequestDto dto)
         {
             var result = await _orderServiceV2.SearchOrdersAsync(dto);
             if (!result.Success)
