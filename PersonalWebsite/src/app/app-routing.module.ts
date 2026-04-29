@@ -9,12 +9,13 @@ import { TemplateFormsDemoComponent } from './components/template-forms-demo/tem
 // import { TodoHttpPracticeComponent } from './components/todo-http-practice/todo-http-practice.component';
 
 const routes: Routes = [
-    { path: '', component: HomeComponent },
+    { path: '', component: HomeComponent, pathMatch: 'full' },
     { path: 'about', component: AboutComponent },
     { path: 'projects', component: ProjectsComponent },
     { path: 'contact', component: ContactComponent },
     { path: 'api', component: ApiPracticeComponent },
     { path: 'template-forms-demo', component: TemplateFormsDemoComponent },
+    { path: '**', redirectTo: '' }
     // { path: 'todo-http', component: TodoHttpPracticeComponent },
 ];
 
