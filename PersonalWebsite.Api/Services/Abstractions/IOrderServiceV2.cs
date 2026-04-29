@@ -1,8 +1,9 @@
 ﻿using PersonalWebsite.Api.DTOs;
 using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.DTOs.Orders;
-using PT = PersonalWebsite.Api.DTOs.PerformanceTraining;
+using PersonalWebsite.Api.DTOs.PerformanceTraining;
 using PersonalWebsite.Api.Models;
+using PT = PersonalWebsite.Api.DTOs.PerformanceTraining;
 
 namespace PersonalWebsite.Api.Services.Abstractions
 {
@@ -19,6 +20,6 @@ namespace PersonalWebsite.Api.Services.Abstractions
         Task<ServiceResult<PagedOrderSummaryResponseDto>> GetAllOrdersAsync(OrderQueryParamsDto query);
 
         // Performance Training
-        Task<ServiceResult<PT.PagedResultDto<PT.OrderSearchResponseDto>>> SearchOrdersAsync(OrderSearchRequestDto request);
+        Task<PagedResponse<OrderSearchResponseDto>> SearchOrdersAsync(DTOs.Orders.OrderSearchRequestDto requestDto);
     }
 }

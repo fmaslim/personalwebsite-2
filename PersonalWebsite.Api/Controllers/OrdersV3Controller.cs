@@ -61,11 +61,6 @@ namespace PersonalWebsite.Api.Controllers
         public async Task<IActionResult> SearchOrdersAsync([FromQuery]DTOs.Orders.OrderSearchRequestDto dto)
         {
             var result = await _orderServiceV2.SearchOrdersAsync(dto);
-            if (!result.Success)
-            {
-                return BadRequest(result);
-            }
-
             return Ok(result);
         }
     }
