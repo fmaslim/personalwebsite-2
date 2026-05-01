@@ -21,7 +21,7 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Customers
             if (!validationResult.IsValid)
             {
                 return ServiceResult<PagedResponse<CustomerOrderSummaryResultDto>>
-                    .Fail(validationResult.Errors);
+                    .Fail(validationResult.FieldErrors);
             }
 
             requestDto.Normalize();

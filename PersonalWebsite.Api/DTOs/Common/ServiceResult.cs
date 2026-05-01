@@ -55,5 +55,16 @@ namespace PersonalWebsite.Api.DTOs.Common
                 }).ToList()
             };
         }
+
+        public static ServiceResult<T> Fail(List<ServiceError> errors, int statusCode = 400)
+        {
+            return new ServiceResult<T>
+            {
+                Success = false,
+                StatusCode = statusCode,
+                Data = default,
+                Errors = errors
+            };
+        }
     }
 }
