@@ -19,44 +19,8 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Customers
             requestDto.Normalize();
             var query = BuildQuery(_context, requestDto);
             query = query.ApplySorting(requestDto);
-            var totalCount = await query.CountAsync();
-            query = query.ApplyPaging(requestDto);            
 
-            var data = await query.ToListAsync();
-
-            return new PagedResponse<CustomerOrderSummaryResultDto>
-            {
-                Data = data,
-                PageNumber = requestDto.PageNumber,
-                PageSize = requestDto.PageSize,
-                TotalRecords = totalCount,
-                TotalPages = (int)Math.Ceiling(totalCount / (double)requestDto.PageSize)
-            };
-        }
-
-        private IQueryable<CustomerOrderSummaryResultDto> ApplySorting(IQueryable<CustomerOrderSummaryResultDto> query, CustomerOrderSummaryRequestDto requestDto)
-        {
-            query = requestDto.SortBy?.ToLower() switch
-            {
-                "ordercount" => requestDto.SortDirection?.ToLower() == "asc"
-                    ? query.OrderBy(x => x.OrderCount)
-                    : query.OrderByDescending(x => x.OrderCount),
-                "lastorderdate" => requestDto.SortDirection?.ToLower() == "asc"
-                    ? query.OrderBy(x => x.LastOrderDate)
-                    : query.OrderByDescending(x => x.LastOrderDate),
-                _ => requestDto.SortDirection?.ToLower() == "asc"
-                    ? query.OrderBy(x => x.TotalSpent)
-                    : query.OrderByDescending(x => x.TotalSpent)
-            };
-
-            return query;
-        }
-
-        private IQueryable<CustomerOrderSummaryResultDto> ApplyPaging(IQueryable<CustomerOrderSummaryResultDto> query, CustomerOrderSummaryRequestDto requestDto)
-        {
-            return query
-                .Skip((requestDto.PageNumber - 1) * requestDto.PageSize)
-                .Take(requestDto.PageSize);
+            return await query.ToPagedResponseAsync(requestDto.PageNumber, requestDto.PageSize);
         }
 
         private IQueryable<CustomerOrderSummaryResultDto> BuildQuery(AdventureWorksContext _context, CustomerOrderSummaryRequestDto requestDto)

@@ -1,4 +1,6 @@
-﻿using PersonalWebsite.Api.DTOs.PerformanceTraining.Customers;
+﻿using Microsoft.EntityFrameworkCore;
+using PersonalWebsite.Api.DTOs.Common;
+using PersonalWebsite.Api.DTOs.PerformanceTraining.Customers;
 
 namespace PersonalWebsite.Api.Extensions
 {
