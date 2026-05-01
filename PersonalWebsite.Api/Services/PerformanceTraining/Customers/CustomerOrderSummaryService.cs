@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.DTOs.PerformanceTraining.Customers;
+using PersonalWebsite.Api.Extensions;
 using PersonalWebsite.Api.Models;
 
 namespace PersonalWebsite.Api.Services.PerformanceTraining.Customers
@@ -14,6 +15,8 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Customers
         }
         public async Task<PagedResponse<CustomerOrderSummaryResultDto>> SearchCustomerOrderSummaryAsync(CustomerOrderSummaryRequestDto requestDto)
         {
+            requestDto.Normalize();
+
             var query = _context.SalesOrderHeaders.AsNoTracking()
                 .GroupBy(o => new 
                 { 
