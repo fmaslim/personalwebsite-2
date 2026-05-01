@@ -10,9 +10,11 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
     public class CustomersController : ControllerBase
     {
         private readonly ICustomerSearchTraining _service;
-        public CustomersController(ICustomerSearchTraining service)
+        private readonly ICustomerOrderSummaryService _orderSummaryService;
+        public CustomersController(ICustomerSearchTraining service, ICustomerOrderSummaryService orderSummaryService)
         {
             _service = service;
+            _orderSummaryService = orderSummaryService;
         }
 
         [HttpGet]
@@ -22,6 +24,14 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
             // var result = await _service.SearchCustomersBadFullEntityAsync(requestDto);
             // var result = await _service.SearchCustomersBadN1QueryAsync(requestDto);
             var result = await _service.SearchCustomersGoodQueryAsync(requestDto);
+            return Ok(result);
+        }
+
+        [HttpGet("order-summary-search")]
+        [ProducesResponseType(200)]
+        public async Task<IActionResult> GetCustomerOrderSummaryAsync([FromQuery]CustomerOrderSummaryRequestDto requestDto)
+        {
+            var result = await _orderSummaryService.SearchCustomerOrderSummaryAsync(requestDto);
             return Ok(result);
         }
     }
