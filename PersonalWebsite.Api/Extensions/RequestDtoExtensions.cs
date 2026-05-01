@@ -7,8 +7,6 @@ namespace PersonalWebsite.Api.Extensions
     {
         public static void Normalize(this CustomerOrderSummaryRequestDto requestDto)
         {
-            // requestDto ??= new CustomerOrderSummaryRequestDto();
-
             if (requestDto.PageNumber <= 0)
             {
                 requestDto.PageNumber = 1;
@@ -30,17 +28,16 @@ namespace PersonalWebsite.Api.Extensions
                 requestDto.MinTotalSpent = 0;
             }
             var allowedSortBy = new[] { "customerName", "orderCount", "totalSpent" };
-            if (string.IsNullOrEmpty(requestDto.SortBy) || !allowedSortBy.Contains(requestDto.SortBy))
+            if (string.IsNullOrWhiteSpace(requestDto.SortBy) || !allowedSortBy.Contains(requestDto.SortBy))
             {
                 requestDto.SortBy = "totalSpent";
             }
-            if (string.IsNullOrEmpty(requestDto.SortDirection) || 
+            if (string.IsNullOrWhiteSpace(requestDto.SortDirection) || 
                 (requestDto.SortDirection.ToLower() != "asc" && requestDto.SortDirection.ToLower() != "desc"))
             {
                 requestDto.SortDirection = "desc";
             }
 
-            // return requestDto;
         }
     }
 }
