@@ -41,5 +41,19 @@ namespace PersonalWebsite.Api.DTOs.Common
                 Errors = new List<ServiceError> { new ServiceError { Message = message, Field = field } }                
             };
         }
+
+        public static ServiceResult<T> Fail(List<string> errors, int statusCode = 400)
+        {
+            return new ServiceResult<T>
+            {
+                Success = false,
+                StatusCode = statusCode,
+                Data = default,
+                Errors = errors.Select(error => new ServiceError
+                {
+                    Message = error
+                }).ToList()
+            };
+        }
     }
 }

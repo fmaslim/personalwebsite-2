@@ -14,13 +14,25 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Customers
         {
             _context = context;
         }
-        public async Task<PagedResponse<CustomerOrderSummaryResultDto>> SearchCustomerOrderSummaryAsync(CustomerOrderSummaryRequestDto requestDto)
+        public async Task<ServiceResult<PagedResponse<CustomerOrderSummaryResultDto>>> SearchCustomerOrderSummaryAsync(CustomerOrderSummaryRequestDto requestDto)
         {
+            // With 2 tools: ValidationResultand Normalize, do both
+            var validationResult = requestDto.Validate();
+            if (!validationResult.IsValid)
+            {
+                return ServiceResult<PagedResponse<CustomerOrderSummaryResultDto>>
+                    .Fail(validationResult.Errors);
+            }
+
             requestDto.Normalize();
             var query = BuildQuery(_context, requestDto);
             query = query.ApplySorting(requestDto);
 
-            return await query.ToPagedResponseAsync(requestDto.PageNumber, requestDto.PageSize);
+            var pagedResponse = await query.ToPagedResponseAsync(
+            requestDto.PageNumber,
+            requestDto.PageSize);
+
+            return ServiceResult<PagedResponse<CustomerOrderSummaryResultDto>>.Ok(pagedResponse);
         }
 
         private IQueryable<CustomerOrderSummaryResultDto> BuildQuery(AdventureWorksContext _context, CustomerOrderSummaryRequestDto requestDto)

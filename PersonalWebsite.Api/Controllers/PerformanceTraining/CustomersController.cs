@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.DTOs.PerformanceTraining.Customers;
 using PersonalWebsite.Api.Services.PerformanceTraining.Customers;
 
@@ -28,11 +29,12 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
         }
 
         [HttpGet("order-summary-search")]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(ServiceResult<PagedResponse<CustomerOrderSummaryResultDto>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ServiceResult<PagedResponse<CustomerOrderSummaryResultDto>>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetCustomerOrderSummaryAsync([FromQuery]CustomerOrderSummaryRequestDto requestDto)
         {
             var result = await _orderSummaryService.SearchCustomerOrderSummaryAsync(requestDto);
-            return Ok(result);
+            return StatusCode(result.StatusCode, result);
         }
     }
 }

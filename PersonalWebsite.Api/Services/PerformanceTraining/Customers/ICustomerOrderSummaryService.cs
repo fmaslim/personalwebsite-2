@@ -5,6 +5,6 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Customers
 {
     public interface ICustomerOrderSummaryService
     {
-        Task<PagedResponse<CustomerOrderSummaryResultDto>> SearchCustomerOrderSummaryAsync(CustomerOrderSummaryRequestDto requestDto);
+        Task<ServiceResult<PagedResponse<CustomerOrderSummaryResultDto>>> SearchCustomerOrderSummaryAsync(CustomerOrderSummaryRequestDto requestDto);
     }
 }
