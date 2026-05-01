@@ -18,11 +18,9 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Customers
         {
             requestDto.Normalize();
             var query = BuildQuery(_context, requestDto);
-            query = ApplySorting(query, requestDto);
-
+            query = query.ApplySorting(requestDto);
             var totalCount = await query.CountAsync();
-            query = ApplyPaging(query, requestDto);
-            
+            query = query.ApplyPaging(requestDto);            
 
             var data = await query.ToListAsync();
 
