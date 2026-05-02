@@ -43,9 +43,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<int>
                 {
                     Success = false,
-                    Errors = new List<ServiceError>
+                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
                     {
-                        new ServiceError
+                        new PersonalWebsite.Api.Models.Errors.ServiceError
                         {
                             Field = "CustomerId",
                             Message = $"Customer with id {dto.CustomerId} does not exist.",
@@ -69,9 +69,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<int>
                 {
                     Success = false,
-                    Errors = new List<ServiceError>
+                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
                     {
-                        new ServiceError
+                        new PersonalWebsite.Api.Models.Errors.ServiceError
                         {
                             Field = "Order",
                             Message = "A similar order already exists. Please check your order details.",

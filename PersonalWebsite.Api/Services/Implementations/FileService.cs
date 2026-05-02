@@ -21,9 +21,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return Task.FromResult(new ServiceResult<string>
                 {
                     Success = false,
-                    Errors = new List<ServiceError>
+                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
                     {
-                        new ServiceError
+                        new PersonalWebsite.Api.Models.Errors.ServiceError
                         {
                             Field = "fileName",
                             Message = "File name cannot be null or empty.",
@@ -41,9 +41,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return Task.FromResult(new ServiceResult<string>
                 {
                     Success = false,
-                    Errors = new List<ServiceError>
+                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
                     {
-                        new ServiceError
+                        new PersonalWebsite.Api.Models.Errors.ServiceError
                         {
                             Field = "fileName",
                             Message = $"File '{fileName}' does not exist.",
@@ -58,9 +58,9 @@ namespace PersonalWebsite.Api.Services.Implementations
             return Task.FromResult(new ServiceResult<string>
             {
                 Success = true,
-                Errors = new List<ServiceError>
+                Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
                     {
-                        new ServiceError
+                        new PersonalWebsite.Api.Models.Errors.ServiceError
                         {
                             Field = "SuccessfulDelete",
                             Message = $"File '{fileName}' deleted successfully.",
@@ -79,9 +79,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return await Task.FromResult(new ServiceResult<bool>
                 {
                     Success = false,
-                    Errors = new List<ServiceError>
+                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
                     {
-                        new ServiceError
+                        new PersonalWebsite.Api.Models.Errors.ServiceError
                         {
                             Field = "fileRecord",
                             Message = "File record not found.",
@@ -98,9 +98,9 @@ namespace PersonalWebsite.Api.Services.Implementations
             return new ServiceResult<bool>
             {
                 Success = true,
-                Errors = new List<ServiceError>
+                Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
                     {
-                        new ServiceError
+                        new PersonalWebsite.Api.Models.Errors.ServiceError
                         {
                             Field = "SuccessfulDelete",
                             Message = $"File record with ID '{id}' deleted successfully.",
@@ -119,9 +119,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<FileDownloadResponseDto>
                 {
                     Success = false,
-                    Errors = new List<ServiceError>
+                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
                     {
-                        new ServiceError
+                        new PersonalWebsite.Api.Models.Errors.ServiceError
                         {
                             Field = "fileName",
                             Message = "File name cannot be null or empty.",
@@ -139,9 +139,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<FileDownloadResponseDto>
                 {
                     Success = false,
-                    Errors = new List<ServiceError>
+                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
                     {
-                        new ServiceError
+                        new PersonalWebsite.Api.Models.Errors.ServiceError
                         {
                             Field = "fileName",
                             Message = $"File '{fileName}' does not exist.",
@@ -248,9 +248,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<FileDetailsResponseDto>
                 {
                     Success = false,
-                    Errors = new List<ServiceError>
+                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
                     {
-                        new ServiceError
+                        new PersonalWebsite.Api.Models.Errors.ServiceError
                         {
                             Field = "fileRecord",
                             Message = "File record not found.",
@@ -266,9 +266,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<FileDetailsResponseDto>
                 {
                     Success = false,
-                    Errors = new List<ServiceError>
+                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
                     {
-                        new ServiceError
+                        new PersonalWebsite.Api.Models.Errors.ServiceError
                         {
                             Field = "file",
                             Message = "No file uploaded.",
@@ -321,9 +321,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<FileDetailsResponseDto>
                 {
                     Success = false,
-                    Errors = new List<ServiceError>
+                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
                     {
-                        new ServiceError
+                        new PersonalWebsite.Api.Models.Errors.ServiceError
                         {
                             Field = "file",
                             Message = "An error occurred while updating the file.",
@@ -361,9 +361,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<FileUploadResponseDto>
                 {
                     Success = false,
-                    Errors = new List<ServiceError>
+                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
                     {
-                        new ServiceError
+                        new PersonalWebsite.Api.Models.Errors.ServiceError
                         {
                             Field = "file",
                             Message = "No file uploaded.",
@@ -424,9 +424,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<FileUploadResponseDto>
                 {
                     Success = false,
-                    Errors = new List<ServiceError>
+                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
                     {
-                        new ServiceError
+                        new PersonalWebsite.Api.Models.Errors.ServiceError
                         {
                             Field = "file",
                             Message = "An error occurred while uploading the file.",
@@ -474,9 +474,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<FileDetailsResponseDto>
                 {
                     Success = false,
-                    Errors = new List<ServiceError>
+                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
                     {
-                        new ServiceError
+                        new PersonalWebsite.Api.Models.Errors.ServiceError
                         {
                             Field = "file",
                             Message = $"File size exceeds the limit of {maxFileSize / (1024 * 1024)} MB",
@@ -498,9 +498,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<FileDetailsResponseDto>
                 {
                     Success = false,
-                    Errors = new List<ServiceError>
+                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
                     {
-                        new ServiceError
+                        new PersonalWebsite.Api.Models.Errors.ServiceError
                         {
                             Field = "file",
                             Message = $"File type '{fileExtension}' is not allowed.",

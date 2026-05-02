@@ -34,9 +34,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<CreateOrderResponseV2Dto>
                 {
                     Success = false,
-                    Errors = new List<ServiceError> 
+                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError> 
                     { 
-                        new ServiceError 
+                        new PersonalWebsite.Api.Models.Errors.ServiceError 
                         { 
                             Field = "Items", 
                             Message = "Order must contain at least one item.",
@@ -55,9 +55,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<CreateOrderResponseV2Dto>
                 {
                     Success = false,
-                    Errors = new List<ServiceError> 
+                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError> 
                     { 
-                        new ServiceError 
+                        new PersonalWebsite.Api.Models.Errors.ServiceError 
                         { 
                             Field = "Items", 
                             Message = "Duplicate product IDs are not allowed in the same order.",
@@ -76,9 +76,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<CreateOrderResponseV2Dto>
                 {
                     Success = false,
-                    Errors = new List<ServiceError> 
+                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError> 
                     { 
-                        new ServiceError 
+                        new PersonalWebsite.Api.Models.Errors.ServiceError 
                         { 
                             Field = "CustomerId", 
                             Message = $"Customer with ID {dto.CustomerId} does not exist.",
@@ -97,9 +97,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<CreateOrderResponseV2Dto>
                 {
                     Success = false,
-                    Errors = new List<ServiceError> 
+                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError> 
                     { 
-                        new ServiceError 
+                        new PersonalWebsite.Api.Models.Errors.ServiceError 
                         { 
                             Field = "EmployeeId", 
                             Message = $"Employee with ID {dto.EmployeeId} does not exist.",
@@ -121,9 +121,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                     return new ServiceResult<CreateOrderResponseV2Dto>
                     {
                         Success = false,
-                        Errors = new List<ServiceError> 
+                        Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError> 
                         { 
-                            new ServiceError 
+                            new PersonalWebsite.Api.Models.Errors.ServiceError 
                             { 
                                 Field = "Quantity", 
                                 Message = "Quantity must be greater than zero.",
@@ -140,9 +140,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                     return new ServiceResult<CreateOrderResponseV2Dto>
                     {
                         Success = false,
-                        Errors = new List<ServiceError> 
+                        Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError> 
                         { 
-                            new ServiceError 
+                            new PersonalWebsite.Api.Models.Errors.ServiceError 
                             { 
                                 Field = "ProductId", 
                                 Message = $"Product with ID {item.ProductId} does not exist.",
@@ -186,10 +186,11 @@ namespace PersonalWebsite.Api.Services.Implementations
 
         public async Task<ServiceResult<CreateOrderResponseV2Dto>> CreateOrderMultiErrorAsync(CreateOrderRequestV2Dto dto)
         {
-            var errors = new List<ServiceError>();
+            // var errors = new List<ServiceError>();
+            var errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>();
             if (dto.Items == null || !dto.Items.Any())
             {
-                errors.Add(new ServiceError
+                errors.Add(new PersonalWebsite.Api.Models.Errors.ServiceError
                 {
                     Field = "Items",
                     Message = "Order must contain at least one item.",
@@ -201,7 +202,7 @@ namespace PersonalWebsite.Api.Services.Implementations
                 var hasDuplicateProducts = dto.Items.GroupBy(i => i.ProductId).Any(g => g.Count() > 1);
                 if (hasDuplicateProducts)
                 {
-                    errors.Add(new ServiceError
+                    errors.Add(new PersonalWebsite.Api.Models.Errors.ServiceError
                     {
                         Field = "Items",
                         Message = "Duplicate product IDs are not allowed in the same order.",
@@ -214,7 +215,7 @@ namespace PersonalWebsite.Api.Services.Implementations
                 var item = dto.Items[i];
                 if (item.Quantity <= 0)
                 {
-                    errors.Add(new ServiceError
+                    errors.Add(new PersonalWebsite.Api.Models.Errors.ServiceError
                     {
                         Field = $"Items[{i}].Quantity",
                         Message = "Quantity must be greater than zero.",
@@ -224,7 +225,7 @@ namespace PersonalWebsite.Api.Services.Implementations
                 var productExists = await _context.Products.AnyAsync(p => p.ProductId == item.ProductId);
                 if (!productExists)
                 {
-                    errors.Add(new ServiceError
+                    errors.Add(new PersonalWebsite.Api.Models.Errors.ServiceError
                     {
                         Field = $"Items[{i}].ProductId",
                         Message = $"Product with ID {item.ProductId} does not exist.",
@@ -254,9 +255,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<CreateOrderResponseV3Dto>
                 {
                     Success = false,
-                    Errors = new List<ServiceError>
+                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
                     {
-                        new ServiceError
+                        new PersonalWebsite.Api.Models.Errors.ServiceError
                         {
                             Field = "Request",
                             Message = "Request body cannot be null.",
@@ -272,9 +273,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<CreateOrderResponseV3Dto>
                 {
                     Success = false,
-                    Errors = new List<ServiceError>
+                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
                     {
-                        new ServiceError
+                        new PersonalWebsite.Api.Models.Errors.ServiceError
                         {
                             Field = "Items",
                             Message = "Order must contain at least one item.",
@@ -290,9 +291,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<CreateOrderResponseV3Dto>
                 {
                     Success = false,
-                    Errors = new List<ServiceError>
+                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
                     {
-                        new ServiceError
+                        new PersonalWebsite.Api.Models.Errors.ServiceError
                         {
                             Field = "Quantity",
                             Message = "Quantity must be greater than zero.",
@@ -310,9 +311,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<CreateOrderResponseV3Dto>
                 {
                     Success = false,
-                    Errors = new List<ServiceError>
+                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
                     {
-                        new ServiceError
+                        new PersonalWebsite.Api.Models.Errors.ServiceError
                         {
                             Field = "UserId",
                             Message = $"User with ID {dto.UserId} does not exist.",
@@ -337,7 +338,7 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<CreateOrderResponseV3Dto>
                 {
                     Success = false,
-                    Errors = missingProductIds.Select(id => new ServiceError
+                    Errors = missingProductIds.Select(id => new PersonalWebsite.Api.Models.Errors.ServiceError
                     {
                         Field = "Items.ProductId",
                         Message = $"Product with ID {id} does not exist.",
@@ -357,9 +358,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                     return new ServiceResult<CreateOrderResponseV3Dto>
                     {
                         Success = false,
-                        Errors = new List<ServiceError>
+                        Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
                         {
-                            new ServiceError
+                            new PersonalWebsite.Api.Models.Errors.ServiceError
                             {
                                 Field = $"Items[ProductId={item.ProductId}].Quantity",
                                 Message = $"Only {product.SafetyStockLevel} items left in stock for product ID {item.ProductId}.",
@@ -559,9 +560,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<GetOrderByIdResponseDto>
                 {
                     Success = false,
-                    Errors = new List<ServiceError>
+                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
                     {
-                        new ServiceError
+                        new PersonalWebsite.Api.Models.Errors.ServiceError
                         {
                             Field = "OrderId",
                             Message = $"Order with ID {orderId} does not exist.",
@@ -607,9 +608,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<UpdateOrderStatusResponseDto>
                 {
                     Success = false,
-                    Errors = new List<ServiceError>
+                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
                     {
-                        new ServiceError
+                        new PersonalWebsite.Api.Models.Errors.ServiceError
                         {
                             Field = "Request",
                             Message = "Request body cannot be null.",
@@ -626,9 +627,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<UpdateOrderStatusResponseDto>
                 {
                     Success = false,
-                    Errors = new List<ServiceError>
+                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
                         {
-                            new ServiceError
+                            new PersonalWebsite.Api.Models.Errors.ServiceError
                             {
                                 Field = "OrderId",
                                 Message = $"Order with ID {orderId} does not exist.",
@@ -645,9 +646,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<UpdateOrderStatusResponseDto>
                 {
                     Success = false,
-                    Errors = new List<ServiceError>
+                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
                         {
-                            new ServiceError
+                            new PersonalWebsite.Api.Models.Errors.ServiceError
                             {
                                 Field = "Status",
                                 Message = $"Invalid status transition from {oldStatus} to {newStatus}.",

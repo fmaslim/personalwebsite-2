@@ -1,11 +1,14 @@
 ﻿using Microsoft.AspNetCore.Http;
+using PersonalWebsite.Api.Models.Errors;
 
 namespace PersonalWebsite.Api.DTOs.Common
 {
     public class ServiceResult<T>
     {
         public bool Success { get; set; }
-        public List<ServiceError> Errors { get; set; } = new();
+        // public List<ServiceError> Errors { get; set; } = new();
+        // public List<ServiceError> Errors { get; set; } = new List<ServiceError>();
+        public List<PersonalWebsite.Api.Models.Errors.ServiceError> Errors { get; set; } = new();
         public int StatusCode { get; set; }
         public T? Data { get; set; }        
 
@@ -27,7 +30,16 @@ namespace PersonalWebsite.Api.DTOs.Common
                 Success = false,
                 StatusCode = statusCode,
                 Data = default,
-                Errors = new List<ServiceError> { new ServiceError { Message = message } }
+                Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
+                {
+                    new PersonalWebsite.Api.Models.Errors.ServiceError
+                    {
+                        Message = message,
+                        // Field = field,
+                        Code = "Error",
+                        Type = ServiceErrorType.Validation
+                    }
+                }
             };
         }
 
@@ -38,7 +50,16 @@ namespace PersonalWebsite.Api.DTOs.Common
                 Success = false,
                 StatusCode = statusCode,
                 Data = default,
-                Errors = new List<ServiceError> { new ServiceError { Message = message, Field = field } }                
+                Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
+                {
+                    new PersonalWebsite.Api.Models.Errors.ServiceError
+                    {
+                        Message = message,
+                        // Field = field,
+                        Code = "Error",
+                        Type = ServiceErrorType.Validation
+                    }
+                }
             };
         }
 
@@ -49,21 +70,65 @@ namespace PersonalWebsite.Api.DTOs.Common
                 Success = false,
                 StatusCode = statusCode,
                 Data = default,
-                Errors = errors.Select(error => new ServiceError
+                Errors = errors.Select(error => new PersonalWebsite.Api.Models.Errors.ServiceError
                 {
-                    Message = error
+                    Message = error,
+                    Code = "Error",
+                    Type = ServiceErrorType.Validation
                 }).ToList()
             };
         }
 
-        public static ServiceResult<T> Fail(List<ServiceError> errors, int statusCode = 400)
+        public static ServiceResult<T> Fail(
+        List<PersonalWebsite.Api.Models.Errors.ServiceError> errors,
+        int statusCode = 400)
+            {
+                return new ServiceResult<T>
+                {
+                    Success = false,
+                    StatusCode = statusCode,
+                    Data = default,
+                    Errors = errors
+                };
+            }
+
+        public static ServiceResult<T> NotFound(string message, string? field = null)
         {
             return new ServiceResult<T>
             {
                 Success = false,
-                StatusCode = statusCode,
+                StatusCode = StatusCodes.Status404NotFound,
                 Data = default,
-                Errors = errors
+                Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>()
+                {
+                    new Models.Errors.ServiceError
+                    {
+                        Code = "NotFound",
+                        Message = message,
+                        Field = field,
+                        Type = ServiceErrorType.NotFound
+                    }
+                }
+            };
+        }
+
+        public static ServiceResult<T> Conflict(string message, string? field)
+        {
+            return new ServiceResult<T>
+            {
+                Success = false,
+                StatusCode = StatusCodes.Status409Conflict,
+                Data = default,
+                Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>()
+                {
+                    new Models.Errors.ServiceError
+                    {
+                        Code = "Conflict",
+                        Message = message,
+                        Field = field,
+                        Type = ServiceErrorType.Conflict
+                    }
+                }
             };
         }
     }

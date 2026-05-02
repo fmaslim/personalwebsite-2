@@ -34,6 +34,11 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Customers
             requestDto.PageNumber,
             requestDto.PageSize);
 
+            if (pagedResponse.TotalRecords == 0)
+            {
+                return ServiceResult<PagedResponse<CustomerOrderSummaryResultDto>>.NotFound("No customer order summaries were found.");
+            }
+
             return ServiceResult<PagedResponse<CustomerOrderSummaryResultDto>>.Ok(pagedResponse);
         }
 
