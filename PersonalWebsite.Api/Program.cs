@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using PersonalWebsite.Api.Middleware;
 using PersonalWebsite.Api.Models;
 using PersonalWebsite.Api.Services.Abstractions;
 using PersonalWebsite.Api.Services.Implementations;
@@ -154,9 +155,8 @@ builder.Services.AddCors(options =>
     });
 });
 
-//Console.WriteLine("Before build");
 var app = builder.Build();
-//Console.WriteLine("After build");
+app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseSerilogRequestLogging();
 
 // Configure the HTTP request pipeline.

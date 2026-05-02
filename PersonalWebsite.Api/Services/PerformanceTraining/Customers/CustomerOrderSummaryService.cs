@@ -16,7 +16,9 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Customers
         }
         public async Task<ServiceResult<PagedResponse<CustomerOrderSummaryResultDto>>> SearchCustomerOrderSummaryAsync(CustomerOrderSummaryRequestDto requestDto)
         {
-            // With 2 tools: ValidationResultand Normalize, do both
+            // throw new NullReferenceException("Test null exception");
+
+            // With 2 tools: ValidationResult and Normalize, do both
             var validationResult = requestDto.Validate();
             if (!validationResult.IsValid)
             {
