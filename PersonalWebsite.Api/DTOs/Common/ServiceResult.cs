@@ -112,7 +112,7 @@ namespace PersonalWebsite.Api.DTOs.Common
             };
         }
 
-        public static ServiceResult<T> Conflict(string message, string? field)
+        public static ServiceResult<T> Conflict(string message, string? field = null)
         {
             return new ServiceResult<T>
             {

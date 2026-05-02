@@ -108,6 +108,7 @@ builder.Services.AddScoped<IOrderSearchTrainingService, OrderSearchTrainingServi
 builder.Services.AddScoped<IPatientSearchTrainingService, PatientSearchTrainingService>();
 builder.Services.AddScoped<ICustomerSearchTraining, CustomerSearchTraining>();
 builder.Services.AddScoped<ICustomerOrderSummaryService,  CustomerOrderSummaryService>();
+builder.Services.AddScoped<IOrderv4Service, OrderV4Service>();
 
 // Monday, 04/20/2026 - Added policy-based authz
 builder.Services.AddAuthorization(options =>

@@ -8,7 +8,7 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
     [ApiController]
     // [Route("/api/customers-v2")]
     [Route("api/performance-training/customers")]
-    public class CustomersController : ControllerBase
+    public class CustomersController : ApiControllerBase
     {
         private readonly ICustomerSearchTraining _service;
         private readonly ICustomerOrderSummaryService _orderSummaryService;
@@ -38,23 +38,23 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
             return ToActionResult(result);
         }
 
-        private IActionResult ToActionResult<T>(ServiceResult<T> result)
-        {
-            if (result.Success)
-            {
-                return Ok(result);
-            }
+        //private IActionResult ToActionResult<T>(ServiceResult<T> result)
+        //{
+        //    if (result.Success)
+        //    {
+        //        return Ok(result);
+        //    }
 
-            var errorType = result.Errors.FirstOrDefault()?.Type;
+        //    var errorType = result.Errors.FirstOrDefault()?.Type;
 
-            return errorType switch
-            { 
-                Models.Errors.ServiceErrorType.Validation => BadRequest(result),
-                Models.Errors.ServiceErrorType.NotFound => NotFound(result),
-                Models.Errors.ServiceErrorType.Conflict => Conflict(result),
-                _ => StatusCode(result.StatusCode, result)
-            }
-            ;
-        }
+        //    return errorType switch
+        //    { 
+        //        Models.Errors.ServiceErrorType.Validation => BadRequest(result),
+        //        Models.Errors.ServiceErrorType.NotFound => NotFound(result),
+        //        Models.Errors.ServiceErrorType.Conflict => Conflict(result),
+        //        _ => StatusCode(result.StatusCode, result)
+        //    }
+        //    ;
+        //}
     }
 }
