@@ -7,5 +7,14 @@
         public List<string> Errors { get; set; } = new();
 
         public List<ServiceError> FieldErrors { get; set; } = new();
+
+        public void AddFieldError(string field, string message)
+        {
+            FieldErrors.Add(new ServiceError
+            { 
+                Field = field, 
+                Message = message 
+            });
+        }
     }
 }
