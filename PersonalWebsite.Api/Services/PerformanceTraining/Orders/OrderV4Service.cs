@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.Models;
+using PersonalWebsite.Api.Models.Errors;
 
 namespace PersonalWebsite.Api.Services.PerformanceTraining.Orders
 {
@@ -14,6 +15,20 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Orders
 
         public async Task<ServiceResult<string>> CancelOrderAsync(int orderId)
         {
+            var fieldErrors = new List<FieldError>();
+            if (orderId <= 0)
+            {
+                fieldErrors.Add(new FieldError 
+                { 
+                    Field = "orderId",
+                    Message = "Order Id must be greater than 0."
+                });
+            }
+            if (fieldErrors.Any())
+            {
+                return ServiceResult<string>.ValidationFail(fieldErrors);
+            }
+
             var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
             if (order == null)
             {

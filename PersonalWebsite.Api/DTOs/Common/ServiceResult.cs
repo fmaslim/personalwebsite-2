@@ -9,6 +9,7 @@ namespace PersonalWebsite.Api.DTOs.Common
         // public List<ServiceError> Errors { get; set; } = new();
         // public List<ServiceError> Errors { get; set; } = new List<ServiceError>();
         public List<PersonalWebsite.Api.Models.Errors.ServiceError> Errors { get; set; } = new();
+        public List<FieldError> FieldErrors { get; set; } = new();
         public int StatusCode { get; set; }
         public T? Data { get; set; }        
 
@@ -129,6 +130,24 @@ namespace PersonalWebsite.Api.DTOs.Common
                         Type = ServiceErrorType.Conflict
                     }
                 }
+            };
+        }
+
+        public static ServiceResult<T> ValidationFail(List<FieldError> fieldErrors)
+        {
+            return new ServiceResult<T>
+            {
+                Success = false,
+                StatusCode = 400,
+                Errors = new List<ServiceError>
+                {
+                    new ServiceError
+                    {
+                        Code = "ValidationError",
+                        Message = "one or more validation errors occurred"
+                    }
+                },
+                FieldErrors = fieldErrors
             };
         }
     }
