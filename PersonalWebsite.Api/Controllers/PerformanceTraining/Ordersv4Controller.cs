@@ -32,12 +32,12 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
             return result.ToActionResult();
         }
 
-        //[HttpGet("global-exception")]
-        //[Produces("application/json")]
-        //[ProducesResponseType(typeof(ServiceResult<string>), StatusCodes.Status500InternalServerError)]
-        //public IActionResult TestException()
-        //{
-        //    throw new NotImplementedException();
-        //}
+        [HttpGet("global-exception")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(ServiceResult<string>), StatusCodes.Status500InternalServerError)]
+        public IActionResult TestException()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

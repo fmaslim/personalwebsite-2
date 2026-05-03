@@ -12,7 +12,16 @@ namespace PersonalWebsite.Api.ExceptionHandling
         }
         public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
         {
-            _logger.LogError(exception, "An unhandled exception occurred");
+            // _logger.LogError(exception, "An unhandled exception occurred");
+            _logger.LogError(
+                exception,
+                "Unhandled exception occurred. Method: {Method}, Path {Path}, QueryString: {QueryString}, TraceId: {TraceId}, Exception Type: {ExceptionType}",
+                httpContext.Request.Method,
+                httpContext.Request.Path,
+                httpContext.Request.QueryString,
+                httpContext.TraceIdentifier,
+                exception.GetType().Name
+                );
 
             httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
             httpContext.Response.ContentType = "application/json";
