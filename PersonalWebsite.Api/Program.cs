@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using PersonalWebsite.Api.ExceptionHandling;
 using PersonalWebsite.Api.Middleware;
 using PersonalWebsite.Api.Models;
 using PersonalWebsite.Api.Services.Abstractions;
@@ -110,6 +111,10 @@ builder.Services.AddScoped<ICustomerSearchTraining, CustomerSearchTraining>();
 builder.Services.AddScoped<ICustomerOrderSummaryService,  CustomerOrderSummaryService>();
 builder.Services.AddScoped<IOrderv4Service, OrderV4Service>();
 
+// Add Global Exception Handling
+builder.Services.AddExceptionHandler<GlobalExceptionHandling>();
+builder.Services.AddProblemDetails();
+
 // Monday, 04/20/2026 - Added policy-based authz
 builder.Services.AddAuthorization(options =>
 {
@@ -167,6 +172,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseExceptionHandler();
 app.UseHttpsRedirection();
 
 app.UseCors("AngularPolicy");

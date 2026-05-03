@@ -22,20 +22,22 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
         /// <returns>The cancellation result.</returns>
         [HttpPost("{orderId}/cancel")]
         [Produces("application/json")]
+        [ProducesResponseType(typeof(ServiceResult<string>), StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(typeof(ServiceResult<string>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ServiceResult<string>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ServiceResult<string>), StatusCodes.Status409Conflict)]
         public async Task<IActionResult> CancelOrder(int orderId)
-        {
+        {            
             var result = await _service.CancelOrderAsync(orderId);
-
-            //if (!result.Success)
-            //{
-            //    return BadRequest(result);
-            //}
-
-            //return Ok(result.Data);
             return result.ToActionResult();
         }
+
+        //[HttpGet("global-exception")]
+        //[Produces("application/json")]
+        //[ProducesResponseType(typeof(ServiceResult<string>), StatusCodes.Status500InternalServerError)]
+        //public IActionResult TestException()
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }

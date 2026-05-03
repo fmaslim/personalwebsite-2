@@ -93,6 +93,23 @@ namespace PersonalWebsite.Api.DTOs.Common
                 };
             }
 
+        public static ServiceResult<T> Fail(string code, string message, int statusCode)
+        {
+            return new ServiceResult<T>
+            {
+                Success = false,
+                StatusCode = statusCode,
+                Errors = new List<ServiceError>
+                {
+                    new ServiceError
+                    {
+                        Code = code,
+                        Message = message
+                    }
+                }
+            };
+        }
+
         public static ServiceResult<T> NotFound(string message, string? field = null)
         {
             return new ServiceResult<T>
