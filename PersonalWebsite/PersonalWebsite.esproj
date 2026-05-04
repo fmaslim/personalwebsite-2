@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.2752196">
+﻿<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.2752196">
   <PropertyGroup>
     <StartupCommand>npm start</StartupCommand>
     <JavaScriptTestFramework>Jasmine</JavaScriptTestFramework>
@@ -6,6 +6,7 @@
     <ShouldRunBuildScript>false</ShouldRunBuildScript>
     <!-- Folder where production build objects will be placed -->
     <BuildOutputFolder>$(MSBuildProjectDirectory)\dist\PersonalWebsite\browser\</BuildOutputFolder>
+    <UserSecretsId>a1437444-e67f-43c1-a08a-4f5a00269279</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="src\assets\" />

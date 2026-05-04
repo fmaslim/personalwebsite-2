@@ -13,6 +13,7 @@ using PersonalWebsite.Api.Services.PerformanceTraining.Orders;
 using PersonalWebsite.Api.Services.PerformanceTraining.Patients;
 using Serilog;
 using System.Text;
+using Microsoft.Extensions.Logging.ApplicationInsights;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -114,6 +115,25 @@ builder.Services.AddScoped<IOrderv4Service, OrderV4Service>();
 // Add Global Exception Handling
 builder.Services.AddExceptionHandler<GlobalExceptionHandling>();
 builder.Services.AddProblemDetails();
+
+// Add Application Insight
+//builder.Services.AddApplicationInsightsTelemetry();
+//builder.Logging.AddApplicationInsights(
+//    configureTelemetryConfiguration: config =>
+//    {
+//        config.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+//    },
+//    configureApplicationInsightsLoggerOptions: options => { }
+//);
+// builder.Services.AddApplicationInsightsTelemetry();
+builder.Services.AddApplicationInsightsTelemetry(options =>
+{
+    options.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+});
+builder.Logging.AddApplicationInsights();
+builder.Logging.AddFilter<Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider>(
+    "",
+    LogLevel.Information);
 
 // Monday, 04/20/2026 - Added policy-based authz
 builder.Services.AddAuthorization(options =>
