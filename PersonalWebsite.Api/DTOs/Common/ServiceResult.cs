@@ -6,12 +6,16 @@ namespace PersonalWebsite.Api.DTOs.Common
     public class ServiceResult<T>
     {
         public bool Success { get; set; }
-        // public List<ServiceError> Errors { get; set; } = new();
-        // public List<ServiceError> Errors { get; set; } = new List<ServiceError>();
         public List<PersonalWebsite.Api.Models.Errors.ServiceError> Errors { get; set; } = new();
         public List<FieldError> FieldErrors { get; set; } = new();
         public int StatusCode { get; set; }
-        public T? Data { get; set; }        
+        public T? Data { get; set; }
+        // Added these properties for AppInsight testing
+        public bool IsSuccess { get; set; }
+        public string Code { get; set; } = string.Empty;
+        public string ErrorType { get; set; } = string.Empty;
+        public string Message { get; set; } = string.Empty;
+
 
         public static ServiceResult<T> Ok(T data, string message = "Operation successful", int statusCode = 200)
         {

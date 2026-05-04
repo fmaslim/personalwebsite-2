@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using PersonalWebsite.Api.DTOs.Common;
+using PersonalWebsite.Api.ExceptionHandling;
 using PersonalWebsite.Api.Extensions;
 using PersonalWebsite.Api.Services.PerformanceTraining.Orders;
 
@@ -11,9 +12,11 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
     public class Ordersv4Controller : ApiControllerBase
     {
         private readonly IOrderv4Service _service;
-        public Ordersv4Controller(IOrderv4Service service)
+        private readonly ILogger<GlobalExceptionHandling> _logger;
+        public Ordersv4Controller(IOrderv4Service service, ILogger<GlobalExceptionHandling> logger)
         {
             _service = service;
+            _logger = logger;
         }
         /// <summary>
         /// Cancels an order if the order is eligible to be cancelled.
@@ -63,6 +66,29 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
         public IActionResult Endpoint_409()
         {
             return Conflict("AppInsight test 409 Conflict");
+        }
+
+        [HttpGet("app-insight-service-result")]
+        [Produces("application/json")]
+        public IActionResult Endpoint_ServiceResult()
+        {
+            _logger.LogInformation("Endpoint_ServiceResult was hit");
+            var result = new ServiceResult<string>
+            {
+                IsSuccess = false,
+                Code = "ORDER_NOT_CREATED",
+                ErrorType = "Validation",
+                Message = "Order was not created because customer id is missing.",
+                Data = null
+            };
+
+            _logger.LogWarning(
+                "ServiceResult failed. Code={Code}, ErrorType={ErrorType}, Message={Message}",
+                result.Code,
+                result.ErrorType,
+                result.Message);
+
+            return Ok(result);
         }
     }
 }

@@ -134,6 +134,9 @@ builder.Logging.AddApplicationInsights();
 builder.Logging.AddFilter<Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider>(
     "",
     LogLevel.Information);
+builder.Logging.AddApplicationInsights();
+builder.Logging.SetMinimumLevel(LogLevel.Information);
+
 
 // Monday, 04/20/2026 - Added policy-based authz
 builder.Services.AddAuthorization(options =>
