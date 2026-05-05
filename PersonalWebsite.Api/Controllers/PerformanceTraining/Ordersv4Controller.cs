@@ -4,6 +4,7 @@ using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.ExceptionHandling;
 using PersonalWebsite.Api.Extensions;
 using PersonalWebsite.Api.Services.PerformanceTraining.Orders;
+using Microsoft.ApplicationInsights;
 
 namespace PersonalWebsite.Api.Controllers.PerformanceTraining
 {
@@ -12,11 +13,19 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
     public class Ordersv4Controller : ApiControllerBase
     {
         private readonly IOrderv4Service _service;
-        private readonly ILogger<GlobalExceptionHandling> _logger;
-        public Ordersv4Controller(IOrderv4Service service, ILogger<GlobalExceptionHandling> logger)
+        private readonly ILogger<Ordersv4Controller> _logger;
+        private readonly TelemetryClient _telemetryClient;
+        private readonly IConfiguration _configuration;
+        public Ordersv4Controller(
+    IOrderv4Service service,
+    ILogger<Ordersv4Controller> logger,
+    TelemetryClient telemetryClient,
+    IConfiguration configuration)
         {
             _service = service;
             _logger = logger;
+            _telemetryClient = telemetryClient;
+            _configuration = configuration;
         }
         /// <summary>
         /// Cancels an order if the order is eligible to be cancelled.
@@ -73,6 +82,7 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
         public IActionResult Endpoint_ServiceResult()
         {
             _logger.LogInformation("Endpoint_ServiceResult was hit");
+            _logger.LogWarning("TRACE TEST - Endpoint_ServiceResult was hit");
             var result = new ServiceResult<string>
             {
                 IsSuccess = false,
@@ -88,7 +98,23 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
                 result.ErrorType,
                 result.Message);
 
+            _telemetryClient.TrackTrace("DIRECT AI TRACE TEST - ServiceResult failed");
+            _telemetryClient.Flush();
             return Ok(result);
+        }
+
+        [HttpGet("app-insight-config-test")]
+        public IActionResult AppInsightConfigTest()
+        {
+            var connectionString = _configuration["ApplicationInsights:ConnectionString"];
+
+            return Ok(new
+            {
+                HasConnectionString = !string.IsNullOrWhiteSpace(connectionString),
+                StartsWithInstrumentationKey = connectionString?.StartsWith("InstrumentationKey="),
+                ContainsIngestionEndpoint = connectionString?.Contains("IngestionEndpoint="),
+                Length = connectionString?.Length
+            });
         }
     }
 }

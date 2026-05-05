@@ -125,17 +125,19 @@ builder.Services.AddProblemDetails();
 //    },
 //    configureApplicationInsightsLoggerOptions: options => { }
 //);
-// builder.Services.AddApplicationInsightsTelemetry();
 builder.Services.AddApplicationInsightsTelemetry(options =>
 {
-    options.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+    options.ConnectionString =
+        builder.Configuration["ApplicationInsights:ConnectionString"];
 });
+
+builder.Logging.AddConsole();
+
 builder.Logging.AddApplicationInsights();
+
 builder.Logging.AddFilter<Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider>(
     "",
     LogLevel.Information);
-builder.Logging.AddApplicationInsights();
-builder.Logging.SetMinimumLevel(LogLevel.Information);
 
 
 // Monday, 04/20/2026 - Added policy-based authz
