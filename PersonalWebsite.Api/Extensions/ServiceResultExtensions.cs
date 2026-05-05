@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PersonalWebsite.Api.DTOs.Common;
+using PersonalWebsite.Api.Models.Errors;
 
 namespace PersonalWebsite.Api.Extensions
 {
@@ -12,12 +13,16 @@ namespace PersonalWebsite.Api.Extensions
                 return new OkObjectResult(result.Data);
             }
 
-            return result.StatusCode switch
+            return result.ServiceErrorType switch
             {
-                400 => new BadRequestObjectResult(result),
-                404 => new NotFoundObjectResult(result),
-                409 => new ConflictObjectResult(result),
-                _ => new ObjectResult(result)
+                ServiceErrorType.Validation => new BadRequestObjectResult(result),
+                ServiceErrorType.NotFound => new NotFoundObjectResult(result),
+                ServiceErrorType.Conflict => new ConflictObjectResult(result),
+                ServiceErrorType.Unexpected => new ObjectResult(result)
+                { 
+                    StatusCode = 500
+                },
+                _ => new ObjectResult(result) 
                 {
                     StatusCode = result.StatusCode,
                 }

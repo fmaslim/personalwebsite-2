@@ -14,6 +14,8 @@ namespace PersonalWebsite.Api.DTOs.Common
         public bool IsSuccess { get; set; }
         public string Code { get; set; } = string.Empty;
         public string ErrorType { get; set; } = string.Empty;
+        public ServiceErrorType ServiceErrorType { get; set; } = ServiceErrorType.None;
+
         public string Message { get; set; } = string.Empty;
 
 
@@ -120,10 +122,12 @@ namespace PersonalWebsite.Api.DTOs.Common
             {
                 Success = false,
                 StatusCode = StatusCodes.Status404NotFound,
+                ServiceErrorType = ServiceErrorType.NotFound,
+                Message = message,
                 Data = default,
-                Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>()
+                Errors = new List<ServiceError>()
                 {
-                    new Models.Errors.ServiceError
+                    new ServiceError
                     {
                         Code = "NotFound",
                         Message = message,
@@ -140,10 +144,12 @@ namespace PersonalWebsite.Api.DTOs.Common
             {
                 Success = false,
                 StatusCode = StatusCodes.Status409Conflict,
+                ServiceErrorType = ServiceErrorType.Conflict,
+                Message = message,
                 Data = default,
-                Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>()
+                Errors = new List<ServiceError>()
                 {
-                    new Models.Errors.ServiceError
+                    new ServiceError
                     {
                         Code = "Conflict",
                         Message = message,
@@ -159,7 +165,10 @@ namespace PersonalWebsite.Api.DTOs.Common
             return new ServiceResult<T>
             {
                 Success = false,
-                StatusCode = 400,
+                StatusCode = StatusCodes.Status400BadRequest,
+                ServiceErrorType = ServiceErrorType.Validation,
+                ErrorType = "Validation",
+                Message = "one or more validation errors occurred",
                 Errors = new List<ServiceError>
                 {
                     new ServiceError

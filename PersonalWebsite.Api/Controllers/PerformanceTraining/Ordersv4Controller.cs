@@ -79,10 +79,8 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
 
         [HttpGet("app-insight-service-result")]
         [Produces("application/json")]
-        public IActionResult Endpoint_ServiceResult()
+        public async Task<IActionResult> Endpoint_ServiceResult()
         {
-            _logger.LogInformation("Endpoint_ServiceResult was hit");
-            _logger.LogWarning("TRACE TEST - Endpoint_ServiceResult was hit");
             var result = new ServiceResult<string>
             {
                 IsSuccess = false,
@@ -92,14 +90,19 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
                 Data = null
             };
 
-            _logger.LogWarning(
-                "ServiceResult failed. Code={Code}, ErrorType={ErrorType}, Message={Message}",
-                result.Code,
-                result.ErrorType,
-                result.Message);
+            _telemetryClient.TrackEvent(
+    "ServiceResultFailed",
+    new Dictionary<string, string>
+    {
+        ["Code"] = result.Code ?? "",
+        ["ErrorType"] = result.ErrorType ?? "",
+        ["Message"] = result.Message ?? ""
+    });
 
-            _telemetryClient.TrackTrace("DIRECT AI TRACE TEST - ServiceResult failed");
             _telemetryClient.Flush();
+
+            await Task.Delay(10000);
+
             return Ok(result);
         }
 
