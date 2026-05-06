@@ -44,80 +44,10 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
             return result.ToActionResult();
         }
 
-        [HttpGet("global-exception")]
-        [Produces("application/json")]
-        [ProducesResponseType(typeof(ServiceResult<string>), StatusCodes.Status500InternalServerError)]
-        public IActionResult TestException()
+        [HttpGet("debug/crash")]
+        public IActionResult Endpoint_500()
         {
-            throw new NotImplementedException();
-        }
-
-        [HttpGet("app-insight-200")]
-        [Produces("application/json")]
-        public IActionResult Endpoint_200()
-        {
-            return Ok("AppInsight test 200 Ok");
-        }
-
-        [HttpGet("app-insight-400")]
-        public IActionResult Endpoint_400()
-        {
-            return BadRequest("AppInsight test 400 Bad Request");
-        }
-
-        [HttpGet("app-insight-404")]
-        public IActionResult Endpoint_404()
-        {
-            return NotFound("AppInsight test 404 Not Found");
-        }
-
-        [HttpGet("app-insight-409")]
-        public IActionResult Endpoint_409()
-        {
-            return Conflict("AppInsight test 409 Conflict");
-        }
-
-        [HttpGet("app-insight-service-result")]
-        [Produces("application/json")]
-        public async Task<IActionResult> Endpoint_ServiceResult()
-        {
-            var result = new ServiceResult<string>
-            {
-                IsSuccess = false,
-                Code = "ORDER_NOT_CREATED",
-                ErrorType = "Validation",
-                Message = "Order was not created because customer id is missing.",
-                Data = null
-            };
-
-            _telemetryClient.TrackEvent(
-    "ServiceResultFailed",
-    new Dictionary<string, string>
-    {
-        ["Code"] = result.Code ?? "",
-        ["ErrorType"] = result.ErrorType ?? "",
-        ["Message"] = result.Message ?? ""
-    });
-
-            _telemetryClient.Flush();
-
-            await Task.Delay(10000);
-
-            return Ok(result);
-        }
-
-        [HttpGet("app-insight-config-test")]
-        public IActionResult AppInsightConfigTest()
-        {
-            var connectionString = _configuration["ApplicationInsights:ConnectionString"];
-
-            return Ok(new
-            {
-                HasConnectionString = !string.IsNullOrWhiteSpace(connectionString),
-                StartsWithInstrumentationKey = connectionString?.StartsWith("InstrumentationKey="),
-                ContainsIngestionEndpoint = connectionString?.Contains("IngestionEndpoint="),
-                Length = connectionString?.Length
-            });
+            throw new InvalidOperationException("This endpoint should return a 500 error for AppInsight testing");
         }
     }
 }
