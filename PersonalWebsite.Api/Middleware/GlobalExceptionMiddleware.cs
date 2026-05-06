@@ -25,7 +25,14 @@ namespace PersonalWebsite.Api.Middleware
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unhandled exception occurred");
+                var correlationId = context.Items["CorrelationId"]?.ToString();
+
+                _logger.LogError(
+                    ex,
+                    "Unhandled exception occurred. CorrelationId={CorrelationId}. Method={Method}. Path={Path}",
+                    correlationId,
+                    context.Request.Method,
+                    context.Request.Path);
 
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 context.Response.ContentType = "application/json";
@@ -34,7 +41,8 @@ namespace PersonalWebsite.Api.Middleware
                 {
                     StatusCode = context.Response.StatusCode,
                     Message = "An unexpected error occurred.",
-                    TraceId = context.TraceIdentifier
+                    TraceId = context.TraceIdentifier,
+                    CorrelationId = correlationId
                 };
 
                 var json = JsonSerializer.Serialize(response, new JsonSerializerOptions

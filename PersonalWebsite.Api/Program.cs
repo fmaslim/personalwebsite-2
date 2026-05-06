@@ -201,7 +201,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseExceptionHandler();
+// app.UseExceptionHandler();
 app.UseHttpsRedirection();
 
 app.UseCors("AngularPolicy");
