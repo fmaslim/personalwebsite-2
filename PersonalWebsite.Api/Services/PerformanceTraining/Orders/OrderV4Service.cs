@@ -10,14 +10,21 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Orders
     {
         private readonly AdventureWorksContext _context;
         private readonly ILogger<OrderV4Service> _logger;
-        public OrderV4Service(AdventureWorksContext context, ILogger<OrderV4Service> logger)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public OrderV4Service(AdventureWorksContext context, ILogger<OrderV4Service> logger, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _logger = logger;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<ServiceResult<string>> CancelOrderAsync(int orderId)
         {
+            // Wednesday, 05/06/2026 - Get correlationId
+            var correlationId = _httpContextAccessor.HttpContext?
+            .Items["CorrelationId"]?
+            .ToString();
+
             var fieldErrors = new List<FieldError>();
             if (orderId <= 0)
             {
@@ -26,9 +33,11 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Orders
                     Field = "orderId",
                     Message = "Order Id must be greater than 0."
                 });
-                _logger.LogWarning("Cancel order rejected. OrderId={orderId}. Reason={reason}"
-                    , orderId,
-                    "Order Id must be greater than 0.");
+                _logger.LogWarning(
+                "Cancel order rejected. CorrelationId={CorrelationId}. OrderId={OrderId}. Reason={Reason}",
+                correlationId,
+                orderId,
+                "Order Id must be greater than 0.");
             }
             if (fieldErrors.Any())
             {
@@ -38,36 +47,46 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Orders
             var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
             if (order == null)
             {
-                _logger.LogWarning("Cancel order failed. OrderId={orderId}. Reason={Reason}",
-                    orderId,
-                    "Order was not found");    
+                _logger.LogWarning(
+                "Cancel order rejected. CorrelationId={CorrelationId}. OrderId={OrderId}. Reason={Reason}",
+                correlationId,
+                orderId,
+                "Order was not found");
                 return ServiceResult<string>.NotFound("Order was not found.", "orderId");
             }
-            if (order.Status == OrderStatus.Shipped)
+            if (order.Status == OrderStatus.Shipped) // 3
             {
-                _logger.LogWarning("Cancel order failed. OrderId={orderId}. Reason={Reason}",
-                    orderId,
-                    "Order cannot be cancelled because it has already shipped");
+                _logger.LogWarning(
+                "Cancel order rejected. CorrelationId={CorrelationId}. OrderId={OrderId}. Reason={Reason}",
+                correlationId,
+                orderId,
+                "Order was already shipped");
                 return ServiceResult<string>.Conflict("Order cannot be cancelled because it has already shipped");
             }
-            if (order.Status == OrderStatus.Cancelled)
+            if (order.Status == OrderStatus.Cancelled) // 4
             {
-                _logger.LogWarning("Cancel order failed. OrderId={orderid}. Reason={Reason}",
-                    orderId,
-                    "Order is already cancelled.");
+                _logger.LogWarning(
+                "Cancel order rejected. CorrelationId={CorrelationId}. OrderId={OrderId}. Reason={Reason}",
+                correlationId,
+                orderId,
+                "Order is already cancelled");
                 return ServiceResult<string>.Conflict("Order is already cancelled.");
             }
-            if (order.Status == OrderStatus.Delivered)
+            if (order.Status == OrderStatus.Delivered) // 5
             {
-                _logger.LogWarning("Cancel order failed. OrderId={orderid}. Reason={Reason}", 
-                    orderId, 
-                    "Unable to cancel. Order has been delivered");
+                _logger.LogWarning(
+                "Cancel order rejected. CorrelationId={CorrelationId}. OrderId={OrderId}. Reason={Reason}",
+                correlationId,
+                orderId,
+                "Unable to cancel. Order has been delivered.");
                 return ServiceResult<string>.Conflict("Unable to cancel. Order has been delivered");
             }
 
-            _logger.LogInformation("Order cancelled successfully. OrderId={orderid}. Reason={Reason}",
-                    orderId,
-                    "Order is already cancelled.");
+            _logger.LogWarning(
+                "Cancel order rejected. CorrelationId={CorrelationId}. OrderId={OrderId}. Reason={Reason}",
+                correlationId,
+                orderId,
+                "Order was cancelled successfully");
             return ServiceResult<string>.Ok("Order cancelled successfully");
         }
     }

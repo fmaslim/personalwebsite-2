@@ -29,6 +29,9 @@ builder.Services.AddSerilog();
 // Add services to the container.
 
 builder.Services.AddControllers();
+// Wednesday, 05/06/2026 - Added this for correlationId in logging
+builder.Services.AddHttpContextAccessor();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
