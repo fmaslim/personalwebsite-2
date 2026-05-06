@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PersonalWebsite.Api.DTOs.Products;
+using PersonalWebsite.Api.Extensions;
 using PersonalWebsite.Api.Services.Abstractions;
 
 namespace PersonalWebsite.Api.Controllers
@@ -24,14 +25,15 @@ namespace PersonalWebsite.Api.Controllers
         [HttpGet("{categoryId}")]
         [ProducesResponseType(typeof(ProductCategoryDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<ProductCategoryDto?>> GetCategoryByIdAsync(int categoryId)
+        public async Task<IActionResult> GetCategoryByIdAsync(int categoryId)
         {
-            var category = await _categoryService.GetCategoryByIdAsync(categoryId);
-            if (category == null)
-            {
-                return NotFound();
-            }
-            return Ok(category);
+            var result = await _categoryService.GetCategoryByIdAsync(categoryId);
+            //if (category == null)
+            //{
+            //    return NotFound();
+            //}
+            //return Ok(category);
+            return result.ToActionResult();
         }
     
 
