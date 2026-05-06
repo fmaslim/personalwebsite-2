@@ -40,7 +40,7 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Orders
             {
                 _logger.LogWarning("Cancel order failed. OrderId={orderId}. Reason={Reason}",
                     orderId,
-                    "Order was not found");
+                    "Order was not found");    
                 return ServiceResult<string>.NotFound("Order was not found.", "orderId");
             }
             if (order.Status == OrderStatus.Shipped)

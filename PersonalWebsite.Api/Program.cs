@@ -188,6 +188,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 app.UseMiddleware<GlobalExceptionMiddleware>();
+app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseSerilogRequestLogging();
 
 // Configure the HTTP request pipeline.
