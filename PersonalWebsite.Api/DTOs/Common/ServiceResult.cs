@@ -50,6 +50,36 @@ namespace PersonalWebsite.Api.DTOs.Common
             };
         }
 
+        public static ServiceResult<T> Fail(
+    string message,
+    ServiceErrorType type = ServiceErrorType.Validation)
+        {
+            return new ServiceResult<T>
+            {
+                Success = false,
+                StatusCode = type switch
+                {
+                    ServiceErrorType.Validation => StatusCodes.Status400BadRequest,
+                    ServiceErrorType.NotFound => StatusCodes.Status404NotFound,
+                    ServiceErrorType.Conflict => StatusCodes.Status409Conflict,
+                    ServiceErrorType.Unexpected => StatusCodes.Status500InternalServerError,
+                    _ => StatusCodes.Status500InternalServerError
+                },
+                Data = default,
+                Errors = new List<ServiceError>
+        {
+            new ServiceError
+            {
+                Message = message,
+                Code = type.ToString(),
+                Type = type
+            }
+        },
+                ServiceErrorType = type,
+                Message = message
+            };
+        }
+
         public static ServiceResult<T> Fail(string message, int statusCode = 400, string? field = null)
         {
             return new ServiceResult<T>

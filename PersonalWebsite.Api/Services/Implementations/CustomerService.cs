@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PersonalWebsite.Api.DTOs;
+using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.Models;
+using PersonalWebsite.Api.Models.Errors;
 using PersonalWebsite.Api.Services.Abstractions;
 
 namespace PersonalWebsite.Api.Services.Implementations
@@ -28,11 +30,15 @@ namespace PersonalWebsite.Api.Services.Implementations
             return query;
         }
 
-        public async Task<CustomerDetailsDto?> GetCustomerByIdAsync(int customerId)
+        public async Task<ServiceResult<CustomerDetailsDto>> GetCustomerByIdAsync(int customerId)
         {
             if (customerId <= 0)
             {
-                return null;
+                // return null;
+                return ServiceResult<CustomerDetailsDto>.Fail(
+                    "CustomerId must be greater than 0.",
+                    ServiceErrorType.Validation
+                    );
             }
 
             var customer = await _context.Customers
@@ -47,7 +53,13 @@ namespace PersonalWebsite.Api.Services.Implementations
                 })
                 .FirstOrDefaultAsync();
 
-            return customer;
+            if (customer == null)
+            {
+                return ServiceResult<CustomerDetailsDto>.NotFound(
+                    $"Customer with id {customerId} was not found."
+                );
+            }
+            return ServiceResult<CustomerDetailsDto>.Ok(customer);
         }
 
         public async Task<IEnumerable<CustomerDetailsDto>> SearchCustomersAsync(string? name,

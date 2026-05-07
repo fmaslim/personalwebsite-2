@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PersonalWebsite.Api.DTOs;
+using PersonalWebsite.Api.DTOs.Common;
+using PersonalWebsite.Api.Extensions;
 using PersonalWebsite.Api.Services.Abstractions;
 
 namespace PersonalWebsite.Api.Controllers
@@ -22,14 +24,13 @@ namespace PersonalWebsite.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<CustomerDetailsDto?>> GetCustomerByIdAsync(int id)
+        [ProducesResponseType(typeof(CustomerDetailsDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ServiceResult<CustomerDetailsDto>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ServiceResult<CustomerDetailsDto>), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetCustomerByIdAsync(int id)
         {
-            var customer = await _customerService.GetCustomerByIdAsync(id);
-            if (customer == null)
-            {
-                return NotFound();
-            }
-            return Ok(customer);
+            var result = await _customerService.GetCustomerByIdAsync(id);
+            return result.ToActionResult();
         }
 
         [HttpGet("search")]
