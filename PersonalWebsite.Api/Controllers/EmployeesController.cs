@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PersonalWebsite.Api.DTOs;
+using PersonalWebsite.Api.Extensions;
 using PersonalWebsite.Api.Services.Abstractions;
 
 namespace PersonalWebsite.Api.Controllers
@@ -24,14 +25,15 @@ namespace PersonalWebsite.Api.Controllers
         }
 
         [HttpGet("{employeeId}")]
-        public async Task<ActionResult<EmployeeLookupDto>> GetEmployeeByIdAsync(int employeeId)
+        public async Task<IActionResult> GetEmployeeByIdAsync(int employeeId)
         {
-            var employee = await _employeeService.GetEmployeeByIdAsync(employeeId);
-            if (employee == null)
-            {
-                return NotFound();
-            }
-            return Ok(employee);
+            var result = await _employeeService.GetEmployeeByIdAsync(employeeId);
+            //if (employee == null)
+            //{
+            //    return NotFound();
+            //}
+            //return Ok(employee);
+            return result.ToActionResult();
         }
 
         [HttpGet("search")]

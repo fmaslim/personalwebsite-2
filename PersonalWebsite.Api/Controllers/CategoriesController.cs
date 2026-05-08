@@ -28,11 +28,6 @@ namespace PersonalWebsite.Api.Controllers
         public async Task<IActionResult> GetCategoryByIdAsync(int categoryId)
         {
             var result = await _categoryService.GetCategoryByIdAsync(categoryId);
-            //if (category == null)
-            //{
-            //    return NotFound();
-            //}
-            //return Ok(category);
             return result.ToActionResult();
         }
     

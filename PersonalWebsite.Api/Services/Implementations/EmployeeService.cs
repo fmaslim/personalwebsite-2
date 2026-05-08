@@ -1,7 +1,8 @@
-﻿using PersonalWebsite.Api.DTOs;
+﻿using Microsoft.EntityFrameworkCore;
+using PersonalWebsite.Api.DTOs;
+using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.Models;
 using PersonalWebsite.Api.Services.Abstractions;
-using Microsoft.EntityFrameworkCore;
 
 namespace PersonalWebsite.Api.Services.Implementations
 {
@@ -12,9 +13,26 @@ namespace PersonalWebsite.Api.Services.Implementations
         {
             _context = context;
         }
-        public async Task<EmployeeLookupDto?> GetEmployeeByIdAsync(int employeeId)
+        //public async Task<EmployeeLookupDto?> GetEmployeeByIdAsync(int employeeId)
+        //{
+        //    var employee = _context.Employees
+        //        .AsNoTracking()
+        //        .Where(e => e.BusinessEntityId == employeeId)
+        //        .Select(e => new EmployeeLookupDto
+        //        {
+        //            EmployeeId = e.BusinessEntityId,
+        //            JobTitle = e.JobTitle,
+        //            HireDate = e.HireDate,
+        //            CurrentFlag = e.CurrentFlag
+        //        })
+        //        .FirstOrDefaultAsync();
+
+        //    return await employee;
+        //}
+
+        public async Task<ServiceResult<EmployeeLookupDto>> GetEmployeeByIdAsync(int employeeId)
         {
-            var employee = _context.Employees
+            var employee = await _context.Employees
                 .AsNoTracking()
                 .Where(e => e.BusinessEntityId == employeeId)
                 .Select(e => new EmployeeLookupDto
@@ -26,7 +44,14 @@ namespace PersonalWebsite.Api.Services.Implementations
                 })
                 .FirstOrDefaultAsync();
 
-            return await employee;
+            if (employee == null)
+            {
+                return ServiceResult<EmployeeLookupDto>.NotFound(
+                    "Employee Not found"
+                    );
+            }
+
+            return ServiceResult<EmployeeLookupDto>.Ok(employee);
         }
 
         public async Task<IEnumerable<EmployeeLookupDto>> SearchEmployeesAsync(
