@@ -210,11 +210,37 @@ namespace PersonalWebsite.Api.Services.Implementations
             return await query.ToListAsync();
         }
 
-        public async Task<FileRecord?> GetFileByIdAsync(int id)
+        //public async Task<FileRecord?> GetFileByIdAsync(int id)
+        //{
+        //    return await _context.FileRecords
+        //        .AsNoTracking()
+        //        .FirstOrDefaultAsync(f => f.Id == id);
+        //}
+
+        public async Task<ServiceResult<FileDownloadDto>> GetFileByIdAsync(int id)
         {
-            return await _context.FileRecords
+            var fileRecord = await _context.FileRecords
                 .AsNoTracking()
                 .FirstOrDefaultAsync(f => f.Id == id);
+
+            if (fileRecord == null)
+            {
+                return ServiceResult<FileDownloadDto>.NotFound("File record not found");
+            }
+            if (!System.IO.File.Exists(fileRecord.FilePath))
+            {
+                return ServiceResult<FileDownloadDto>.NotFound("Physical file not found");
+            }
+            
+            var fileBytes = await System.IO.File.ReadAllBytesAsync(fileRecord.FilePath);
+            var downloadDto = new FileDownloadDto
+            {
+                FileBytes = fileBytes,
+                ContentType = fileRecord.ContentType,
+                FileName = fileRecord.OriginalFileName
+            };
+
+            return ServiceResult<FileDownloadDto>.Ok(downloadDto);
         }
 
         public async Task<FileDetailsResponseDto?> GetFileDetailsByIdAsync(int id)

@@ -27,24 +27,26 @@ namespace PersonalWebsite.Api.Controllers
         [HttpGet("{id}/download")]
         public async Task<IActionResult> DownloadFile(int id)
         {
-            var response = await _fileService.GetFileByIdAsync(id);
-            if (response == null)
+            var result = await _fileService.GetFileByIdAsync(id);
+
+            if (!result.Success)
             {
-                return NotFound();
+                return result.ToActionResult();
             }
-            if (!System.IO.File.Exists(response.FilePath))
-            {
-                return NotFound("Physical file not found.");
-            }
-            var fileBytes = await System.IO.File.ReadAllBytesAsync(response.FilePath);
-            return File(fileBytes, response.ContentType, response.OriginalFileName);
+
+            return File(
+                result.Data!.FileBytes,
+                result.Data!.ContentType,
+                result.Data.FileName
+                );
+
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteFileById(int id)
         {
-            var response = await _fileService.DeleteFileByIdAsync(id);
-            return StatusCode(response.StatusCode, response);
+            var result = await _fileService.DeleteFileByIdAsync(id);
+            return result.ToActionResult() ;
         }
 
         [HttpGet("all")]
