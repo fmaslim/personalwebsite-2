@@ -6,7 +6,7 @@ namespace PersonalWebsite.Api.DTOs.Common
     public class ServiceResult<T>
     {
         public bool Success { get; set; }
-        public List<PersonalWebsite.Api.Models.Errors.ServiceError> Errors { get; set; } = new();
+        public List<ServiceError> Errors { get; set; } = new();
         public List<FieldError> FieldErrors { get; set; } = new();
         public int StatusCode { get; set; }
         public T? Data { get; set; }
@@ -37,9 +37,9 @@ namespace PersonalWebsite.Api.DTOs.Common
                 Success = false,
                 StatusCode = statusCode,
                 Data = default,
-                Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
+                Errors = new List<ServiceError>
                 {
-                    new PersonalWebsite.Api.Models.Errors.ServiceError
+                    new ServiceError
                     {
                         Message = message,
                         // Field = field,
@@ -87,9 +87,9 @@ namespace PersonalWebsite.Api.DTOs.Common
                 Success = false,
                 StatusCode = statusCode,
                 Data = default,
-                Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
+                Errors = new List<ServiceError>
                 {
-                    new PersonalWebsite.Api.Models.Errors.ServiceError
+                    new ServiceError
                     {
                         Message = message,
                         // Field = field,
