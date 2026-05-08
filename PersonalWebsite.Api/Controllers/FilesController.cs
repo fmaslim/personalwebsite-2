@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PersonalWebsite.Api.DTOs.Files;
+using PersonalWebsite.Api.Extensions;
 using PersonalWebsite.Api.Models;
 using PersonalWebsite.Api.Services.Abstractions;
 
@@ -19,12 +20,8 @@ namespace PersonalWebsite.Api.Controllers
         public async Task<IActionResult> UploadFile(IFormFile file)
         {
 
-            var response = await _fileService.UploadFileAsync(file);
-            if (!response.Success)
-            {
-                return StatusCode(response.StatusCode, response.Errors);
-            }
-            return Ok(response.Data);
+            var result = await _fileService.UploadFileAsync(file);
+            return result.ToActionResult();
         }
 
         [HttpGet("{id}/download")]
