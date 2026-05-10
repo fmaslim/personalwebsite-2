@@ -69,18 +69,19 @@ namespace PersonalWebsite.Api.Services.Implementations
             });
         }
 
-        public async Task<GetProductByIdResultDto> GetProductByIdV2Async(int id)
+        public async Task<ServiceResult<ProductDetailsDto>> GetProductByIdV2Async(int id)
         {
+            if (id <= 0)
+            {
+                return ServiceResult<ProductDetailsDto>.Fail(
+                "Product ID must be greater than 0.",
+                ServiceErrorType.Validation);
+            }
+
             var product = await _context.Products.FindAsync(id);
             if (product == null)
             {
-                return new GetProductByIdResultDto
-                {
-                    Success = false,
-                    StatusCode = 404,
-                    Message = "Product not found",
-                    Data = null
-                };
+                return ServiceResult<ProductDetailsDto>.NotFound("Product was not found");
             }
 
             var productDetails = new ProductDetailsDto
@@ -90,14 +91,7 @@ namespace PersonalWebsite.Api.Services.Implementations
                 ListPrice = product.ListPrice,
                 ProductNumber = product.ProductNumber
             };
-
-            return new GetProductByIdResultDto
-            {
-                Success = true,
-                StatusCode = 200,
-                Data = productDetails,
-                Message = "Product retrieved successfully"
-            };
+            return ServiceResult<ProductDetailsDto>.Ok(productDetails, "Product retrieved successfully");
         }
 
         public async Task<ServiceResult<UpdateProductResultV2Dto>> UpdateProductV2Async(UpdateProductRequestV2Dto request)

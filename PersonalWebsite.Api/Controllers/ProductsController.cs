@@ -74,16 +74,11 @@ namespace PersonalWebsite.Api.Controllers
         [HttpGet("v2/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductDetailsDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<ProductDetailsDto>> GetProductByIdV2Async(int id)
+        public async Task<IActionResult> GetProductByIdV2Async(int id)
         {
             var result = await _productServiceV2.GetProductByIdV2Async(id);
 
-            if (!result.Success)
-            {
-                return NotFound(new ProductErrorResponseDto { Message = result.Message });
-            }
-
-            return Ok(result.Data);
+            return result.ToActionResult();
         }
 
         [HttpPost("v2")]
