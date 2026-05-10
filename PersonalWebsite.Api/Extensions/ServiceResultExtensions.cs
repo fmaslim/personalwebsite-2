@@ -10,7 +10,11 @@ namespace PersonalWebsite.Api.Extensions
         {
             if (result.Success)
             {
-                // return new OkObjectResult(result.Data);
+                if (result.StatusCode == StatusCodes.Status204NoContent)
+                {
+                    return new NoContentResult();
+                }
+                
                 return new ObjectResult(result.Data)
                 {
                     StatusCode = result.StatusCode,

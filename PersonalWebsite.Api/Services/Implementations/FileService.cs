@@ -87,42 +87,12 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return ServiceResult<bool>.NotFound(
                     "File not found"
                     );
-
-                //return await Task.FromResult(new ServiceResult<bool>
-                //{
-                //    Success = false,
-                //    Errors = new List<ServiceError>
-                //    {
-                //        new ServiceError
-                //        {
-                //            Field = "fileRecord",
-                //            Message = "File record not found.",
-                //            Code = "FileRecordNotFound"
-                //        }
-                //    },
-                //    StatusCode = 404,
-                //    Data = false
-                //});
             }
 
             _context.FileRecords.Remove(fileRecord);
             await _context.SaveChangesAsync();
-            return ServiceResult<bool>.Ok(true);
-            //return new ServiceResult<bool>
-            //{
-            //    Success = true,
-            //    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
-            //        {
-            //            new PersonalWebsite.Api.Models.Errors.ServiceError
-            //            {
-            //                Field = "SuccessfulDelete",
-            //                Message = $"File record with ID '{id}' deleted successfully.",
-            //                Code = "FileRecordDeleted"
-            //            }
-            //        },
-            //    StatusCode = 200,
-            //    Data = true
-            //};
+            // return ServiceResult<bool>.Ok(true);            
+            return ServiceResult<bool>.NoContent();
         }
 
         public async Task<ServiceResult<FileDownloadResponseDto>> DownloadFileAsync(string fileName)

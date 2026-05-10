@@ -43,6 +43,9 @@ namespace PersonalWebsite.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteFileById(int id)
         {
             var result = await _fileService.DeleteFileByIdAsync(id);

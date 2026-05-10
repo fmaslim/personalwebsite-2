@@ -222,5 +222,16 @@ namespace PersonalWebsite.Api.DTOs.Common
                 Message = message
             };
         }
+
+        public static ServiceResult<T> NoContent(string message = "")
+        {
+            return new ServiceResult<T>
+            {
+                Success = true,
+                StatusCode = StatusCodes.Status204NoContent,
+                Data = default,
+                Message = message
+            };
+        }
     }
 }
