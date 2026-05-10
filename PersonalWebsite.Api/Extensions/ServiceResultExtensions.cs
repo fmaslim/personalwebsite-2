@@ -10,7 +10,11 @@ namespace PersonalWebsite.Api.Extensions
         {
             if (result.Success)
             {
-                return new OkObjectResult(result.Data);
+                // return new OkObjectResult(result.Data);
+                return new ObjectResult(result.Data)
+                {
+                    StatusCode = result.StatusCode,
+                };
             }
 
             return result.ServiceErrorType switch

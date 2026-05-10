@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using PersonalWebsite.Api.Models.Errors;
+using System.Reflection.Metadata.Ecma335;
 
 namespace PersonalWebsite.Api.DTOs.Common
 {
@@ -208,6 +209,17 @@ namespace PersonalWebsite.Api.DTOs.Common
                     }
                 },
                 FieldErrors = fieldErrors
+            };
+        }
+
+        public static ServiceResult<T> Created(T data, string message = "")
+        {
+            return new ServiceResult<T>
+            {
+                Success = true,
+                StatusCode = StatusCodes.Status201Created,
+                Data = data,
+                Message = message
             };
         }
     }

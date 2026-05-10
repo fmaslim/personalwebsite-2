@@ -130,9 +130,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 ProductNumber = request.ProductNumber,
                 ListPrice = request.ListPrice ?? 0
             };
-                       
 
-            return Task.FromResult(ServiceResult<CreateProductResponseV2Dto>.Ok(response));
+            // return Task.FromResult(ServiceResult<CreateProductResponseV2Dto>.Ok(response));
+            return Task.FromResult(ServiceResult<CreateProductResponseV2Dto>.Created(response, "Product created successfully"));
         }
     }
 }
