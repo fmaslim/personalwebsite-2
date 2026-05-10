@@ -1,5 +1,7 @@
-﻿using PersonalWebsite.Api.DTOs.Products;
+﻿using PersonalWebsite.Api.DTOs.Common;
+using PersonalWebsite.Api.DTOs.Products;
 using PersonalWebsite.Api.Models;
+using PersonalWebsite.Api.Models.Errors;
 using PersonalWebsite.Api.Services.Abstractions;
 
 namespace PersonalWebsite.Api.Services.Implementations
@@ -98,45 +100,25 @@ namespace PersonalWebsite.Api.Services.Implementations
             };
         }
 
-        public async Task<UpdateProductResultV2Dto> UpdateProductV2Async(UpdateProductRequestV2Dto request)
+        public async Task<ServiceResult<UpdateProductResultV2Dto>> UpdateProductV2Async(UpdateProductRequestV2Dto request)
         {
             var product = _context.Products.FirstOrDefault(p => p.ProductId == request.ProductId);
             if (product == null)
             {
-                return new UpdateProductResultV2Dto
-                {
-                    Success = false,
-                    StatusCode = 404,
-                    Message = $"Product with id {request.ProductId} not found"
-                };
+                return ServiceResult<UpdateProductResultV2Dto>.NotFound("Product not found");
             }
             if (string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.ProductNumber))
             {
-                return new UpdateProductResultV2Dto
-                {
-                    Success = false,
-                    StatusCode = 400,
-                    Message = "Name and ProductNumber are required"
-                };
+                return ServiceResult<UpdateProductResultV2Dto>.Fail("Name and ProductNumber are required", ServiceErrorType.Validation);                
             }
             if (request.ListPrice == null)
             {
-                return new UpdateProductResultV2Dto
-                {
-                    Success = false,
-                    StatusCode = 400,
-                    Message = "ListPrice is required"
-                };
+                return ServiceResult<UpdateProductResultV2Dto>.Fail("ListPrice is required", ServiceErrorType.Validation);                
             }
 
             if (request.ListPrice.Value < 0)
             {
-                return new UpdateProductResultV2Dto
-                {
-                    Success = false,
-                    StatusCode = 400,
-                    Message = "ListPrice cannot be negative"
-                };
+                return ServiceResult<UpdateProductResultV2Dto>.Fail("ListPrice cannot be negative", ServiceErrorType.Validation);
             }
 
             product.Name = request.Name;
@@ -144,8 +126,8 @@ namespace PersonalWebsite.Api.Services.Implementations
             product.ListPrice = request.ListPrice.Value;
 
             await _context.SaveChangesAsync();
-
-            return new UpdateProductResultV2Dto
+                        
+            var result =  new UpdateProductResultV2Dto
             {
                 Success = true,
                 StatusCode = 200,
@@ -158,6 +140,7 @@ namespace PersonalWebsite.Api.Services.Implementations
                     ListPrice = product.ListPrice
                 }
             };
+            return ServiceResult<UpdateProductResultV2Dto>.Ok(result);
         }
     }
 }

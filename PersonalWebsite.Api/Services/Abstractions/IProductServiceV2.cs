@@ -1,4 +1,5 @@
-﻿using PersonalWebsite.Api.DTOs.Products;
+﻿using PersonalWebsite.Api.DTOs.Common;
+using PersonalWebsite.Api.DTOs.Products;
 
 namespace PersonalWebsite.Api.Services.Abstractions
 {
@@ -6,6 +7,8 @@ namespace PersonalWebsite.Api.Services.Abstractions
     {
         Task<GetProductByIdResultDto> GetProductByIdV2Async(int id);
         Task<CreateProductResultV2Dto> CreateProductV2Async(CreateProductRequestV2Dto request);
-        Task<UpdateProductResultV2Dto> UpdateProductV2Async(UpdateProductRequestV2Dto request);
+        // Task<UpdateProductResultV2Dto> UpdateProductV2Async(UpdateProductRequestV2Dto request);
+
+        Task<ServiceResult<UpdateProductResultV2Dto>> UpdateProductV2Async(UpdateProductRequestV2Dto request);
     }
 }

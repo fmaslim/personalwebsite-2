@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PersonalWebsite.Api.DTOs.Products;
+using PersonalWebsite.Api.Extensions;
 using PersonalWebsite.Api.Models;
 using PersonalWebsite.Api.Services.Abstractions;
 
@@ -102,19 +103,11 @@ namespace PersonalWebsite.Api.Controllers
         [ProducesResponseType(typeof(UpdateProductResponseV2Dto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(UpdateProductErrorResponseV2Dto), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(UpdateProductErrorResponseV2Dto), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<UpdateProductResponseV2Dto>> UpdateProductV2Async(UpdateProductRequestV2Dto request)
+        public async Task<IActionResult> UpdateProductV2Async(UpdateProductRequestV2Dto request)
         {
             var result = await _productServiceV2.UpdateProductV2Async(request);
-            if (result.StatusCode == StatusCodes.Status404NotFound)
-            {
-                return NotFound(new UpdateProductErrorResponseV2Dto { Message = result.Message });
-            }
-            if (result.StatusCode == StatusCodes.Status400BadRequest)
-            {
-                return BadRequest(new UpdateProductErrorResponseV2Dto { Message = result.Message });
-            }
 
-            return Ok(result.Data);
+            return result.ToActionResult();
         }
     }
 }
