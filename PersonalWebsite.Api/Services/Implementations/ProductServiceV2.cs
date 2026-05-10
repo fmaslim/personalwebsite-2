@@ -14,60 +14,60 @@ namespace PersonalWebsite.Api.Services.Implementations
             _context = context;
         }
 
-        public Task<CreateProductResultV2Dto> CreateProductV2Async(CreateProductRequestV2Dto request)
-        {
-            /*
-             * Return 400 when:
-                Name is missing
-                ProductNumber is missing
-                ListPrice is null
-                maybe ListPrice < 0
-             */
-            if(string.IsNullOrWhiteSpace(request.Name))
-            {
-                return Task.FromResult(new CreateProductResultV2Dto
-                {
-                    Success = false,
-                    StatusCode = 400,
-                    Message = "Name is required",
-                    Data = null
-                });
-            }
-            if(string.IsNullOrWhiteSpace(request.ProductNumber))
-            {
-                return Task.FromResult(new CreateProductResultV2Dto
-                {
-                    Success = false,
-                    StatusCode = 400,
-                    Message = "ProductNumber is required",
-                    Data = null
-                });
-            }
-            if(request.ListPrice == null || request.ListPrice < 0)
-            {
-                return Task.FromResult(new CreateProductResultV2Dto
-                {
-                    Success = false,
-                    StatusCode = 400,
-                    Message = "ListPrice is required and must be non-negative",
-                    Data = null
-                });
-            }
-            var response = new CreateProductResponseV2Dto
-            {
-                Name = request.Name,
-                ProductNumber = request.ProductNumber,
-                ListPrice = request.ListPrice.Value
-            };
+        //public Task<CreateProductResultV2Dto> CreateProductV2Async(CreateProductRequestV2Dto request)
+        //{
+        //    /*
+        //     * Return 400 when:
+        //        Name is missing
+        //        ProductNumber is missing
+        //        ListPrice is null
+        //        maybe ListPrice < 0
+        //     */
+        //    if(string.IsNullOrWhiteSpace(request.Name))
+        //    {
+        //        return Task.FromResult(new CreateProductResultV2Dto
+        //        {
+        //            Success = false,
+        //            StatusCode = 400,
+        //            Message = "Name is required",
+        //            Data = null
+        //        });
+        //    }
+        //    if(string.IsNullOrWhiteSpace(request.ProductNumber))
+        //    {
+        //        return Task.FromResult(new CreateProductResultV2Dto
+        //        {
+        //            Success = false,
+        //            StatusCode = 400,
+        //            Message = "ProductNumber is required",
+        //            Data = null
+        //        });
+        //    }
+        //    if(request.ListPrice == null || request.ListPrice < 0)
+        //    {
+        //        return Task.FromResult(new CreateProductResultV2Dto
+        //        {
+        //            Success = false,
+        //            StatusCode = 400,
+        //            Message = "ListPrice is required and must be non-negative",
+        //            Data = null
+        //        });
+        //    }
+        //    var response = new CreateProductResponseV2Dto
+        //    {
+        //        Name = request.Name,
+        //        ProductNumber = request.ProductNumber,
+        //        ListPrice = request.ListPrice.Value
+        //    };
 
-            return Task.FromResult(new CreateProductResultV2Dto
-            {
-                Success = true,
-                StatusCode = 201,
-                Message = "Product created successfully",
-                Data = response
-            });
-        }
+        //    return Task.FromResult(new CreateProductResultV2Dto
+        //    {
+        //        Success = true,
+        //        StatusCode = 201,
+        //        Message = "Product created successfully",
+        //        Data = response
+        //    });
+        //}
 
         public async Task<ServiceResult<ProductDetailsDto>> GetProductByIdV2Async(int id)
         {
@@ -135,6 +135,66 @@ namespace PersonalWebsite.Api.Services.Implementations
                 }
             };
             return ServiceResult<UpdateProductResultV2Dto>.Ok(result);
+        }
+
+        public Task<ServiceResult<CreateProductResultV2Dto>> CreateProductV2Async(CreateProductRequestV2Dto request)
+        {
+            if (request == null)
+            {
+                return Task.FromResult(
+                    ServiceResult<CreateProductResultV2Dto>.Fail(
+                        "Request object is required",
+                        ServiceErrorType.Validation));
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Name))
+            {
+                return Task.FromResult(
+                    ServiceResult<CreateProductResultV2Dto>.Fail(
+                        "Name is required",
+                        ServiceErrorType.Validation));
+            }
+
+            if (string.IsNullOrWhiteSpace(request.ProductNumber))
+            {
+                return Task.FromResult(
+                    ServiceResult<CreateProductResultV2Dto>.Fail(
+                        "ProductNumber is required",
+                        ServiceErrorType.Validation));
+            }
+
+            if (request.ListPrice == null)
+            {
+                return Task.FromResult(
+                    ServiceResult<CreateProductResultV2Dto>.Fail(
+                        "ListPrice is required",
+                        ServiceErrorType.Validation));
+            }
+
+            if (request.ListPrice < 0)
+            {
+                return Task.FromResult(
+                    ServiceResult<CreateProductResultV2Dto>.Fail(
+                        "ListPrice cannot be negative",
+                        ServiceErrorType.Validation));
+            }
+
+            var response = new CreateProductResponseV2Dto
+            {
+                Name = request.Name,
+                ProductNumber = request.ProductNumber,
+                ListPrice = request.ListPrice ?? 0
+            };
+
+            var result = new CreateProductResultV2Dto
+            {
+                Success = true,
+                StatusCode = 201,
+                Message = "Product created successfully",
+                Data = response
+            };
+
+            return Task.FromResult(ServiceResult<CreateProductResultV2Dto>.Ok(result));
         }
     }
 }

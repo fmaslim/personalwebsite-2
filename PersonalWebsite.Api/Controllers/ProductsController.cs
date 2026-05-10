@@ -83,15 +83,11 @@ namespace PersonalWebsite.Api.Controllers
 
         [HttpPost("v2")]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(CreateProductResponseV2Dto))]
-        public async Task<ActionResult<CreateProductResponseV2Dto>> CreateProductV2Async(CreateProductRequestV2Dto request)
+        public async Task<IActionResult> CreateProductV2Async(CreateProductRequestV2Dto request)
         {
             var result = await _productServiceV2.CreateProductV2Async(request);
-            if (!result.Success)
-            {
-                return BadRequest(new CreateProductErrorResponseV2Dto { Message = result.Message });
-            }
-            // return CreatedAtAction(nameof(GetProductByIdV2Async), new { id = result.Data!.ProductId }, result.Data);
-            return StatusCode(StatusCodes.Status201Created, result.Data);
+            
+            return result.ToActionResult();
         }
 
         [HttpPut("v2")]
