@@ -27,11 +27,7 @@ namespace PersonalWebsite.Api.Controllers
         public async Task<IActionResult> CreateOrderV3(CreateOrderRequestV3Dto dto)
         {
             var result = await _orderServiceV2.CreateOrderV3Async(dto);
-            //if (!result.Success)
-            //{
-            //    return StatusCode(result.StatusCode, result.Errors);
-            //}
-            //return StatusCode(result.StatusCode, result);
+            
             return result.ToActionResult();
         }
 
@@ -66,7 +62,8 @@ namespace PersonalWebsite.Api.Controllers
         public async Task<IActionResult> SearchOrdersAsync([FromQuery]DTOs.Orders.OrderSearchRequestDto dto)
         {
             var result = await _orderServiceV2.SearchOrdersAsync(dto);
-            return Ok(result);
+            return result.ToActionResult();
+            //return resul
         }
     }
 }

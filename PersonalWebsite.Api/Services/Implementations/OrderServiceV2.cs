@@ -857,72 +857,128 @@ namespace PersonalWebsite.Api.Services.Implementations
             return ServiceResult<PagedResultDto<OrderSearchResponseDto>>.Ok(pagedResultDto);
         }
 
-        public async Task<PagedResponse<OrderSearchResponseDto>> SearchOrdersAsync(DTOs.Orders.OrderSearchRequestDto requestDto)
+    //    public async Task<PagedResponse<OrderSearchResponseDto>> SearchOrdersAsync(DTOs.Orders.OrderSearchRequestDto requestDto)
+    //    {
+    //        var query = _context.SalesOrderHeaders.AsNoTracking().AsQueryable();
+
+    //        if (requestDto.OrderDateFrom.HasValue)
+    //        {
+    //            query = query.Where(o => o.OrderDate >= requestDto.OrderDateFrom.Value);
+    //        }
+    //        if (requestDto.OrderDateTo.HasValue)
+    //        {
+    //            query = query.Where(o => o.OrderDate <= requestDto.OrderDateTo.Value);
+    //        }
+    //        if (requestDto.MinTotalDue.HasValue)
+    //        {
+    //            query = query.Where(o => o.TotalDue >= requestDto.MinTotalDue.Value);
+    //        }
+
+    //        if (!string.IsNullOrEmpty(requestDto.CustomerName))
+    //        {
+    //            query = query.Where(o =>
+    //            (o.Customer.Person != null &&
+    //                (o.Customer.Person.FirstName + " " + o.Customer.Person.LastName).Contains(requestDto.CustomerName)) ||
+    //              o.Customer.Store != null &&
+    //              (o.Customer.Store.Name.Contains(requestDto.CustomerName)));
+    //        }
+
+    //        // count before paging
+    //        var totalCount = await query.CountAsync();
+
+    //        // sorting
+    //        var sortBy = requestDto.SortBy?.ToLower();
+    //        var sortDir = requestDto.SortDirection?.ToLower();
+
+    //        query = sortBy switch
+    //        {
+    //            "totaldue" => sortDir == "asc" 
+    //                ? query.OrderBy(o => o.TotalDue)
+    //                : query.OrderByDescending(o => o.TotalDue),
+    //            "ordernumber" => sortDir == "asc"
+    //                ? query.OrderBy(o => o.SalesOrderNumber)
+    //                : query.OrderByDescending(o => o.SalesOrderNumber),
+    //            _ => sortDir == "asc"
+    //                ? query.OrderBy(o => o.OrderDate)
+    //                : query.OrderByDescending(o => o.OrderDate)
+    //        };
+
+    //        // Page + Project + execute
+    //        var data = await query
+    //.Skip((requestDto.PageNumber - 1) * requestDto.PageSize)
+    //.Take(requestDto.PageSize)
+    //.Select(o => new OrderSearchResponseDto
+    //{
+    //    OrderId = o.SalesOrderId,
+    //    CustomerId = o.CustomerId,
+    //    CustomerName = o.Customer.Person != null
+    //        ? o.Customer.Person.FirstName + " " + o.Customer.Person.LastName
+    //        : o.Customer.Store != null
+    //            ? o.Customer.Store.Name
+    //            : null,
+    //    TotalAmount = o.TotalDue,
+    //    Status = o.Status,
+    //    CreatedAtUtc = o.OrderDate
+    //})
+    //.ToListAsync();
+
+    //        return new PagedResponse<OrderSearchResponseDto>
+    //        {
+    //            Data = data,
+    //            PageNumber = requestDto.PageNumber,
+    //            PageSize = requestDto.PageSize,
+    //            TotalRecords = totalCount,
+    //            TotalPages = (int)Math.Ceiling(totalCount / (double)requestDto.PageSize)
+    //        };
+    //    }
+
+        public async Task<ServiceResult<PagedResponse<OrderSearchResponseDto>>> SearchOrdersAsync(DTOs.Orders.OrderSearchRequestDto requestDto)
         {
             var query = _context.SalesOrderHeaders.AsNoTracking().AsQueryable();
 
-            if (requestDto.OrderDateFrom.HasValue)
+            if (requestDto == null)
             {
-                query = query.Where(o => o.OrderDate >= requestDto.OrderDateFrom.Value);
-            }
-            if (requestDto.OrderDateTo.HasValue)
-            {
-                query = query.Where(o => o.OrderDate <= requestDto.OrderDateTo.Value);
-            }
-            if (requestDto.MinTotalDue.HasValue)
-            {
-                query = query.Where(o => o.TotalDue >= requestDto.MinTotalDue.Value);
+                return ServiceResult<PagedResponse<OrderSearchResponseDto>>.Fail(
+                    "Request object cannot be null.",
+                    ServiceErrorType.Validation);
             }
 
-            if (!string.IsNullOrEmpty(requestDto.CustomerName))
+            if (requestDto.PageNumber <= 0)
             {
-                query = query.Where(o =>
-                (o.Customer.Person != null &&
-                    (o.Customer.Person.FirstName + " " + o.Customer.Person.LastName).Contains(requestDto.CustomerName)) ||
-                  o.Customer.Store != null &&
-                  (o.Customer.Store.Name.Contains(requestDto.CustomerName)));
+                return ServiceResult<PagedResponse<OrderSearchResponseDto>>.Fail(
+                    "PageNumber must be greater than 0.",
+                    ServiceErrorType.Validation);
             }
 
-            // count before paging
+            if (requestDto.PageSize <= 0)
+            {
+                return ServiceResult<PagedResponse<OrderSearchResponseDto>>.Fail(
+                    "PageSize must be greater than 0.",
+                    ServiceErrorType.Validation);
+            }
+
+            // More validations here
             var totalCount = await query.CountAsync();
 
-            // sorting
-            var sortBy = requestDto.SortBy?.ToLower();
-            var sortDir = requestDto.SortDirection?.ToLower();
-
-            query = sortBy switch
-            {
-                "totaldue" => sortDir == "asc" 
-                    ? query.OrderBy(o => o.TotalDue)
-                    : query.OrderByDescending(o => o.TotalDue),
-                "ordernumber" => sortDir == "asc"
-                    ? query.OrderBy(o => o.SalesOrderNumber)
-                    : query.OrderByDescending(o => o.SalesOrderNumber),
-                _ => sortDir == "asc"
-                    ? query.OrderBy(o => o.OrderDate)
-                    : query.OrderByDescending(o => o.OrderDate)
-            };
-
-            // Page + Project + execute
             var data = await query
-    .Skip((requestDto.PageNumber - 1) * requestDto.PageSize)
-    .Take(requestDto.PageSize)
-    .Select(o => new OrderSearchResponseDto
-    {
-        OrderId = o.SalesOrderId,
-        CustomerId = o.CustomerId,
-        CustomerName = o.Customer.Person != null
-            ? o.Customer.Person.FirstName + " " + o.Customer.Person.LastName
-            : o.Customer.Store != null
-                ? o.Customer.Store.Name
-                : null,
-        TotalAmount = o.TotalDue,
-        Status = o.Status,
-        CreatedAtUtc = o.OrderDate
-    })
-    .ToListAsync();
+            .Skip((requestDto.PageNumber - 1) * requestDto.PageSize)
+            .Take(requestDto.PageSize)
+            .Select(o => new OrderSearchResponseDto
+            {
+                OrderId = o.SalesOrderId,
+                CustomerId = o.CustomerId,
+                CustomerName = o.Customer.Person != null
+                    ? o.Customer.Person.FirstName + " " + o.Customer.Person.LastName
+                    : o.Customer.Store != null
+                        ? o.Customer.Store.Name
+                        : null,
+                TotalAmount = o.TotalDue,
+                Status = o.Status,
+                CreatedAtUtc = o.OrderDate
+            })
+            .ToListAsync();
 
-            return new PagedResponse<OrderSearchResponseDto>
+            var pagedResponse = new PagedResponse<OrderSearchResponseDto>
             {
                 Data = data,
                 PageNumber = requestDto.PageNumber,
@@ -930,6 +986,8 @@ namespace PersonalWebsite.Api.Services.Implementations
                 TotalRecords = totalCount,
                 TotalPages = (int)Math.Ceiling(totalCount / (double)requestDto.PageSize)
             };
+
+            return ServiceResult<PagedResponse<OrderSearchResponseDto>>.Ok(pagedResponse);
         }
     }
 }

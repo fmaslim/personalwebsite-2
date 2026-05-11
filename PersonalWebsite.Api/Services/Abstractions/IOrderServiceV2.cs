@@ -20,6 +20,7 @@ namespace PersonalWebsite.Api.Services.Abstractions
         Task<ServiceResult<PagedOrderSummaryResponseDto>> GetAllOrdersAsync(OrderQueryParamsDto query);
 
         // Performance Training
-        Task<PagedResponse<OrderSearchResponseDto>> SearchOrdersAsync(DTOs.Orders.OrderSearchRequestDto requestDto);
+        // Task<PagedResponse<OrderSearchResponseDto>> SearchOrdersAsync(DTOs.Orders.OrderSearchRequestDto requestDto);
+        Task<ServiceResult<PagedResponse<OrderSearchResponseDto>>> SearchOrdersAsync(DTOs.Orders.OrderSearchRequestDto requestDto);
     }
 }
