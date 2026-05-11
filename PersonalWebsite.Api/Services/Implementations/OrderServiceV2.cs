@@ -4,6 +4,7 @@ using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.DTOs.Orders;
 using PersonalWebsite.Api.DTOs.PerformanceTraining;
 using PersonalWebsite.Api.Models;
+using PersonalWebsite.Api.Models.Errors;
 using PersonalWebsite.Api.Services.Abstractions;
 using System.Linq;
 
@@ -344,7 +345,8 @@ namespace PersonalWebsite.Api.Services.Implementations
                         Message = $"Product with ID {id} does not exist.",
                         Code = "ProductNotFound"
                     }).ToList(),
-                    StatusCode = 400
+                    StatusCode = StatusCodes.Status404NotFound,
+                    ServiceErrorType = Models.Errors.ServiceErrorType.NotFound
                 };
             }
 
@@ -358,16 +360,17 @@ namespace PersonalWebsite.Api.Services.Implementations
                     return new ServiceResult<CreateOrderResponseV3Dto>
                     {
                         Success = false,
-                        Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
+                        Errors = new List<ServiceError>
                         {
-                            new PersonalWebsite.Api.Models.Errors.ServiceError
+                            new ServiceError
                             {
                                 Field = $"Items[ProductId={item.ProductId}].Quantity",
                                 Message = $"Only {product.SafetyStockLevel} items left in stock for product ID {item.ProductId}.",
                                 Code = "InsufficientStock"
                             }
                         },
-                        StatusCode = 400
+                        StatusCode = StatusCodes.Status409Conflict,
+                        ServiceErrorType = ServiceErrorType.Conflict
                     };
                 }
             }
@@ -405,19 +408,15 @@ namespace PersonalWebsite.Api.Services.Implementations
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
-            return new ServiceResult<CreateOrderResponseV3Dto>
+            var response = new CreateOrderResponseV3Dto
             {
-                Success = true,
-                Data = new CreateOrderResponseV3Dto
-                {
-                    OrderId = order.Id,
-                    UserId = order.UserId,
-                    Status = order.Status.ToString(),
-                    TotalAmount = order.TotalAmount,
-                    CreatedAtUtc = order.CreatedAtUtc
-                },
-                StatusCode = 201
+                OrderId = order.Id,
+                UserId = order.UserId,
+                Status = order.Status.ToString(),
+                TotalAmount = order.TotalAmount,
+                CreatedAtUtc = order.CreatedAtUtc
             };
+            return ServiceResult<CreateOrderResponseV3Dto>.Created(response);
         }
 
         public async Task<ServiceResult<PagedOrderSummaryResponseDto>> GetAllOrdersAsync(OrderQueryParamsDto queryDto)

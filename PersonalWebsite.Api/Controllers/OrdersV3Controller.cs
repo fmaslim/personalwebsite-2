@@ -2,6 +2,7 @@
 using PersonalWebsite.Api.DTOs;
 using PersonalWebsite.Api.DTOs.Orders;
 using PersonalWebsite.Api.DTOs.PerformanceTraining;
+using PersonalWebsite.Api.Extensions;
 using PersonalWebsite.Api.Models;
 using PersonalWebsite.Api.Services.Abstractions;
 
@@ -26,11 +27,12 @@ namespace PersonalWebsite.Api.Controllers
         public async Task<IActionResult> CreateOrderV3(CreateOrderRequestV3Dto dto)
         {
             var result = await _orderServiceV2.CreateOrderV3Async(dto);
-            if (!result.Success)
-            {
-                return StatusCode(result.StatusCode, result.Errors);
-            }
-            return StatusCode(result.StatusCode, result);
+            //if (!result.Success)
+            //{
+            //    return StatusCode(result.StatusCode, result.Errors);
+            //}
+            //return StatusCode(result.StatusCode, result);
+            return result.ToActionResult();
         }
 
         [HttpPatch("{orderId}/status")]
