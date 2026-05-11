@@ -21,9 +21,6 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
         [HttpGet]
         public async Task<IActionResult> GetCustomersAsync([FromQuery]CustomerSearchRequestDto requestDto)
         {
-            // var result = await _service.SearchCustomersAsync(requestDto);
-            // var result = await _service.SearchCustomersBadFullEntityAsync(requestDto);
-            // var result = await _service.SearchCustomersBadN1QueryAsync(requestDto);
             var result = await _service.SearchCustomersGoodQueryAsync(requestDto);
             return Ok(result);
         }
@@ -34,27 +31,7 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
         public async Task<IActionResult> GetCustomerOrderSummaryAsync([FromQuery]CustomerOrderSummaryRequestDto requestDto)
         {
             var result = await _orderSummaryService.SearchCustomerOrderSummaryAsync(requestDto);
-            // return StatusCode(result.StatusCode, result);
             return ToActionResult(result);
         }
-
-        //private IActionResult ToActionResult<T>(ServiceResult<T> result)
-        //{
-        //    if (result.Success)
-        //    {
-        //        return Ok(result);
-        //    }
-
-        //    var errorType = result.Errors.FirstOrDefault()?.Type;
-
-        //    return errorType switch
-        //    { 
-        //        Models.Errors.ServiceErrorType.Validation => BadRequest(result),
-        //        Models.Errors.ServiceErrorType.NotFound => NotFound(result),
-        //        Models.Errors.ServiceErrorType.Conflict => Conflict(result),
-        //        _ => StatusCode(result.StatusCode, result)
-        //    }
-        //    ;
-        //}
     }
 }
