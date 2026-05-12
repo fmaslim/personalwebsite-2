@@ -21,16 +21,23 @@ namespace PersonalWebsite.Api.Extensions
                 };
             }
 
+            var errorResponse = new
+            {
+                success = false,
+                errors = result.Errors,
+                statusCode = result.StatusCode
+            };
+
             return result.ServiceErrorType switch
             {
-                ServiceErrorType.Validation => new BadRequestObjectResult(result),
-                ServiceErrorType.NotFound => new NotFoundObjectResult(result),
-                ServiceErrorType.Conflict => new ConflictObjectResult(result),
-                ServiceErrorType.Unexpected => new ObjectResult(result)
+                ServiceErrorType.Validation => new BadRequestObjectResult(errorResponse),
+                ServiceErrorType.NotFound => new NotFoundObjectResult(errorResponse),
+                ServiceErrorType.Conflict => new ConflictObjectResult(errorResponse),
+                ServiceErrorType.Unexpected => new ObjectResult(errorResponse)
                 { 
                     StatusCode = 500
                 },
-                _ => new ObjectResult(result) 
+                _ => new ObjectResult(errorResponse) 
                 {
                     StatusCode = result.StatusCode,
                 }

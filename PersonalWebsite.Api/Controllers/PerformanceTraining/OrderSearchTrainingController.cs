@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PersonalWebsite.Api.DTOs.Orders;
 using PersonalWebsite.Api.DTOs.PerformanceTraining.Orders;
+using PersonalWebsite.Api.Extensions;
 using PersonalWebsite.Api.Services.Abstractions;
 using PersonalWebsite.Api.Services.PerformanceTraining.Orders;
 
@@ -19,10 +20,13 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
         }
 
         [HttpGet("orders/search")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetSearchOrdersTrainingAsync([FromQuery]SearchOrderRequestDto dto)
         {
             var result = await _service.SearchOrdersAsync(dto);
-            return Ok(result);
+            // return Ok(result);
+            return result.ToActionResult();
         }
 
         [HttpGet("orders/search-badn1query")]

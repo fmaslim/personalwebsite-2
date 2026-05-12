@@ -28,7 +28,6 @@ namespace PersonalWebsite.Api.Controllers
         public async Task<IActionResult> CreateOrderV3(CreateOrderRequestV3Dto dto)
         {
             var result = await _orderServiceV2.CreateOrderV3Async(dto);
-            
             return result.ToActionResult();
         }
 
@@ -39,7 +38,6 @@ namespace PersonalWebsite.Api.Controllers
         public async Task<IActionResult> UpdateOrderStatus(int orderId, [FromBody] UpdateOrderStatusRequestDto dto)
         {
             var result = await _orderServiceV2.UpdateOrderStatusAsync(orderId, dto);
-            
             return result.ToActionResult();
         }
 
@@ -50,22 +48,14 @@ namespace PersonalWebsite.Api.Controllers
         public async Task<IActionResult> GetOrderByIdAsync(int orderId)
         {
             var result = await _orderServiceV2.GetOrderByIdAsync(orderId);
-
             return result.ToActionResult();
         }
-        //public async Task<IActionResult> GetOrderByIdAsync(int orderId)
-        //{
-        //    var result = await _orderServiceV2.GetOrderByIdAsync(orderId);
-        //    // return StatusCode(result.StatusCode, result);
-        //    return result.ToActionResult();
-        //}
 
         [HttpGet("")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllOrdersAsync([FromQuery] OrderQueryParamsDto queryDto)
         {
             var result = await _orderServiceV2.GetAllOrdersAsync(queryDto);
-            // return StatusCode(result.StatusCode, result);
             return result.ToActionResult();
         }
 
@@ -76,7 +66,6 @@ namespace PersonalWebsite.Api.Controllers
         {
             var result = await _orderServiceV2.SearchOrdersAsync(dto);
             return result.ToActionResult();
-            //return resul
         }
     }
 }
