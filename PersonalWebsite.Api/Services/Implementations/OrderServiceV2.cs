@@ -957,8 +957,83 @@ namespace PersonalWebsite.Api.Services.Implementations
                     ServiceErrorType.Validation);
             }
 
-            // More validations here
+            if (!string.IsNullOrWhiteSpace(requestDto.CustomerName))
+            {
+                query = query.Where(o =>
+                    o.Customer != null &&
+                    (
+                        o.Customer.Person != null &&
+                        (
+                            o.Customer.Person.FirstName.Contains(requestDto.CustomerName) ||
+                            o.Customer.Person.LastName.Contains(requestDto.CustomerName)
+                        )
+                        ||
+                        o.Customer.Store != null &&
+                        o.Customer.Store.Name.Contains(requestDto.CustomerName)
+                    ));
+            }
+
+            // Added filters
+            if (requestDto.OrderDateFrom.HasValue)
+            {
+                query = query.Where(o => o.OrderDate >=  requestDto.OrderDateFrom.Value);
+            }
+
+            if (requestDto.OrderDateTo.HasValue)
+            {
+                query = query.Where(o => o.OrderDate <=  requestDto.OrderDateTo.Value);
+            }
+
+            if (requestDto.MinTotalDue.HasValue)
+            {
+                query = query.Where(o => o.TotalDue >= requestDto.MinTotalDue.Value);
+            }
+
             var totalCount = await query.CountAsync();
+
+            // Sorting goes here
+            var sortBy = requestDto.SortBy?.Trim().ToLower() ?? "orderdate";
+            var sortDir = requestDto.SortDirection?.Trim().ToLower() ?? "desc";
+
+            // Validate sortBy
+            string[] validSortBy = ["orderdate", "totaldue", "customername"];
+            //var sortBy = requestDto.SortBy?.ToLower();
+            if (!validSortBy.Contains(sortBy))
+            {
+                return ServiceResult<PagedResponse<OrderSearchResponseDto>>.Fail(
+                    "SortBy must be either orderdate, totaldue, or customername",
+                    ServiceErrorType.Validation);
+            }
+
+            // Validate sortDirection
+            if (sortDir != "asc" && sortDir != "desc")
+            {
+                return ServiceResult<PagedResponse<OrderSearchResponseDto>>.Fail(
+                    "SortDirection must be either asc or desc",
+                    ServiceErrorType.Validation);
+            }
+
+            // Apply sorting
+            query = sortBy switch
+            {
+                "orderdate" => sortDir == "asc" ? query.OrderBy(o => o.OrderDate) : query.OrderByDescending(o => o.OrderDate),
+                "totaldue" => sortDir == "asc" ? query.OrderBy(o => o.TotalDue) : query.OrderByDescending(o => o.TotalDue),
+                "customername" => sortDir == "asc"
+                ? query.OrderBy(o =>
+                    o.Customer.Person != null
+                        ? o.Customer.Person.FirstName + " " + o.Customer.Person.LastName
+                        : o.Customer.Store != null
+                            ? o.Customer.Store.Name
+                            : "")
+                : query.OrderByDescending(o =>
+                    o.Customer.Person != null
+                        ? o.Customer.Person.FirstName + " " + o.Customer.Person.LastName
+                        : o.Customer.Store != null
+                            ? o.Customer.Store.Name
+                            : ""),
+
+                _ => query.OrderByDescending(o => o.OrderDate)
+            };
 
             var data = await query
             .Skip((requestDto.PageNumber - 1) * requestDto.PageSize)

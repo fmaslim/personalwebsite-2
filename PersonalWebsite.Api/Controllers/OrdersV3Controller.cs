@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PersonalWebsite.Api.DTOs;
+using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.DTOs.Orders;
 using PersonalWebsite.Api.DTOs.PerformanceTraining;
 using PersonalWebsite.Api.Extensions;
@@ -59,6 +60,8 @@ namespace PersonalWebsite.Api.Controllers
         }
 
         [HttpGet("search")]
+        [ProducesResponseType(typeof(PagedResponse<OrderSearchResponseDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> SearchOrdersAsync([FromQuery]DTOs.Orders.OrderSearchRequestDto dto)
         {
             var result = await _orderServiceV2.SearchOrdersAsync(dto);
