@@ -39,7 +39,7 @@ namespace PersonalWebsite.Api.Controllers
         public async Task<IActionResult> UpdateOrderStatus(int orderId, [FromBody] UpdateOrderStatusRequestDto dto)
         {
             var result = await _orderServiceV2.UpdateOrderStatusAsync(orderId, dto);
-            // return StatusCode(result.StatusCode, result);
+            
             return result.ToActionResult();
         }
 

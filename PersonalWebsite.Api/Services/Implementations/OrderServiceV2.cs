@@ -594,76 +594,46 @@ namespace PersonalWebsite.Api.Services.Implementations
 
         public async Task<ServiceResult<UpdateOrderStatusResponseDto>> UpdateOrderStatusAsync(int orderId, UpdateOrderStatusRequestDto dto)
         {
+            if (orderId <= 0)
+            {
+                return ServiceResult<UpdateOrderStatusResponseDto>.Fail(
+                    "OrderId must be greater than 0.",
+                    ServiceErrorType.Validation);
+            }
+
             if (dto == null)
             {
-                return new ServiceResult<UpdateOrderStatusResponseDto>
-                {
-                    Success = false,
-                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
-                    {
-                        new PersonalWebsite.Api.Models.Errors.ServiceError
-                        {
-                            Field = "Request",
-                            Message = "Request body cannot be null.",
-                            Code = "NullRequest"
-                        }
-                    },
-                    StatusCode = 400
-                };
+                return ServiceResult<UpdateOrderStatusResponseDto>.Fail(
+                    "Request body is required.",
+                    ServiceErrorType.Validation);
             }
 
             var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
             if (order == null)
             {
-                return new ServiceResult<UpdateOrderStatusResponseDto>
-                {
-                    Success = false,
-                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
-                        {
-                            new PersonalWebsite.Api.Models.Errors.ServiceError
-                            {
-                                Field = "OrderId",
-                                Message = $"Order with ID {orderId} does not exist.",
-                                Code = "OrderNotFound"
-                            }
-                        },
-                    StatusCode = 404
-                };
+                return ServiceResult<UpdateOrderStatusResponseDto>.Fail(
+                    $"Order with ID {orderId} does not exist.",
+                    ServiceErrorType.NotFound);
             }
+
             var oldStatus = order.Status;
             var newStatus = dto.Status;
             if (!IsValidStatusTransition(oldStatus, newStatus))
             {
-                return new ServiceResult<UpdateOrderStatusResponseDto>
-                {
-                    Success = false,
-                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
-                        {
-                            new PersonalWebsite.Api.Models.Errors.ServiceError
-                            {
-                                Field = "Status",
-                                Message = $"Invalid status transition from {oldStatus} to {newStatus}.",
-                                Code = "InvalidStatusTransition"
-                            }
-                        },
-                    StatusCode = 400
-                };
+                return ServiceResult<UpdateOrderStatusResponseDto>.Fail(
+                    $"Invalid status transition from {oldStatus} to {newStatus}.",
+                    ServiceErrorType.Validation);
             }
 
             order.Status = newStatus;
             await _context.SaveChangesAsync();
-
-            return new ServiceResult<UpdateOrderStatusResponseDto>
+            var data = new UpdateOrderStatusResponseDto
             {
-                Success = true,
-                Data = new UpdateOrderStatusResponseDto
-                {
-                    OrderId = order.Id,
-                    OldStatus = oldStatus.ToString(),
-                    NewStatus = newStatus.ToString()
-                },
-                StatusCode = 200
+                OrderId = order.Id,
+                OldStatus = oldStatus.ToString(),
+                NewStatus = newStatus.ToString()
             };
+            return ServiceResult<UpdateOrderStatusResponseDto>.Ok(data);
         }
 
         private bool IsValidStatusTransition(OrderStatus currentStatus, OrderStatus newStatus)
