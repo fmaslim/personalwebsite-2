@@ -39,24 +39,34 @@ namespace PersonalWebsite.Api.Controllers
         public async Task<IActionResult> UpdateOrderStatus(int orderId, [FromBody] UpdateOrderStatusRequestDto dto)
         {
             var result = await _orderServiceV2.UpdateOrderStatusAsync(orderId, dto);
-            return StatusCode(result.StatusCode, result);
+            // return StatusCode(result.StatusCode, result);
+            return result.ToActionResult();
         }
 
         [HttpGet("{orderId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetOrderByIdAsync(int orderId)
         {
             var result = await _orderServiceV2.GetOrderByIdAsync(orderId);
-            return StatusCode(result.StatusCode, result);
+
+            return result.ToActionResult();
         }
+        //public async Task<IActionResult> GetOrderByIdAsync(int orderId)
+        //{
+        //    var result = await _orderServiceV2.GetOrderByIdAsync(orderId);
+        //    // return StatusCode(result.StatusCode, result);
+        //    return result.ToActionResult();
+        //}
 
         [HttpGet("")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllOrdersAsync([FromQuery] OrderQueryParamsDto queryDto)
         {
             var result = await _orderServiceV2.GetAllOrdersAsync(queryDto);
-            return StatusCode(result.StatusCode, result);
+            // return StatusCode(result.StatusCode, result);
+            return result.ToActionResult();
         }
 
         [HttpGet("search")]

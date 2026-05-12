@@ -538,16 +538,24 @@ namespace PersonalWebsite.Api.Services.Implementations
                 TotalCount = totalCount,
                 TotalPages = totalPages
             };
-            return new ServiceResult<PagedOrderSummaryResponseDto>
-            {
-                Success = true,
-                Data = pagedResult,
-                StatusCode = 200
-            };
+            //return new ServiceResult<PagedOrderSummaryResponseDto>
+            //{
+            //    Success = true,
+            //    Data = pagedResult,
+            //    StatusCode = 200
+            //};
+            return ServiceResult<PagedOrderSummaryResponseDto>.Ok(pagedResult);
         }
 
         public async Task<ServiceResult<GetOrderByIdResponseDto>> GetOrderByIdAsync(int orderId)
         {
+            if (orderId <= 0)
+            {
+                return ServiceResult<GetOrderByIdResponseDto>.Fail(
+                    "OrderId must be greater than 0",
+                    ServiceErrorType.Validation);
+            }
+
             var query = _context.Orders
                 .AsNoTracking()
                 .Include(o => o.OrderDetails)                        
@@ -556,20 +564,9 @@ namespace PersonalWebsite.Api.Services.Implementations
             var order = await query.FirstOrDefaultAsync();
             if (order == null)
             {
-                return new ServiceResult<GetOrderByIdResponseDto>
-                {
-                    Success = false,
-                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
-                    {
-                        new PersonalWebsite.Api.Models.Errors.ServiceError
-                        {
-                            Field = "OrderId",
-                            Message = $"Order with ID {orderId} does not exist.",
-                            Code = "OrderNotFound"
-                        }
-                    },
-                    StatusCode = 404
-                };
+                return ServiceResult<GetOrderByIdResponseDto>.Fail(
+                    $"Order with ID {orderId} does not exist.",
+                    ServiceErrorType.NotFound);
             }
 
             var response = new GetOrderByIdResponseDto
@@ -587,12 +584,7 @@ namespace PersonalWebsite.Api.Services.Implementations
                 }).ToList()
             };
 
-            return new ServiceResult<GetOrderByIdResponseDto>
-            {
-                Success = true,
-                Data = response,
-                StatusCode = 200
-            };
+            return ServiceResult<GetOrderByIdResponseDto>.Ok(response);
         }
 
         public string GetVersionMessage()
