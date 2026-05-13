@@ -125,6 +125,55 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Orders
                 query = query.Where(o => o.UserId == dto.CustomerId.Value);
             }
 
+            // status
+            if (!string.IsNullOrWhiteSpace(dto.Status))
+            {
+                if (!Enum.TryParse<OrderStatus>(dto.Status, true, out var parsedStatus))
+                {
+                    return ServiceResult<PagedResponse<SearchOrderResultDto>>.Fail(
+                        "Status is invalid.",
+                        ServiceErrorType.Validation);
+                }
+
+                query = query.Where(o => o.Status == parsedStatus);
+            }
+
+            // MinTotalAmount validation
+            if (dto.MinTotal.HasValue && dto.MinTotal.Value <= 0)
+            {
+                return ServiceResult<PagedResponse<SearchOrderResultDto>>.Fail(
+                    "MinTotalAmount must be greater than 0.",
+                    ServiceErrorType.Validation);
+            }
+
+            // MaxTotalAmount validation
+            if (dto.MaxTotal.HasValue && dto.MaxTotal.Value <= 0)
+            {
+                return ServiceResult<PagedResponse<SearchOrderResultDto>>.Fail(
+                    "MaxTotalAmount must be greater than 0.",
+                    ServiceErrorType.Validation);
+            }
+
+            // Range validation
+            if (dto.MinTotal.HasValue && dto.MaxTotal.HasValue &&
+                dto.MinTotal.Value > dto.MaxTotal.Value)
+            {
+                return ServiceResult<PagedResponse<SearchOrderResultDto>>.Fail(
+                    "MinTotalAmount cannot be greater than MaxTotalAmount.",
+                    ServiceErrorType.Validation);
+            }
+
+            // Apply filters
+            if (dto.MinTotal.HasValue)
+            {
+                query = query.Where(o => o.TotalAmount >= dto.MinTotal.Value);
+            }
+
+            if (dto.MaxTotal.HasValue)
+            {
+                query = query.Where(o => o.TotalAmount <= dto.MaxTotal.Value);
+            }
+
             // Count
             var totalCount = await query.CountAsync();
 
