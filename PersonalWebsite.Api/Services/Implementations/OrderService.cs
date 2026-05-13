@@ -6,6 +6,7 @@ using PersonalWebsite.Api.Models;
 using PersonalWebsite.Api.Services.Abstractions;
 using PersonalWebsite.Api.DTOs.PerformanceTraining.Orders;
 using OrderSearchResultDto = PersonalWebsite.Api.DTOs.PerformanceTraining.Orders.OrderSearchResultDto;
+using PersonalWebsite.Api.Models.Errors;
 
 namespace PersonalWebsite.Api.Services.Implementations
 {
@@ -113,10 +114,43 @@ namespace PersonalWebsite.Api.Services.Implementations
         //    };
         //}
 
-        public async Task<OrderDetailsDto?> GetOrderByIdAsync(int orderId)
+        //public async Task<OrderDetailsDto?> GetOrderByIdAsync(int orderId)
+        //{
+        //    var query = _context.SalesOrderHeaders
+        //        .AsNoTracking()
+        //        .Where(o => o.SalesOrderId == orderId)
+        //        .Select(o => new OrderDetailsDto
+        //        {
+        //            SalesOrderId = o.SalesOrderId,
+        //            CustomerId = o.CustomerId,
+        //            OrderDate = o.OrderDate,
+        //            DueDate = o.DueDate,
+        //            Status = o.Status,
+        //            OnlineOrderFlag = o.OnlineOrderFlag,
+        //            BillToAddressId = o.BillToAddressId,
+        //            ShipToAddressId = o.ShipToAddressId,
+        //            ShipMethodId = o.ShipMethodId,
+        //            SubTotal = o.SubTotal,
+        //            TaxAmt = o.TaxAmt,
+        //            Freight = o.Freight,
+        //            TotalDue = o.TotalDue
+        //        });
+
+        //    return await query.FirstOrDefaultAsync();
+        //}
+
+        public async Task<ServiceResult<OrderDetailsDto>> GetOrderByIdAsync(int orderId)
         {
+            if (orderId <= 0)
+            {
+                return ServiceResult<OrderDetailsDto>.Fail(
+                    "OrderId must be greater than 0",
+                    ServiceErrorType.Validation);
+            }
+
             var query = _context.SalesOrderHeaders
                 .AsNoTracking()
+                .AsQueryable()
                 .Where(o => o.SalesOrderId == orderId)
                 .Select(o => new OrderDetailsDto
                 {
@@ -135,7 +169,13 @@ namespace PersonalWebsite.Api.Services.Implementations
                     TotalDue = o.TotalDue
                 });
 
-            return await query.FirstOrDefaultAsync();
+            var order = await query.FirstOrDefaultAsync();
+            if (order == null)
+            {
+                return ServiceResult<OrderDetailsDto>.NotFound($"Order with id {orderId} does not exist.");
+            }
+
+            return ServiceResult<OrderDetailsDto>.Ok(order);
         }
 
         public async Task<IEnumerable<OrderDetailsDto>> SearchOrdersAsync(int? customerId, byte? status, DateTime? orderDateFrom, DateTime? orderDateTo, int? page, int? pageSize, string? sortBy, string? sortDir)

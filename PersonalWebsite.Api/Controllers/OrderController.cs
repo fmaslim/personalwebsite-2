@@ -43,14 +43,14 @@ namespace PersonalWebsite.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<OrderDetailsDto?>> GetOrderByIdAsync(int id)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetOrderByIdAsync(int id)
         {
-            var order = await _orderService.GetOrderByIdAsync(id);
-            if (order == null)
-            {
-                return NotFound();
-            }
-            return Ok(order);
+            var result = await _orderService.GetOrderByIdAsync(id);
+            
+            return result.ToActionResult();
         }
 
         
