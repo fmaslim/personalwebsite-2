@@ -2,6 +2,7 @@
 using PersonalWebsite.Api.DTOs;
 using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.DTOs.Orders;
+using PersonalWebsite.Api.Extensions;
 using PersonalWebsite.Api.Services.Abstractions;
 
 namespace PersonalWebsite.Api.Controllers
@@ -16,28 +17,14 @@ namespace PersonalWebsite.Api.Controllers
             _orderService = orderService;
         }
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto dto)
         {
-            // var orderId = await _orderService.CreateOrderAsync(dto);
             var result = await _orderService.CreateOrderAsync(dto);
-            // return Ok(new { id = orderId });
-            if (!result.Success)
-            {
-                var errorResponse = new ApiResponse<object>
-                {
-                    Success = false,
-                    Message = "Failed to create order.",
-                };
-                return StatusCode(result.StatusCode, errorResponse.Data);
-            }
-            var apiResponse = new ApiResponse<object>
-            {
-                Success = true,
-                Message = "Error creating order",
-                Data = new { id = result.Data }
-            };
-            //return Ok(apiResponse);
-            return StatusCode(result.StatusCode, apiResponse.Data); // 201 Created
+            return result.ToActionResult();
         }
 
         [HttpGet("search")]

@@ -4,6 +4,8 @@ using PersonalWebsite.Api.DTOs.Orders;
 using PT = PersonalWebsite.Api.DTOs.PerformanceTraining.Orders;
 using PersonalWebsite.Api.Models;
 using PersonalWebsite.Api.Services.Abstractions;
+using PersonalWebsite.Api.DTOs.PerformanceTraining.Orders;
+using OrderSearchResultDto = PersonalWebsite.Api.DTOs.PerformanceTraining.Orders.OrderSearchResultDto;
 
 namespace PersonalWebsite.Api.Services.Implementations
 {
@@ -14,102 +16,102 @@ namespace PersonalWebsite.Api.Services.Implementations
         {
             _context = context;
         }
-        public async Task<ServiceResult<int>> CreateOrderAsync(CreateOrderDto dto)
-        {
-            if (dto == null)
-            {
-                throw new ArgumentNullException(nameof(dto));
-            }
-            if(dto.CustomerId <= 0)
-            {
-                throw new ArgumentException("CustomerId must be greater than zero.");
-            }
-            if(dto.BillToAddressId <= 0)
-            {
-                throw new ArgumentException("BillToAddressId must be greater than zero.");
-            }
-            if (dto.ShipMethodId <= 0)
-            {
-                throw new ArgumentException("ShipMethodId must be greater than zero.");
-            }
-            if (dto.TotalAmount <= 0)
-            {
-                throw new ArgumentException("TotalAmount must be greater than zero.");
-            }
-            // business rule: check if customer exists. If not, return error
-            var customerExists = await _context.Customers.AnyAsync(c => c.CustomerId == dto.CustomerId);
-            if (!customerExists)
-            {
-                return new ServiceResult<int>
-                {
-                    Success = false,
-                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
-                    {
-                        new PersonalWebsite.Api.Models.Errors.ServiceError
-                        {
-                            Field = "CustomerId",
-                            Message = $"Customer with id {dto.CustomerId} does not exist.",
-                            Code = "CustomerNotFound"
-                        }
-                    },
-                    StatusCode = 404
-                };
-            }
-            // check for same/duplicate order - same customer, same order date, same total amount
-            var duplicateOrderExists = await _context.SalesOrderHeaders.AnyAsync(o =>
-            o.CustomerId == dto.CustomerId &&
-            o.OrderDate == dto.OrderDate &&
-            o.SubTotal == dto.TotalAmount &&
-            o.BillToAddressId == dto.BillToAddressId &&
-            o.ShipToAddressId == dto.ShipToAddressId &&
-            o.ShipMethodId == dto.ShipMethodId
-            );
-            if (duplicateOrderExists)
-            {
-                return new ServiceResult<int>
-                {
-                    Success = false,
-                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
-                    {
-                        new PersonalWebsite.Api.Models.Errors.ServiceError
-                        {
-                            Field = "Order",
-                            Message = "A similar order already exists. Please check your order details.",
-                            Code = "DuplicateOrder"
-                        }
-                    },
-                    StatusCode = 409
-                };
-            }
-            var order = new SalesOrderHeader
-            {
-                CustomerId = dto.CustomerId,
-                OrderDate = dto.OrderDate,
-                DueDate = dto.OrderDate.AddDays(7),
-                Status = 1,
-                OnlineOrderFlag = true,
-                BillToAddressId = dto.BillToAddressId,
-                ShipToAddressId = dto.ShipToAddressId,
-                ShipMethodId = dto.ShipMethodId,
-                SubTotal = dto.TotalAmount,
-                TaxAmt = 0,
-                Freight = 0,
-                //rowguid = Guid.NewGuid(),
-                ModifiedDate = DateTime.UtcNow
-            };
+        //public async Task<ServiceResult<int>> CreateOrderAsync(CreateOrderDto dto)
+        //{
+        //    if (dto == null)
+        //    {
+        //        throw new ArgumentNullException(nameof(dto));
+        //    }
+        //    if(dto.CustomerId <= 0)
+        //    {
+        //        throw new ArgumentException("CustomerId must be greater than zero.");
+        //    }
+        //    if(dto.BillToAddressId <= 0)
+        //    {
+        //        throw new ArgumentException("BillToAddressId must be greater than zero.");
+        //    }
+        //    if (dto.ShipMethodId <= 0)
+        //    {
+        //        throw new ArgumentException("ShipMethodId must be greater than zero.");
+        //    }
+        //    if (dto.TotalAmount <= 0)
+        //    {
+        //        throw new ArgumentException("TotalAmount must be greater than zero.");
+        //    }
+        //    // business rule: check if customer exists. If not, return error
+        //    var customerExists = await _context.Customers.AnyAsync(c => c.CustomerId == dto.CustomerId);
+        //    if (!customerExists)
+        //    {
+        //        return new ServiceResult<int>
+        //        {
+        //            Success = false,
+        //            Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
+        //            {
+        //                new PersonalWebsite.Api.Models.Errors.ServiceError
+        //                {
+        //                    Field = "CustomerId",
+        //                    Message = $"Customer with id {dto.CustomerId} does not exist.",
+        //                    Code = "CustomerNotFound"
+        //                }
+        //            },
+        //            StatusCode = 404
+        //        };
+        //    }
+        //    // check for same/duplicate order - same customer, same order date, same total amount
+        //    var duplicateOrderExists = await _context.SalesOrderHeaders.AnyAsync(o =>
+        //    o.CustomerId == dto.CustomerId &&
+        //    o.OrderDate == dto.OrderDate &&
+        //    o.SubTotal == dto.TotalAmount &&
+        //    o.BillToAddressId == dto.BillToAddressId &&
+        //    o.ShipToAddressId == dto.ShipToAddressId &&
+        //    o.ShipMethodId == dto.ShipMethodId
+        //    );
+        //    if (duplicateOrderExists)
+        //    {
+        //        return new ServiceResult<int>
+        //        {
+        //            Success = false,
+        //            Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
+        //            {
+        //                new PersonalWebsite.Api.Models.Errors.ServiceError
+        //                {
+        //                    Field = "Order",
+        //                    Message = "A similar order already exists. Please check your order details.",
+        //                    Code = "DuplicateOrder"
+        //                }
+        //            },
+        //            StatusCode = 409
+        //        };
+        //    }
+        //    var order = new SalesOrderHeader
+        //    {
+        //        CustomerId = dto.CustomerId,
+        //        OrderDate = dto.OrderDate,
+        //        DueDate = dto.OrderDate.AddDays(7),
+        //        Status = 1,
+        //        OnlineOrderFlag = true,
+        //        BillToAddressId = dto.BillToAddressId,
+        //        ShipToAddressId = dto.ShipToAddressId,
+        //        ShipMethodId = dto.ShipMethodId,
+        //        SubTotal = dto.TotalAmount,
+        //        TaxAmt = 0,
+        //        Freight = 0,
+        //        //rowguid = Guid.NewGuid(),
+        //        ModifiedDate = DateTime.UtcNow
+        //    };
 
-            _context.SalesOrderHeaders.Add(order);
-            await _context.SaveChangesAsync();
+        //    _context.SalesOrderHeaders.Add(order);
+        //    await _context.SaveChangesAsync();
 
-            // return order.SalesOrderId;
-            return new ServiceResult<int>
-            {
-                Success = true,
-                Errors = null,
-                StatusCode = 201,
-                Data = order.SalesOrderId
-            };
-        }
+        //    // return order.SalesOrderId;
+        //    return new ServiceResult<int>
+        //    {
+        //        Success = true,
+        //        Errors = null,
+        //        StatusCode = 201,
+        //        Data = order.SalesOrderId
+        //    };
+        //}
 
         public async Task<OrderDetailsDto?> GetOrderByIdAsync(int orderId)
         {
@@ -259,22 +261,13 @@ namespace PersonalWebsite.Api.Services.Implementations
 
                     data.Add(new OrderSearchResultDto 
                     {
-                        SalesOrderId = order.SalesOrderId,
-                        SalesOrderNumber = order.SalesOrderNumber,
+                        //SalesOrderId = order.SalesOrderId,
+                        //SalesOrderNumber = order.SalesOrderNumber,
                         OrderDate = order.OrderDate,
                         CustomerName = customerName,
-                        TotalDue = order.TotalDue,
-                        ItemCount = itemCount
+                        //TotalDue = order.TotalDue,
+                        //ItemCount = itemCount
                     });
-
-                    //return new PagedResponse<OrderSearchResultDto>
-                    //{
-                    //    Data = data,
-                    //    PageNumber = requestDto.PageNumber,
-                    //    PageSize = requestDto.PageSize,
-                    //    TotalRecords = totalCount,
-                    //    TotalPages = (int)Math.Ceiling(totalCount / (double)requestDto.PageSize)
-                    //};
                 }
             }
 
@@ -294,8 +287,8 @@ namespace PersonalWebsite.Api.Services.Implementations
             var query = _context.SalesOrderHeaders.AsNoTracking()
                 .Select(o => new OrderSearchResultDto
                 {
-                    SalesOrderId = o.SalesOrderId,
-                    SalesOrderNumber = o.SalesOrderNumber,
+                    //SalesOrderId = o.SalesOrderId,
+                    //SalesOrderNumber = o.SalesOrderNumber,
                     OrderDate = o.OrderDate,
                     CustomerName = o.Customer != null
                     ? o.Customer.Person != null
@@ -304,8 +297,8 @@ namespace PersonalWebsite.Api.Services.Implementations
                             ? o.Customer.Store.Name
                             : null
                     : null,
-                    TotalDue = o.TotalDue,
-                    ItemCount = o.SalesOrderDetails.Count()
+                    //TotalDue = o.TotalDue,
+                    //ItemCount = o.SalesOrderDetails.Count()
                 });
                 
             var totalCount = await query.CountAsync();
@@ -324,6 +317,105 @@ namespace PersonalWebsite.Api.Services.Implementations
                 TotalRecords = totalCount,
                 TotalPages = (int)Math.Ceiling(totalCount / (double)requestDto.PageSize)
             };
+        }
+
+        public async Task<ServiceResult<CreateOrderResponseDto>> CreateOrderAsync(CreateOrderDto dto)
+        {
+            if (dto == null)
+            {
+                return ServiceResult<CreateOrderResponseDto >.Fail(
+                    "Request object cannot be null",
+                    Models.Errors.ServiceErrorType.Validation
+                    );
+            }
+            if (dto.CustomerId <= 0)
+            {
+                return ServiceResult<CreateOrderResponseDto>.Fail(
+                    "CustomerId must be greater than 0.",
+                    Models.Errors.ServiceErrorType.Validation
+                    );
+            }
+            if (dto.BillToAddressId <= 0)
+            {
+                return ServiceResult<CreateOrderResponseDto>.Fail(
+                    "BillToAddressId must be greater than 0.",
+                    Models.Errors.ServiceErrorType.Validation
+                    );
+            }
+            if (dto.ShipMethodId <= 0)
+            {
+                return ServiceResult<CreateOrderResponseDto>.Fail(
+                    "ShipMethodId must be greater than 0.",
+                    Models.Errors.ServiceErrorType.Validation
+                    );
+            }
+            if(dto.TotalAmount <= 0)
+            {
+                return ServiceResult<CreateOrderResponseDto>.Fail(
+                    "TotalAmount must be greater than 0.",
+                    Models.Errors.ServiceErrorType.Validation
+                    );
+            }
+            // business rule: check if customer exists. If not, return error
+            var customerExists = await _context.Customers.AnyAsync(c => c.CustomerId == dto.CustomerId);
+            if(!customerExists)
+            {
+                return ServiceResult<CreateOrderResponseDto>.Fail(
+                    $"Customer with id: {dto.CustomerId} does not exist.",
+                    Models.Errors.ServiceErrorType.NotFound);
+            }
+            // check for same or duplicate orders (same customer, same order date, same total amount)
+            var duplicateOrderExists = await _context.SalesOrderHeaders.AnyAsync(o =>
+            o.CustomerId == dto.CustomerId &&
+            o.OrderDate == dto.OrderDate &&
+            o.SubTotal == dto.TotalAmount &&
+            o.BillToAddressId == dto.BillToAddressId &&
+            o.ShipToAddressId == dto.ShipToAddressId &&
+            o.ShipMethodId == dto.ShipMethodId
+            );
+            if (duplicateOrderExists)
+            {
+                return ServiceResult<CreateOrderResponseDto>.Fail(
+                    "A similar order already exists. Please check your order details.",
+                    Models.Errors.ServiceErrorType.Conflict);
+            }
+            // All validations passed. Now create order
+            var order = new SalesOrderHeader
+            {
+                CustomerId = dto.CustomerId,
+                OrderDate = dto.OrderDate,
+                DueDate = dto.OrderDate.AddDays(7),
+                Status = 1,
+                OnlineOrderFlag = true,
+                BillToAddressId = dto.BillToAddressId,
+                ShipToAddressId = dto.ShipToAddressId,
+                ShipMethodId = dto.ShipMethodId,
+                SubTotal = dto.TotalAmount,
+                TaxAmt = 0,
+                Freight = 0,
+                //rowguid = Guid.NewGuid(),
+                ModifiedDate = DateTime.UtcNow
+            };
+
+            _context.SalesOrderHeaders.Add(order);
+            await _context.SaveChangesAsync();
+
+            var response = new CreateOrderResponseDto
+            {
+                Id = order.SalesOrderId
+            };
+
+            return ServiceResult<CreateOrderResponseDto>.Created(response);
+        }
+
+        Task<PagedResponse<PT.OrderSearchResultDto>> IOrderService.SearchOrdersBadN1QueryAsync(DTOs.PerformanceTraining.OrderSearchRequestDto requestDto)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<PagedResponse<PT.OrderSearchResultDto>> IOrderService.SearchOrdersGoodQueryAsync(DTOs.PerformanceTraining.OrderSearchRequestDto requestDto)
+        {
+            throw new NotImplementedException();
         }
     }
 }

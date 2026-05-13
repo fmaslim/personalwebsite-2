@@ -25,7 +25,6 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
         public async Task<IActionResult> GetSearchOrdersTrainingAsync([FromQuery]SearchOrderRequestDto dto)
         {
             var result = await _service.SearchOrdersAsync(dto);
-            // return Ok(result);
             return result.ToActionResult();
         }
 
@@ -33,7 +32,7 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
         public async Task<IActionResult> GetOrdersBadN1Async([FromQuery] DTOs.PerformanceTraining.OrderSearchRequestDto requestDto)
         {
             var result = await _orderService.SearchOrdersBadN1QueryAsync(requestDto);
-            return Ok(result);
+            return Ok(result);            
         }
 
         [HttpGet("orders/search-goodn1query")]
