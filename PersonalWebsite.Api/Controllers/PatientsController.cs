@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PersonalWebsite.Api.DTOs.Patients;
+using PersonalWebsite.Api.Extensions;
 using PersonalWebsite.Api.Services.Abstractions;
 
 namespace PersonalWebsite.Api.Controllers
@@ -15,7 +16,9 @@ namespace PersonalWebsite.Api.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<ActionResult<PagedPatientSearchResponseDto>> SearchPatientsAsync(
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> SearchPatientsAsync(
             [FromQuery] string? firstName,
             [FromQuery] string? lastName,
             [FromQuery] string? sortBy,
@@ -23,22 +26,8 @@ namespace PersonalWebsite.Api.Controllers
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10)
         {
-            // Thursday, 04/06/2026: Added validation for query params, return 400 Bad Request if invalid
-                if (pageNumber <= 0)
-                {
-                    return BadRequest("Page number must be greater than 0.");
-                }
-                if (pageSize <= 0)
-                {
-                    return BadRequest("Page size must be greater than 0.");
-                }
-                if (pageSize > 100)
-                {
-                    return BadRequest("Page size must be less than or equal to 100.");
-                }
-
             var result = await _patientService.SearchPatientsAsync(firstName, lastName, sortBy, sortDir, pageNumber, pageSize);
-            return Ok(result);
+            return result.ToActionResult();
         }
     }
 }
