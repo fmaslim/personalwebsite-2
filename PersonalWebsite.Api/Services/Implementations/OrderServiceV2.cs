@@ -31,84 +31,39 @@ namespace PersonalWebsite.Api.Services.Implementations
             // 2. check every quantity > 0
             if (dto.Items == null || !dto.Items.Any())
             {
-                // throw new ArgumentException("Order must contain at least one item.");
-                return new ServiceResult<CreateOrderResponseV2Dto>
-                {
-                    Success = false,
-                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError> 
-                    { 
-                        new PersonalWebsite.Api.Models.Errors.ServiceError 
-                        { 
-                            Field = "Items", 
-                            Message = "Order must contain at least one item.",
-                            Code = "EmptyItems"
-                        } 
-                    },
-                    StatusCode = 400
-                };
+                return ServiceResult<CreateOrderResponseV2Dto>.Fail(
+                    "Order must contain at least one item.",
+                    ServiceErrorType.Validation
+                    );                
             }
 
             // 2.1 added new rule: duplicate product id is not allowed in the same order
             var hasDuplicateProducts = dto.Items.GroupBy(i => i.ProductId).Any(g => g.Count() > 1);
             if (hasDuplicateProducts)
             {
-                // throw new ArgumentException("Duplicate product IDs are not allowed in the same order.");
-                return new ServiceResult<CreateOrderResponseV2Dto>
-                {
-                    Success = false,
-                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError> 
-                    { 
-                        new PersonalWebsite.Api.Models.Errors.ServiceError 
-                        { 
-                            Field = "Items", 
-                            Message = "Duplicate product IDs are not allowed in the same order.",
-                            Code = "DuplicateProducts"
-                        } 
-                    },
-                    StatusCode = 400
-                };
+                return ServiceResult<CreateOrderResponseV2Dto>.Fail(
+                    "Duplicate product IDs are not allowed in the same order.",
+                    ServiceErrorType.Validation
+                    );                
             }
 
             // 3. check customer exists
             var customerExists = await _context.Customers.AnyAsync(c => c.CustomerId == dto.CustomerId);
             if (!customerExists)
             {
-                // throw new ArgumentException($"Customer with ID {dto.CustomerId} does not exist.");
-                return new ServiceResult<CreateOrderResponseV2Dto>
-                {
-                    Success = false,
-                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError> 
-                    { 
-                        new PersonalWebsite.Api.Models.Errors.ServiceError 
-                        { 
-                            Field = "CustomerId", 
-                            Message = $"Customer with ID {dto.CustomerId} does not exist.",
-                            Code = "CustomerNotFound"
-                        } 
-                    },
-                    StatusCode = 400
-                };
+                return ServiceResult<CreateOrderResponseV2Dto>.NotFound(
+                    $"Customer with ID {dto.CustomerId} does not exist.",
+                    "CustomerId"
+                    );                
             }
 
             // 4. check employee exists
             var employeeExists = await _context.Employees.AnyAsync(e => e.BusinessEntityId == dto.EmployeeId);
             if (!employeeExists)
             {
-                // throw new ArgumentException($"Employee with ID {dto.EmployeeId} does not exist.");
-                return new ServiceResult<CreateOrderResponseV2Dto>
-                {
-                    Success = false,
-                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError> 
-                    { 
-                        new PersonalWebsite.Api.Models.Errors.ServiceError 
-                        { 
-                            Field = "EmployeeId", 
-                            Message = $"Employee with ID {dto.EmployeeId} does not exist.",
-                            Code = "EmployeeNotFound"
-                        } 
-                    },
-                    StatusCode = 400
-                };
+                return ServiceResult<CreateOrderResponseV2Dto>.NotFound(
+                $"Employee with ID {dto.EmployeeId} does not exist.",
+                "EmployeeId");                
             }
 
             // 5. check every product exists and calculate total
@@ -118,40 +73,16 @@ namespace PersonalWebsite.Api.Services.Implementations
             {
                 if (item.Quantity <= 0)
                 {
-                    // throw new ArgumentException("Quantity must be greater than zero.");
-                    return new ServiceResult<CreateOrderResponseV2Dto>
-                    {
-                        Success = false,
-                        Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError> 
-                        { 
-                            new PersonalWebsite.Api.Models.Errors.ServiceError 
-                            { 
-                                Field = "Quantity", 
-                                Message = "Quantity must be greater than zero.",
-                                Code = "InvalidQuantity"
-                            } 
-                        },
-                        StatusCode = 400
-                    };
+                    return ServiceResult<CreateOrderResponseV2Dto>.Fail(
+                "Quantity must be greater than zero.",
+                ServiceErrorType.Validation);                    
                 }
                 var product = await _context.Products.FirstOrDefaultAsync(p => p.ProductId == item.ProductId);
                 if (product == null)
                 {
-                    // throw new ArgumentException($"Product with ID {item.ProductId} does not exist.");
-                    return new ServiceResult<CreateOrderResponseV2Dto>
-                    {
-                        Success = false,
-                        Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError> 
-                        { 
-                            new PersonalWebsite.Api.Models.Errors.ServiceError 
-                            { 
-                                Field = "ProductId", 
-                                Message = $"Product with ID {item.ProductId} does not exist.",
-                                Code = "ProductNotFound"
-                            } 
-                        },
-                        StatusCode = 400
-                    };
+                    return ServiceResult<CreateOrderResponseV2Dto>.NotFound(
+                    $"Product with ID {item.ProductId} does not exist.",
+                    "ProductId");                    
                 }
                 totalAmount += product.ListPrice * item.Quantity;
                 productNames.Add(product.Name);
@@ -182,16 +113,16 @@ namespace PersonalWebsite.Api.Services.Implementations
                 TotalAmount = totalAmount
             };
 
-            return ServiceResult<CreateOrderResponseV2Dto>.Ok(response);
+            return ServiceResult<CreateOrderResponseV2Dto>.Created(response);
         }
 
         public async Task<ServiceResult<CreateOrderResponseV2Dto>> CreateOrderMultiErrorAsync(CreateOrderRequestV2Dto dto)
         {
             // var errors = new List<ServiceError>();
-            var errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>();
+            var errors = new List<ServiceError>();
             if (dto.Items == null || !dto.Items.Any())
             {
-                errors.Add(new PersonalWebsite.Api.Models.Errors.ServiceError
+                errors.Add(new ServiceError
                 {
                     Field = "Items",
                     Message = "Order must contain at least one item.",
@@ -203,7 +134,7 @@ namespace PersonalWebsite.Api.Services.Implementations
                 var hasDuplicateProducts = dto.Items.GroupBy(i => i.ProductId).Any(g => g.Count() > 1);
                 if (hasDuplicateProducts)
                 {
-                    errors.Add(new PersonalWebsite.Api.Models.Errors.ServiceError
+                    errors.Add(new ServiceError
                     {
                         Field = "Items",
                         Message = "Duplicate product IDs are not allowed in the same order.",
@@ -216,7 +147,7 @@ namespace PersonalWebsite.Api.Services.Implementations
                 var item = dto.Items[i];
                 if (item.Quantity <= 0)
                 {
-                    errors.Add(new PersonalWebsite.Api.Models.Errors.ServiceError
+                    errors.Add(new ServiceError
                     {
                         Field = $"Items[{i}].Quantity",
                         Message = "Quantity must be greater than zero.",
@@ -226,7 +157,7 @@ namespace PersonalWebsite.Api.Services.Implementations
                 var productExists = await _context.Products.AnyAsync(p => p.ProductId == item.ProductId);
                 if (!productExists)
                 {
-                    errors.Add(new PersonalWebsite.Api.Models.Errors.ServiceError
+                    errors.Add(new ServiceError
                     {
                         Field = $"Items[{i}].ProductId",
                         Message = $"Product with ID {item.ProductId} does not exist.",
@@ -236,12 +167,9 @@ namespace PersonalWebsite.Api.Services.Implementations
             }
             if(errors.Any())
             {
-                return new ServiceResult<CreateOrderResponseV2Dto>
-                {
-                    Success = false,
-                    Errors = errors,
-                    StatusCode = 400
-                };
+                return ServiceResult<CreateOrderResponseV2Dto>.Fail(
+                errors,
+                statusCode: 400);
             }
 
             // If no errors, proceed with order creation
@@ -252,77 +180,33 @@ namespace PersonalWebsite.Api.Services.Implementations
         {
             // validation
             if (dto == null)
-            {                 
-                return new ServiceResult<CreateOrderResponseV3Dto>
-                {
-                    Success = false,
-                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
-                    {
-                        new PersonalWebsite.Api.Models.Errors.ServiceError
-                        {
-                            Field = "Request",
-                            Message = "Request body cannot be null.",
-                            Code = "NullRequest"
-                        }
-                    },
-                    StatusCode = 400
-                };
+            {
+                return ServiceResult<CreateOrderResponseV3Dto>.Fail(
+                "Request body cannot be null.",
+                ServiceErrorType.Validation);                
             }
 
             if (dto.Items == null || !dto.Items.Any())
             {
-                return new ServiceResult<CreateOrderResponseV3Dto>
-                {
-                    Success = false,
-                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
-                    {
-                        new PersonalWebsite.Api.Models.Errors.ServiceError
-                        {
-                            Field = "Items",
-                            Message = "Order must contain at least one item.",
-                            Code = "EmptyItems"
-                        }
-                    },
-                    StatusCode = 400
-                };
+                return ServiceResult<CreateOrderResponseV3Dto>.Fail(
+                "Order must contain at least one item.",
+                ServiceErrorType.Validation);
             }
 
             if (dto.Items.Any(i => i.Quantity <= 0))
             {
-                return new ServiceResult<CreateOrderResponseV3Dto>
-                {
-                    Success = false,
-                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
-                    {
-                        new PersonalWebsite.Api.Models.Errors.ServiceError
-                        {
-                            Field = "Quantity",
-                            Message = "Quantity must be greater than zero.",
-                            Code = "InvalidQuantity"
-                        }
-                    },
-                    StatusCode = 400
-                };
+                return ServiceResult<CreateOrderResponseV3Dto>.Fail(
+                "Quantity must be greater than zero.",
+                ServiceErrorType.Validation);
             }
 
             // user exists
             var userExists = await _context.Users.AnyAsync(u => u.Id == dto.UserId);
             if (!userExists)
             {
-                return new ServiceResult<CreateOrderResponseV3Dto>
-                {
-                    Success = false,
-                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
-                    {
-                        new PersonalWebsite.Api.Models.Errors.ServiceError
-                        {
-                            Field = "UserId",
-                            Message = $"User with ID {dto.UserId} does not exist.",
-                            Code = "UserNotFound"
-                        }
-                    },
-                    StatusCode = 400
-                };
+                return ServiceResult<CreateOrderResponseV3Dto>.Fail(
+                $"User with ID {dto.UserId} does not exist.",
+                ServiceErrorType.Validation);                
             }
 
             // Load products
@@ -336,18 +220,9 @@ namespace PersonalWebsite.Api.Services.Implementations
             {
                 var existingProductIds = products.Select(p => p.ProductId);
                 var missingProductIds = productIds.Except(existingProductIds);
-                return new ServiceResult<CreateOrderResponseV3Dto>
-                {
-                    Success = false,
-                    Errors = missingProductIds.Select(id => new PersonalWebsite.Api.Models.Errors.ServiceError
-                    {
-                        Field = "Items.ProductId",
-                        Message = $"Product with ID {id} does not exist.",
-                        Code = "ProductNotFound"
-                    }).ToList(),
-                    StatusCode = StatusCodes.Status404NotFound,
-                    ServiceErrorType = Models.Errors.ServiceErrorType.NotFound
-                };
+                return ServiceResult<CreateOrderResponseV3Dto>.Fail(
+                    missingProductIds.Select(id => $"Product with ID {id} does not exist.").ToList(),
+                    statusCode: 404);                
             }
 
             // stock validation
@@ -357,21 +232,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 var product = products.First(p => p.ProductId == item.ProductId);
                 if (item.Quantity > product.SafetyStockLevel)
                 {
-                    return new ServiceResult<CreateOrderResponseV3Dto>
-                    {
-                        Success = false,
-                        Errors = new List<ServiceError>
-                        {
-                            new ServiceError
-                            {
-                                Field = $"Items[ProductId={item.ProductId}].Quantity",
-                                Message = $"Only {product.SafetyStockLevel} items left in stock for product ID {item.ProductId}.",
-                                Code = "InsufficientStock"
-                            }
-                        },
-                        StatusCode = StatusCodes.Status409Conflict,
-                        ServiceErrorType = ServiceErrorType.Conflict
-                    };
+                    return ServiceResult<CreateOrderResponseV3Dto>.Fail(
+                        $"Only {product.SafetyStockLevel} items left in stock for product ID {item.ProductId}.", 
+                        ServiceErrorType.Validation);                    
                 }
             }
 
@@ -538,12 +401,7 @@ namespace PersonalWebsite.Api.Services.Implementations
                 TotalCount = totalCount,
                 TotalPages = totalPages
             };
-            //return new ServiceResult<PagedOrderSummaryResponseDto>
-            //{
-            //    Success = true,
-            //    Data = pagedResult,
-            //    StatusCode = 200
-            //};
+            
             return ServiceResult<PagedOrderSummaryResponseDto>.Ok(pagedResult);
         }
 

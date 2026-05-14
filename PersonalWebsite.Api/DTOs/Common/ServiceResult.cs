@@ -108,7 +108,7 @@ namespace PersonalWebsite.Api.DTOs.Common
                 Success = false,
                 StatusCode = statusCode,
                 Data = default,
-                Errors = errors.Select(error => new PersonalWebsite.Api.Models.Errors.ServiceError
+                Errors = errors.Select(error => new ServiceError
                 {
                     Message = error,
                     Code = "Error",
@@ -118,7 +118,7 @@ namespace PersonalWebsite.Api.DTOs.Common
         }
 
         public static ServiceResult<T> Fail(
-        List<PersonalWebsite.Api.Models.Errors.ServiceError> errors,
+        List<ServiceError> errors,
         int statusCode = 400)
             {
                 return new ServiceResult<T>
