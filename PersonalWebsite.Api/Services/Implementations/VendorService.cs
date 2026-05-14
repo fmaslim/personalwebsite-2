@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PersonalWebsite.Api.DTOs;
+using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.Models;
+using PersonalWebsite.Api.Models.Errors;
 using PersonalWebsite.Api.Services.Abstractions;
 
 namespace PersonalWebsite.Api.Services.Implementations
@@ -40,6 +42,35 @@ namespace PersonalWebsite.Api.Services.Implementations
                 .FirstOrDefaultAsync();
 
             return await vendor;
+        }
+
+        public async Task<ServiceResult<VendorDto>> GetVendorByIdV2Async(int vendorId)
+        {
+            if (vendorId <= 0)
+            {
+                return ServiceResult<VendorDto>.Fail(
+                    "VendorId must be greater than 0.", 
+                    Models.Errors.ServiceErrorType.Validation);
+            }
+
+            var vendor = await _context.Vendors
+                .AsNoTracking()
+                .Where(v => v.BusinessEntityId == vendorId)
+                .Select(v => new VendorDto
+                {
+                    VendorId = v.BusinessEntityId,
+                    VendorName = v.Name
+                })
+                .FirstOrDefaultAsync();
+
+            if (vendor == null)
+            {
+                return ServiceResult<VendorDto>.NotFound(
+                $"Vendor with ID {vendorId} does not exist.",
+                "VendorId");
+            }
+
+            return ServiceResult<VendorDto>.Ok(vendor);
         }
 
         public async Task<IEnumerable<VendorDto>> SearchVendorsByNameAsync(string? name, int page, int pageSize, string? sortBy, string? sortDir)

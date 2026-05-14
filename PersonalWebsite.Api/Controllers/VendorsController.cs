@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PersonalWebsite.Api.DTOs;
+using PersonalWebsite.Api.Extensions;
 using PersonalWebsite.Api.Services.Abstractions;
 
 namespace PersonalWebsite.Api.Controllers
@@ -14,25 +15,19 @@ namespace PersonalWebsite.Api.Controllers
             _vendorService = vendorService;
         }
 
-        //[HttpGet]
-        //public async Task<ActionResult<IEnumerable<VendorDto>>> GetAllVendorsAsync()
-        //{
-        //     var vendors = await _vendorService.GetAllVendorsAsync();
-        //    return Ok(vendors);
-        //}
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<VendorDto?>> GetVendorByIdAsync(int id)
+        [HttpGet("v2/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(VendorDto))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetVendorByIdAsync(int id)
         {
-            var vendor = await _vendorService.GetVendorByIdAsync(id);
-            if(vendor == null)
-            {
-                return NotFound();
-            }
-            return Ok(vendor);
+            var result = await _vendorService.GetVendorByIdV2Async(id);
+            return result.ToActionResult();
         }
 
         [HttpGet("search")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<VendorDto>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<VendorDto>>> SearchVendorsByNameAsync(
             [FromQuery] string? name = null,
             [FromQuery] int page = 1,
