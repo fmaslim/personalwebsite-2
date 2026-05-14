@@ -21,23 +21,17 @@ namespace PersonalWebsite.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProducts()
+        public async Task<IActionResult> GetProducts()
         {
-            // var result = await _prodService.GetAllProductsAsync();
             var result = await _prodService.GetProductListAsync();
-            return Ok(result);
+            return result.ToActionResult();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<ProductDetailsDto?>> GetProductById(int id)
+        public async Task<IActionResult> GetProductById(int id)
         {
-            var result = await _prodService.GetProductByIdAsync(id);
-
-            if (result == null)
-            {
-                return NotFound();
-            }
-            return Ok(result);
+            var  result = await _prodService.GetProductByIdV2Async(id);
+            return result.ToActionResult();            
         }
 
         [HttpGet("search")]

@@ -204,9 +204,9 @@ namespace PersonalWebsite.Api.Services.Implementations
             var userExists = await _context.Users.AnyAsync(u => u.Id == dto.UserId);
             if (!userExists)
             {
-                return ServiceResult<CreateOrderResponseV3Dto>.Fail(
+                return ServiceResult<CreateOrderResponseV3Dto>.NotFound(
                 $"User with ID {dto.UserId} does not exist.",
-                ServiceErrorType.Validation);                
+                "UserId");                
             }
 
             // Load products

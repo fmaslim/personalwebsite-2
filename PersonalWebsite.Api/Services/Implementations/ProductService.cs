@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PersonalWebsite.Api.DTOs;
+using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.DTOs.Products;
 using PersonalWebsite.Api.Models;
 using PersonalWebsite.Api.Services.Abstractions;
@@ -35,7 +36,7 @@ namespace PersonalWebsite.Api.Services.Implementations
             return products;
         }
 
-        public async Task<ProductListResponseDto> GetProductListAsync()
+        public async Task<ServiceResult<ProductListResponseDto>> GetProductListAsync()
         {
             /*
              * Requirements
@@ -69,8 +70,8 @@ use async
                 Count = count,
                 Items = products
             };
-
-            return response;
+            
+            return ServiceResult<ProductListResponseDto>.Ok(response);
         }
 
         public async Task<ProductDetailsDto?> GetProductByIdAsync(int id)
@@ -264,46 +265,36 @@ return NotFound() if no product exists
             };
         }
 
-        //public async Task<IEnumerable<ProductSearchDto>> SearchProductsAsync(string? name, int page, int pageSize, string? sortBy, string? sortDir)
-        //{
-        //    var query = _context.Products.AsNoTracking();
+        public async Task<ServiceResult<ProductDetailsDto>> GetProductByIdV2Async(int id)
+        {
+            if (id <= 0)
+            {
+                return ServiceResult<ProductDetailsDto>.Fail(
+                    "ProductId must be greater than 0.",
+                    Models.Errors.ServiceErrorType.Validation);
+            }
 
-        //    // filter by name
-        //    if (!String.IsNullOrWhiteSpace(name))
-        //    {
-        //        query = query.Where(p => p.Name.Contains(name));
-        //    }
+            var productDetails = await _context.Products
+            .AsNoTracking()
+            .Where(p => p.ProductId == id)
+            .Select(p => new ProductDetailsDto
+            {
+                ProductId = p.ProductId,
+                Name = p.Name,
+                ProductNumber = p.ProductNumber,
+                ListPrice = p.ListPrice
+            })
+            .FirstOrDefaultAsync();
 
-        //    var sortByNormalized = sortBy?.Trim().ToLower();
-        //    var sortDirNormalized = sortDir?.Trim().ToLower();
+            if (productDetails == null)
+            {
+                return ServiceResult<ProductDetailsDto>.NotFound(
+                    $"Product with ID {id} does not exist.",
+                    "ProductId"
+                );
+            }
 
-        //    // sorting
-        //    query = (sortByNormalized, sortDirNormalized) switch
-        //    {
-        //        ("name", "asc") => query.OrderBy(p => p.Name),
-        //        ("name", "desc") => query.OrderByDescending(p => p.Name),
-        //        ("listprice", "asc") => query.OrderBy(p => p.ListPrice),
-        //        ("listprice", "desc") => query.OrderByDescending(p => p.ListPrice),
-        //        ("id", "asc") => query.OrderBy(p => p.ProductId),
-        //        ("id", "desc") => query.OrderByDescending(p => p.ProductId),
-        //        _ => query.OrderBy(p => p.ProductId)
-        //    };
-
-        //    // pagination
-        //    if (page < 1) page = 1;
-        //    if (pageSize < 1) pageSize = 10;
-        //    var skip = (page - 1) * pageSize;
-        //    query = query.Skip(skip).Take(pageSize);
-
-        //    var products = query.Select(p => new ProductSearchDto
-        //    {
-        //        ProductId = p.ProductId,
-        //        ProductName = p.Name,
-        //        ProductNumber = p.ProductNumber,
-        //        ListPrice = p.ListPrice
-        //    }).ToListAsync();
-
-        //    return await products;
-        //}
+            return ServiceResult<ProductDetailsDto>.Ok(productDetails);
+        }
     }
 }

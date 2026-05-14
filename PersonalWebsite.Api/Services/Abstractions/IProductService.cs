@@ -1,4 +1,5 @@
 ﻿using PersonalWebsite.Api.DTOs;
+using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.DTOs.Products;
 
 namespace PersonalWebsite.Api.Services.Abstractions
@@ -6,8 +7,10 @@ namespace PersonalWebsite.Api.Services.Abstractions
     public interface IProductService
     {
         Task<IEnumerable<ProductDto>> GetAllProductsAsync();
-        Task<ProductListResponseDto> GetProductListAsync();
+        // Task<ProductListResponseDto> GetProductListAsync();
+        Task<ServiceResult<ProductListResponseDto>> GetProductListAsync();
         Task<ProductDetailsDto?> GetProductByIdAsync(int id);
+        Task<ServiceResult<ProductDetailsDto>> GetProductByIdV2Async(int id);
         Task<ProductListResponseDto> GetProductByNameAsync(string? name);
         Task<IEnumerable<EmployeeLookupDto>> GetEmployeeListAsync();
         //Task<IEnumerable<ProductSearchDto>> SearchProductsAsync(
