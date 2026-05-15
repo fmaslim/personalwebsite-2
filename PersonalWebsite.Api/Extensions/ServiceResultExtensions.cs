@@ -21,13 +21,13 @@ namespace PersonalWebsite.Api.Extensions
                 };
             }
 
-            var errorResponse = new
+            var errorResponse = new DTOs.Common.ApiErrorResponse
             {
-                success = false,
-                message = result.Message,
-                errors = result.Errors,
-                fieldErrors = result.FieldErrors,
-                statusCode = result.StatusCode
+                Success = false,
+                Message = result.Message,
+                Errors = result.Errors,
+                FieldErrors = result.FieldErrors,
+                StatusCode = result.StatusCode
             };
 
             return result.ServiceErrorType switch
