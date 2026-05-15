@@ -24,7 +24,9 @@ namespace PersonalWebsite.Api.Extensions
             var errorResponse = new
             {
                 success = false,
+                message = result.Message,
                 errors = result.Errors,
+                fieldErrors = result.FieldErrors,
                 statusCode = result.StatusCode
             };
 

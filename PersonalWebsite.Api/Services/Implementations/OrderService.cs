@@ -180,37 +180,45 @@ namespace PersonalWebsite.Api.Services.Implementations
 
         public async Task<ServiceResult<PagedResponse<OrderDetailsDto>>> SearchOrdersAsync(int? customerId, byte? status, DateTime? orderDateFrom, DateTime? orderDateTo, int? page, int? pageSize, string? sortBy, string? sortDir)
         {
-            var errors = new List<string>();
+            //var errors = new List<string>();
+            var fieldErrors = new List<FieldError>();
             if (customerId.HasValue && customerId.Value <= 0)
             {
-                errors.Add("CustomerId must be greater than 0.");
+                //errors.Add("CustomerId must be greater than 0.");
+                fieldErrors.Add(new FieldError { Field = "CustomerId", Message = "CustomerId must be greater than 0." });
             }
             if (status.HasValue && status.Value is < 1 or > 6)
             {
-                errors.Add("Status must be between 1 and 6.");
+                //errors.Add("Status must be between 1 and 6.");
+                fieldErrors.Add(new FieldError { Field = "status", Message = "Status must be between 1 and 6." });
             }
             if (orderDateFrom.HasValue && orderDateTo.HasValue && orderDateFrom.Value > orderDateTo.Value)
             {
-                errors.Add("OrderDateFrom cannot be greater than OrderDateTo.");
+                //errors.Add("OrderDateFrom cannot be greater than OrderDateTo.");
+                fieldErrors.Add(new FieldError { Field = "orderDateFrom, orderDateTo", Message = "orderDateFrom cannot be greater than orderDateTo." });
             }
             if (page.HasValue && page.Value <= 0)
             {
-                errors.Add("Page number must be greater than 0.");
+                //errors.Add("Page number must be greater than 0.");
+                fieldErrors.Add(new FieldError { Field = "page", Message = "Page number must be greater than 0." });
             }
             if (pageSize.HasValue && pageSize.Value <= 0)
             {
-                errors.Add("Page size must be greater than 0.");
+                //errors.Add("Page size must be greater than 0.");
+                fieldErrors.Add(new FieldError { Field = "pageSize", Message = "Page size must be greater than 0." });
             }
             if (pageSize.HasValue && pageSize.Value > 100)
             {
-                errors.Add("Page size cannot be greater than 100.");
+                //errors.Add("Page size cannot be greater than 100.");
+                fieldErrors.Add(new FieldError { Field = "pageSize", Message = "Page size cannot be greater than 100." });
             }
             if (!string.IsNullOrEmpty(sortBy))
             {
                 var validSortByValues = new List<string> { "orderdate", "totaldue" };
                 if (!validSortByValues.Contains(sortBy.ToLower()))
                 {
-                    errors.Add($"Invalid sortBy value. Valid values are: {string.Join(", ", validSortByValues)}.");
+                    //errors.Add($"Invalid sortBy value. Valid values are: {string.Join(", ", validSortByValues)}.");
+                    fieldErrors.Add(new FieldError { Field = "sortBy", Message = $"Invalid sortBy value. Valid values are: {string.Join(", ", validSortByValues)}." });
                 }
             }
                 if (!string.IsNullOrWhiteSpace(sortDir))
@@ -218,12 +226,13 @@ namespace PersonalWebsite.Api.Services.Implementations
                     var validSortDirValues = new List<string> { "asc", "desc" };
                     if (!validSortDirValues.Contains(sortDir.ToLower()))
                     {
-                        errors.Add($"Invalid sortDir value. Valid values are: {string.Join(", ", validSortDirValues)}.");
-                    }
+                        //errors.Add($"Invalid sortDir value. Valid values are: {string.Join(", ", validSortDirValues)}.");
+                        fieldErrors.Add(new FieldError { Field = "sortDir", Message = $"Invalid sortDir value. Valid values are: {string.Join(", ", validSortDirValues)}." });
+                }
             }
-                if (errors.Any())
+                if (fieldErrors.Any())
             {
-                return ServiceResult<PagedResponse<OrderDetailsDto>>.Fail(errors);
+                return ServiceResult<PagedResponse<OrderDetailsDto>>.ValidationFail(fieldErrors);
             }
 
             var query = _context.SalesOrderHeaders
@@ -250,7 +259,7 @@ namespace PersonalWebsite.Api.Services.Implementations
                 query = query.Where(o => o.OrderDate <= orderDateTo.Value);
             }
             // sort
-            if (!string.IsNullOrEmpty(sortBy))
+            if (!string.IsNullOrWhiteSpace(sortBy))
             {
                 sortBy = sortBy?.ToLower();
                 sortDir = sortDir?.ToLower();
