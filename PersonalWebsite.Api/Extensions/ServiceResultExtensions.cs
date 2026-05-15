@@ -15,7 +15,14 @@ namespace PersonalWebsite.Api.Extensions
                     return new NoContentResult();
                 }
                 
-                return new ObjectResult(result.Data)
+                var successResponse = new ApiResponse<T>
+                {
+                    Success = true,
+                    Message = result.Message,
+                    Data = result.Data
+                };
+
+                return new ObjectResult(successResponse)
                 {
                     StatusCode = result.StatusCode,
                 };
