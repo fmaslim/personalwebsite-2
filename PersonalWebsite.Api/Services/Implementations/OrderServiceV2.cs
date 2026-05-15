@@ -178,26 +178,64 @@ namespace PersonalWebsite.Api.Services.Implementations
 
         public async Task<ServiceResult<CreateOrderResponseV3Dto>> CreateOrderV3Async(CreateOrderRequestV3Dto dto)
         {
+            // Added multi-error validation
+            var fieldErrors = new List<FieldError>();
             // validation
-            if (dto == null)
+            if (dto == null) // for this one, return immediately since we cant proceed without request body, for other validation we will collect all errors and return together
             {
-                return ServiceResult<CreateOrderResponseV3Dto>.Fail(
-                "Request body cannot be null.",
-                ServiceErrorType.Validation);                
+                FieldError error = new FieldError
+                {
+                    Field = "requestBody",
+                    Message = "Request body cannot be null."
+                };
+                fieldErrors.Add(error);
+
+                return ServiceResult<CreateOrderResponseV3Dto>.ValidationFail(fieldErrors);
+            }
+
+            if (dto.UserId <= 0)
+            {
+                FieldError error = new FieldError
+                {
+                    Field = "userId",
+                    Message = "UserId must be greater than 0."
+                };
+                fieldErrors.Add(error);
             }
 
             if (dto.Items == null || !dto.Items.Any())
             {
-                return ServiceResult<CreateOrderResponseV3Dto>.Fail(
-                "Order must contain at least one item.",
-                ServiceErrorType.Validation);
+                FieldError error = new FieldError
+                {
+                    Field = "items",
+                    Message = "Order must contain at least one item."
+                };
+                fieldErrors.Add(error);
+            }
+            else
+            {
+                if (dto.Items.Any(i => i.Quantity <= 0))
+                {
+                    var fieldError = new FieldError
+                    {
+                        Field = "items.quantity",
+                        Message = "Quantity must be greater than zero for all items."
+                    };
+                    fieldErrors.Add(fieldError);
+                }
+                if (dto.Items.Any(i => i.ProductId <= 0))
+                {
+                    fieldErrors.Add(new FieldError
+                    {
+                        Field = "items.productId",
+                        Message = "ProductId must be greater than 0 for all items."
+                    });
+                }
             }
 
-            if (dto.Items.Any(i => i.Quantity <= 0))
+            if (fieldErrors.Any())
             {
-                return ServiceResult<CreateOrderResponseV3Dto>.Fail(
-                "Quantity must be greater than zero.",
-                ServiceErrorType.Validation);
+                return ServiceResult<CreateOrderResponseV3Dto>.ValidationFail(fieldErrors);
             }
 
             // user exists
@@ -206,7 +244,7 @@ namespace PersonalWebsite.Api.Services.Implementations
             {
                 return ServiceResult<CreateOrderResponseV3Dto>.NotFound(
                 $"User with ID {dto.UserId} does not exist.",
-                "UserId");                
+                "userId");                
             }
 
             // Load products
@@ -220,9 +258,9 @@ namespace PersonalWebsite.Api.Services.Implementations
             {
                 var existingProductIds = products.Select(p => p.ProductId);
                 var missingProductIds = productIds.Except(existingProductIds);
-                return ServiceResult<CreateOrderResponseV3Dto>.Fail(
-                    missingProductIds.Select(id => $"Product with ID {id} does not exist.").ToList(),
-                    statusCode: 404);                
+                return ServiceResult<CreateOrderResponseV3Dto>.NotFound(
+                $"One or more products do not exist: {string.Join(", ", missingProductIds)}.",
+                "items.productId");
             }
 
             // stock validation
@@ -232,9 +270,12 @@ namespace PersonalWebsite.Api.Services.Implementations
                 var product = products.First(p => p.ProductId == item.ProductId);
                 if (item.Quantity > product.SafetyStockLevel)
                 {
-                    return ServiceResult<CreateOrderResponseV3Dto>.Fail(
-                        $"Only {product.SafetyStockLevel} items left in stock for product ID {item.ProductId}.", 
-                        ServiceErrorType.Validation);                    
+                    //return ServiceResult<CreateOrderResponseV3Dto>.Fail(
+                    //    $"Only {product.SafetyStockLevel} items left in stock for product ID {item.ProductId}.", 
+                    //    ServiceErrorType.Validation);
+                    return ServiceResult<CreateOrderResponseV3Dto>.Conflict(
+                    $"Only {product.SafetyStockLevel} items left in stock for product ID {item.ProductId}.",
+                    "items.quantity");
                 }
             }
 
@@ -279,7 +320,7 @@ namespace PersonalWebsite.Api.Services.Implementations
                 TotalAmount = order.TotalAmount,
                 CreatedAtUtc = order.CreatedAtUtc
             };
-            return ServiceResult<CreateOrderResponseV3Dto>.Created(response);
+            return ServiceResult<CreateOrderResponseV3Dto>.Created(response, "Order created successfully.");
         }
 
         public async Task<ServiceResult<PagedOrderSummaryResponseDto>> GetAllOrdersAsync(OrderQueryParamsDto queryDto)
@@ -409,9 +450,15 @@ namespace PersonalWebsite.Api.Services.Implementations
         {
             if (orderId <= 0)
             {
-                return ServiceResult<GetOrderByIdResponseDto>.Fail(
-                    "OrderId must be greater than 0",
-                    ServiceErrorType.Validation);
+                return ServiceResult<GetOrderByIdResponseDto>.ValidationFail(
+    new List<FieldError>
+                {
+                    new FieldError
+                    {
+                        Field = "orderId",
+                        Message = "OrderId must be greater than 0."
+                    }
+                });
             }
 
             var query = _context.Orders

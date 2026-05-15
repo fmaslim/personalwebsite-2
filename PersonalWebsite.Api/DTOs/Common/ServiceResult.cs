@@ -212,7 +212,7 @@ namespace PersonalWebsite.Api.DTOs.Common
             };
         }
 
-        public static ServiceResult<T> Created(T data, string message = "")
+        public static ServiceResult<T> Created(T data, string message = "Resource created successfully.")
         {
             return new ServiceResult<T>
             {
