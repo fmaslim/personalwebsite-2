@@ -25,7 +25,7 @@ namespace PersonalWebsite.Api.DTOs.Common
             return new ServiceResult<T>
             {
                 Success = true,
-                
+                Message = message,
                 StatusCode = statusCode,
                 Data = data
             };

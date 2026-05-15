@@ -800,14 +800,14 @@ namespace PersonalWebsite.Api.Services.Implementations
 
             var pagedResponse = new PagedResponse<OrderSearchResponseDto>
             {
-                Data = data,
+                Items = data,
                 PageNumber = requestDto.PageNumber,
                 PageSize = requestDto.PageSize,
                 TotalRecords = totalCount,
                 TotalPages = (int)Math.Ceiling(totalCount / (double)requestDto.PageSize)
             };
 
-            return ServiceResult<PagedResponse<OrderSearchResponseDto>>.Ok(pagedResponse);
+            return ServiceResult<PagedResponse<OrderSearchResponseDto>>.Ok(pagedResponse, "Orders retrieved successfully");
         }
     }
 }

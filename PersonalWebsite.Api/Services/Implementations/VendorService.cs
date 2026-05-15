@@ -146,7 +146,7 @@ namespace PersonalWebsite.Api.Services.Implementations
 
             var pagedResponse = new PagedResponse<VendorDto>
             {
-                Data = vendors,
+                Items = vendors,
                 PageNumber = page,
                 PageSize = pageSize,
                 TotalRecords = totalRecords,

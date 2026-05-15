@@ -11,7 +11,7 @@ namespace PersonalWebsite.Api.Extensions
             var pagedData = source.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
             return new PagedResponse<T>
             {
-                Data = pagedData,
+                Items = pagedData,
                 PageNumber = pageNumber,
                 PageSize = pageSize,
                 TotalRecords = source.Count(),
@@ -40,7 +40,7 @@ namespace PersonalWebsite.Api.Extensions
 
             return new PagedResponse<T>
             {
-                Data = data,
+                Items = data,
                 PageNumber = pageNumber,
                 PageSize = pageSize,
                 TotalRecords = totalRecords,

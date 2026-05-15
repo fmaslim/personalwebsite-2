@@ -194,7 +194,7 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Orders
 
             var response = new PagedResponse<SearchOrderResultDto>()
             {
-                Data = items,
+                Items = items,
                 TotalRecords = totalCount,
                 PageNumber = dto.PageNumber,
                 PageSize = dto.PageSize,

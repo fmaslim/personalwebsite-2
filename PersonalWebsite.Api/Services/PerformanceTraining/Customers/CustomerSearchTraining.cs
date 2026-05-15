@@ -133,7 +133,7 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Customers
 
             return new PagedResponse<CustomerSearchResultDto>
             {
-                Data = data,
+                Items = data,
                 PageNumber = requestDto.PageNumber,
                 PageSize = requestDto.PageSize,
                 TotalRecords = data.Count,
@@ -216,7 +216,7 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Customers
 
             return new PagedResponse<CustomerSearchResultDto>
             {
-                Data = data,
+                Items = data,
                 PageNumber = requestDto.PageNumber,
                 PageSize = requestDto.PageSize,
                 TotalRecords = data.Count,
@@ -251,7 +251,7 @@ namespace PersonalWebsite.Api.Services.PerformanceTraining.Customers
 
             return new PagedResponse<CustomerSearchResultDto>
             {
-                Data = pagedData,
+                Items = pagedData,
                 PageNumber = requestDto.PageNumber,
                 PageSize = requestDto.PageSize,
                 TotalRecords = totalCount,

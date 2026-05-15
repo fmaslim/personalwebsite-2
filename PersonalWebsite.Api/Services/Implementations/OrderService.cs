@@ -305,7 +305,7 @@ namespace PersonalWebsite.Api.Services.Implementations
 
             var pagedResponse = new PagedResponse<OrderDetailsDto>
             {
-                Data = orders,
+                Items = orders,
                 PageNumber = pageNumber,
                 PageSize = recordsPerPage,
                 TotalRecords = totalCount,
@@ -371,7 +371,7 @@ namespace PersonalWebsite.Api.Services.Implementations
 
             return new PagedResponse<OrderSearchResultDto>
             {
-                Data = data,
+                Items = data,
                 PageNumber = requestDto.PageNumber,
                 PageSize = requestDto.PageSize,
                 TotalRecords = totalCount,
@@ -409,7 +409,7 @@ namespace PersonalWebsite.Api.Services.Implementations
 
             return new PagedResponse<OrderSearchResultDto>
             {
-                Data = data,
+                Items = data,
                 PageNumber = requestDto.PageNumber,
                 PageSize = requestDto.PageSize,
                 TotalRecords = totalCount,

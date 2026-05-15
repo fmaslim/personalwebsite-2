@@ -2,7 +2,7 @@
 {
     public class PagedResponse<T> where T : class
     {
-        public List<T> Data { get; set; } = new();
+        public List<T> Items { get; set; } = new();
 
         public int PageNumber { get; set; }
 
