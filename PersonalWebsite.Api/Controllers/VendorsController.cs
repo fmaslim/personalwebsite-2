@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PersonalWebsite.Api.DTOs;
+using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.Extensions;
 using PersonalWebsite.Api.Services.Abstractions;
 
@@ -26,17 +27,18 @@ namespace PersonalWebsite.Api.Controllers
         }
 
         [HttpGet("search")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<VendorDto>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagedResponse<VendorDto>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<VendorDto>>> SearchVendorsByNameAsync(
+        public async Task<IActionResult> SearchVendorsByNameAsync(
             [FromQuery] string? name = null,
             [FromQuery] int page = 1,
             [FromQuery]  int pageSize = 10,
             [FromQuery] string? sortBy = "name",
             [FromQuery] string? sortDir = "asc")
         {
-            var vendors = await _vendorService.SearchVendorsByNameAsync(name, page, pageSize, sortBy, sortDir);
-            return Ok(vendors);
+            var result = await _vendorService.SearchVendorsByNameAsync(name, page, pageSize, sortBy, sortDir);
+            // return Ok(vendors);
+            return result.ToActionResult();
         }
     }
 }
