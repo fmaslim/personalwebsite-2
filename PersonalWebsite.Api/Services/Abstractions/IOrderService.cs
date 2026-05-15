@@ -11,7 +11,7 @@ namespace PersonalWebsite.Api.Services.Abstractions
         Task<ServiceResult<CreateOrderResponseDto>> CreateOrderAsync(CreateOrderDto dto);
         // Task<OrderDetailsDto?> GetOrderByIdAsync(int orderId);
         Task<ServiceResult<OrderDetailsDto>> GetOrderByIdAsync(int id);
-        Task<IEnumerable<OrderDetailsDto>> SearchOrdersAsync(int? customerId, byte? status, DateTime? orderDateFrom, DateTime? orderDateTo, int? page, int? pageSize, string? sortBy, string? sortDir);
+        Task<ServiceResult<IEnumerable<OrderDetailsDto>>> SearchOrdersAsync(int? customerId, byte? status, DateTime? orderDateFrom, DateTime? orderDateTo, int? page, int? pageSize, string? sortBy, string? sortDir);
 
         // Performance Training
         Task<PagedResponse<PT.Orders.OrderSearchResultDto>> SearchOrdersBadN1QueryAsync(PT.OrderSearchRequestDto requestDto);

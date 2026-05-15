@@ -178,8 +178,54 @@ namespace PersonalWebsite.Api.Services.Implementations
             return ServiceResult<OrderDetailsDto>.Ok(order);
         }
 
-        public async Task<IEnumerable<OrderDetailsDto>> SearchOrdersAsync(int? customerId, byte? status, DateTime? orderDateFrom, DateTime? orderDateTo, int? page, int? pageSize, string? sortBy, string? sortDir)
+        public async Task<ServiceResult<IEnumerable<OrderDetailsDto>>> SearchOrdersAsync(int? customerId, byte? status, DateTime? orderDateFrom, DateTime? orderDateTo, int? page, int? pageSize, string? sortBy, string? sortDir)
         {
+            var errors = new List<string>();
+            if (customerId.HasValue && customerId.Value <= 0)
+            {
+                errors.Add("CustomerId must be greater than 0.");
+            }
+            if (status.HasValue && status.Value is < 1 or > 6)
+            {
+                errors.Add("Status must be between 1 and 6.");
+            }
+            if (orderDateFrom.HasValue && orderDateTo.HasValue && orderDateFrom.Value > orderDateTo.Value)
+            {
+                errors.Add("OrderDateFrom cannot be greater than OrderDateTo.");
+            }
+            if (page.HasValue && page.Value <= 0)
+            {
+                errors.Add("Page number must be greater than 0.");
+            }
+            if (pageSize.HasValue && pageSize.Value <= 0)
+            {
+                errors.Add("Page size must be greater than 0.");
+            }
+            if (pageSize.HasValue && pageSize.Value > 100)
+            {
+                errors.Add("Page size cannot be greater than 100.");
+            }
+            if (!string.IsNullOrEmpty(sortBy))
+            {
+                var validSortByValues = new List<string> { "orderdate", "totaldue" };
+                if (!validSortByValues.Contains(sortBy.ToLower()))
+                {
+                    errors.Add($"Invalid sortBy value. Valid values are: {string.Join(", ", validSortByValues)}.");
+                }
+            }
+                if (!string.IsNullOrWhiteSpace(sortDir))
+                {
+                    var validSortDirValues = new List<string> { "asc", "desc" };
+                    if (!validSortDirValues.Contains(sortDir.ToLower()))
+                    {
+                        errors.Add($"Invalid sortDir value. Valid values are: {string.Join(", ", validSortDirValues)}.");
+                    }
+            }
+                if (errors.Any())
+            {
+                return ServiceResult<IEnumerable<OrderDetailsDto>>.Fail(errors);
+            }
+
             var query = _context.SalesOrderHeaders
                 .AsNoTracking();
 
@@ -196,7 +242,7 @@ namespace PersonalWebsite.Api.Services.Implementations
             // filter - orderdatefrom
             if (orderDateFrom.HasValue)
             {
-                             query = query.Where(o => o.OrderDate >= orderDateFrom.Value);
+                query = query.Where(o => o.OrderDate >= orderDateFrom.Value);
             }
             // filter - orderdateto
             if (orderDateTo.HasValue)
@@ -238,7 +284,7 @@ namespace PersonalWebsite.Api.Services.Implementations
             }
             
             // project
-                return await  query.Select(o => new OrderDetailsDto
+                var orders =  await query.Select(o => new OrderDetailsDto
                 {
                     SalesOrderId = o.SalesOrderId,
                     CustomerId = o.CustomerId,
@@ -255,6 +301,8 @@ namespace PersonalWebsite.Api.Services.Implementations
                     TotalDue = o.TotalDue,
                 })
                 .ToListAsync();
+
+            return ServiceResult<IEnumerable<OrderDetailsDto>>.Ok(orders);
         }
 
         public async Task<PagedResponse<OrderSearchResultDto>> SearchOrdersBadN1QueryAsync(DTOs.PerformanceTraining.OrderSearchRequestDto requestDto)

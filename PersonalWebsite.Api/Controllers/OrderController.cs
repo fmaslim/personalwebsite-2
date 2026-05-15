@@ -28,7 +28,9 @@ namespace PersonalWebsite.Api.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<OrderDetailsDto>>> SearchOrdersAsync(
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> SearchOrdersAsync(
             [FromQuery] int? customerId,
             [FromQuery] byte? status,
             [FromQuery] DateTime? orderDateFrom,
@@ -39,7 +41,8 @@ namespace PersonalWebsite.Api.Controllers
             [FromQuery]  string? sortDir = "desc")
         {
             var orders = await _orderService.SearchOrdersAsync(customerId, status, orderDateFrom, orderDateTo, page, pageSize, sortBy, sortDir);
-            return Ok(orders);
+            
+            return orders.ToActionResult();
         }
 
         [HttpGet("{id}")]
