@@ -178,7 +178,7 @@ namespace PersonalWebsite.Api.Services.Implementations
             return ServiceResult<OrderDetailsDto>.Ok(order);
         }
 
-        public async Task<ServiceResult<IEnumerable<OrderDetailsDto>>> SearchOrdersAsync(int? customerId, byte? status, DateTime? orderDateFrom, DateTime? orderDateTo, int? page, int? pageSize, string? sortBy, string? sortDir)
+        public async Task<ServiceResult<PagedResponse<OrderDetailsDto>>> SearchOrdersAsync(int? customerId, byte? status, DateTime? orderDateFrom, DateTime? orderDateTo, int? page, int? pageSize, string? sortBy, string? sortDir)
         {
             var errors = new List<string>();
             if (customerId.HasValue && customerId.Value <= 0)
@@ -223,7 +223,7 @@ namespace PersonalWebsite.Api.Services.Implementations
             }
                 if (errors.Any())
             {
-                return ServiceResult<IEnumerable<OrderDetailsDto>>.Fail(errors);
+                return ServiceResult<PagedResponse<OrderDetailsDto>>.Fail(errors);
             }
 
             var query = _context.SalesOrderHeaders
@@ -271,17 +271,18 @@ namespace PersonalWebsite.Api.Services.Implementations
             {
                 query = query.OrderByDescending(o => o.OrderDate);
             }
+
+            var totalCount = await query.CountAsync();
+            var pageNumber = page ?? 1;
+            var recordsPerPage = pageSize ?? 10;
+
             // skip
-            if (page.HasValue)
-            {
-                int skip = (page.Value - 1) * (pageSize ?? 10);
-                query = query.Skip(skip);
-            }
+            int skip = (pageNumber - 1) * recordsPerPage;
+            query = query.Skip(skip);
+            
             // take
-            if (pageSize.HasValue)
-            {
-                query = query.Take(pageSize.Value);
-            }
+            query = query.Take(recordsPerPage);
+            
             
             // project
                 var orders =  await query.Select(o => new OrderDetailsDto
@@ -302,7 +303,16 @@ namespace PersonalWebsite.Api.Services.Implementations
                 })
                 .ToListAsync();
 
-            return ServiceResult<IEnumerable<OrderDetailsDto>>.Ok(orders);
+            var pagedResponse = new PagedResponse<OrderDetailsDto>
+            {
+                Data = orders,
+                PageNumber = pageNumber,
+                PageSize = recordsPerPage,
+                TotalRecords = totalCount,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)recordsPerPage)
+            };
+
+            return ServiceResult<PagedResponse<OrderDetailsDto>>.Ok(pagedResponse);
         }
 
         public async Task<PagedResponse<OrderSearchResultDto>> SearchOrdersBadN1QueryAsync(DTOs.PerformanceTraining.OrderSearchRequestDto requestDto)
