@@ -108,6 +108,8 @@ builder.Services.AddScoped<IProductServiceV2, ProductServiceV2>();
 builder.Services.AddScoped<IOrderServiceV2, OrderServiceV2>();
 // HelloWorld service for simple DB-backed examples
 builder.Services.AddScoped<IHelloWorldService, HelloWorldService>();
+// Greeting service for PRD personalized hello
+builder.Services.AddScoped<IHelloService, HelloService>();
 
 // Sunday, 04/26/2026 - Performance Training
 builder.Services.AddScoped<IAccountService, AccountService>();

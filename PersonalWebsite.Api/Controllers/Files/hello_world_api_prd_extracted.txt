@@ -1,0 +1,363 @@
+Product Requirements Document
+
+Hello World API Enhancement
+
+1. Product Name
+
+Hello World API
+
+2. Purpose
+
+The purpose of this API is to provide a simple endpoint that confirms the application is running correctly, while also serving
+as a training foundation for professional API development patterns.
+
+This API will be used to practice:
+
+(cid:127) API routing
+
+(cid:127) Controllers
+
+(cid:127) DTOs
+
+(cid:127) Service layer design
+
+(cid:127) ServiceResult<T> pattern
+
+(cid:127) Validation
+
+(cid:127) Error handling
+
+(cid:127) Swagger testing
+
+3. Current State
+
+The API currently has a basic Hello World endpoint.
+
+Existing Endpoint
+
+GET /api/hello
+
+Existing Response Example
+
+"Hello World"
+
+4. New Feature Request
+
+Add an enhanced Hello World endpoint that accepts a user name and returns a personalized greeting response.
+
+5. Business Requirement
+
+As an API user, I want to send a name to the Hello World API so that I can receive a personalized greeting message.
+
+6. User Story
+
+As an API user,
+I want to pass my name into the Hello World API,
+so that I can receive a custom greeting message.
+
+Hello World API PRD
+
+Page 1
+
+7. Functional Requirements
+
+Requirement 1: Personalized Greeting Endpoint
+
+The API shall expose a new endpoint that accepts a name as a route parameter.
+
+GET /api/hello/{name}
+
+Example Request
+
+GET /api/hello/Franky
+
+Example Successful Response
+
+{
+  "message": "Hello, Franky!"
+}
+
+8. Response DTO
+
+Create a response DTO for the greeting response.
+
+public class HelloResponseDto
+{
+    public string Message { get; set; } = string.Empty;
+}
+
+9. Validation Rules
+
+The API shall validate the name value before returning a response.
+
+Rule
+
+Name is empty
+
+Expected Result
+
+Return 400 Bad Request
+
+Name is whitespace
+
+Return 400 Bad Request
+
+Name is longer than 50 characters
+
+Return 400 Bad Request
+
+Name is valid
+
+Return 200 OK
+
+10. Error Response Examples
+
+Empty or Whitespace Name
+
+{
+  "errors": [
+    {
+      "type": "Validation",
+      "message": "Name is required."
+    }
+  ]
+}
+
+Name Too Long
+
+{
+  "errors": [
+    {
+      "type": "Validation",
+      "message": "Name cannot be longer than 50 characters."
+
+Hello World API PRD
+
+Page 2
+
+    }
+  ]
+}
+
+11. Service Layer Requirement
+
+Create a service interface and service implementation for the Hello World feature.
+
+Interface Method
+
+Task<ServiceResult<HelloResponseDto>> GetGreetingAsync(string name);
+
+Service Responsibilities
+
+(cid:127) Accept a name value.
+
+(cid:127) Validate the name.
+
+(cid:127) Return validation errors when the name is invalid.
+
+(cid:127) Return a successful HelloResponseDto when the name is valid.
+
+(cid:127) Return ServiceResult<HelloResponseDto> instead of returning raw DTOs directly.
+
+12. Controller Requirement
+
+The controller should stay thin and should not contain business validation logic.
+
+Example Controller Method
+
+[HttpGet("{name}")]
+public async Task<IActionResult> GetGreeting(string name)
+{
+    var result = await _helloService.GetGreetingAsync(name);
+
+    return result.ToActionResult();
+}
+
+13. ServiceResult Pattern Requirement
+
+The feature should use the existing ServiceResult pattern.
+
+Expected flow:
+
+Controller calls service
+Service returns ServiceResult<T>
+Controller calls ToActionResult()
+ToActionResult converts the result into the correct HTTP response
+
+Expected HTTP Mapping
+
+Service Error Type
+
+Validation
+
+NotFound
+
+Conflict
+
+Failure
+
+HTTP Response
+
+400 Bad Request
+
+404 Not Found
+
+409 Conflict
+
+500 Internal Server Error
+
+Hello World API PRD
+
+Page 3
+
+14. Acceptance Criteria
+
+Scenario 1: Valid Name
+
+Given the user passes a valid name
+When they call:
+
+GET /api/hello/Franky
+
+Then the API returns:
+
+200 OK
+
+And the response body is:
+
+{
+  "message": "Hello, Franky!"
+}
+
+Scenario 2: Blank Name
+
+Given the user passes a blank or whitespace name
+When the API processes the request
+Then the API returns:
+
+400 Bad Request
+
+And the response contains:
+
+Name is required.
+
+Scenario 3: Name Too Long
+
+Given the user passes a name longer than 50 characters
+When the API processes the request
+Then the API returns:
+
+400 Bad Request
+
+And the response contains:
+
+Name cannot be longer than 50 characters.
+
+15. Technical Tasks
+
+(cid:127) Create HelloResponseDto.
+
+(cid:127) Create IHelloService.
+
+(cid:127) Create HelloService.
+
+(cid:127) Add GetGreetingAsync(string name).
+
+(cid:127) Add validation for empty, whitespace, and long names.
+
+(cid:127) Return ServiceResult<HelloResponseDto> from the service.
+
+(cid:127) Register IHelloService and HelloService in Program.cs.
+
+(cid:127) Add GET /api/hello/{name} to HelloController.
+
+(cid:127) Use result.ToActionResult() in the controller.
+
+(cid:127) Test success and validation cases in Swagger.
+
+16. Suggested Folder Structure
+
+Hello World API PRD
+
+Page 4
+
+Controllers
+  HelloController.cs
+
+DTOs
+  HelloResponseDto.cs
+
+Services
+  IHelloService.cs
+  HelloService.cs
+
+Common
+  ServiceResult.cs
+  ServiceError.cs
+  ServiceErrorType.cs
+  ServiceResultExtensions.cs
+
+17. Out of Scope
+
+(cid:127) Database access
+
+(cid:127) Authentication
+
+(cid:127) Authorization
+
+(cid:127) Logging
+
+(cid:127) Application Insights
+
+(cid:127) POST endpoint
+
+(cid:127) Unit tests
+
+(cid:127) Deployment changes
+
+18. Future Enhancements
+
+After the first version is complete, the API can be expanded with a POST greeting endpoint.
+
+POST /api/hello
+
+Example Request Body
+
+{
+  "name": "Franky"
+}
+
+Example Response
+
+{
+  "message": "Hello, Franky!"
+}
+
+This future enhancement would introduce request DTOs and body validation.
+
+19. Definition of Done
+
+(cid:127) The new endpoint exists.
+
+(cid:127) The endpoint returns a personalized greeting for valid names.
+
+Invalid names return validation errors.
+
+(cid:127) The service uses ServiceResult<HelloResponseDto>.
+
+(cid:127) The controller uses ToActionResult().
+
+Hello World API PRD
+
+Page 5
+
+(cid:127)
+(cid:127) The controller does not contain business validation logic.
+
+(cid:127) The feature has been tested in Swagger.
+
+Hello World API PRD
+
+Page 6
+
+
