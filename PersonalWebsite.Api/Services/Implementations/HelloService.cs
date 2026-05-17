@@ -1,6 +1,7 @@
 using PersonalWebsite.Api.DTOs;
 using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.Models;
+using PersonalWebsite.Api.Models.Errors;
 using PersonalWebsite.Api.Services.Abstractions;
 
 namespace PersonalWebsite.Api.Services.Implementations
@@ -21,16 +22,22 @@ namespace PersonalWebsite.Api.Services.Implementations
 
             if (string.IsNullOrWhiteSpace(name))
             {
-                return ServiceResult<HelloResponseDto>.Fail(
-                    "Name is required.",
-                    Models.Errors.ServiceErrorType.Validation);
+                var fieldErrors = new List<FieldError>
+                {
+                    new FieldError { Field = "name", Message = "Name is required." }
+                };
+
+                return ServiceResult<HelloResponseDto>.ValidationFail(fieldErrors);
             }
 
             if (name.Length > 50)
             {
-                return ServiceResult<HelloResponseDto>.Fail(
-                    "Name cannot be longer than 50 characters.",
-                    Models.Errors.ServiceErrorType.Validation);
+                var fieldErrors = new List<FieldError>
+                {
+                    new FieldError { Field = "name", Message = "Name cannot be longer than 50 characters." }
+                };
+
+                return ServiceResult<HelloResponseDto>.ValidationFail(fieldErrors);
             }
 
             var dto = new HelloResponseDto
