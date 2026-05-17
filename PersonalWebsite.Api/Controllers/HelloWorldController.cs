@@ -43,6 +43,20 @@ namespace PersonalWebsite.Api.Controllers
             return result.ToActionResult();
         }
 
+        [HttpGet("persons")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagedResponseDto<PersonDto>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetPersons(
+            [FromQuery] string? name,
+            [FromQuery] string? sortBy,
+            [FromQuery] string? sortDir,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 5)
+        {
+            var result = await _greetingService.GetPersonsAsync(name, sortBy, sortDir, pageNumber, pageSize);
+            return result.ToActionResult();
+        }
+
         [HttpGet("{name}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(HelloResponseDto))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
