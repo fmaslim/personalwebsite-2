@@ -106,6 +106,8 @@ builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProductServiceV2, ProductServiceV2>();
 builder.Services.AddScoped<IOrderServiceV2, OrderServiceV2>();
+// HelloWorld service for simple DB-backed examples
+builder.Services.AddScoped<IHelloWorldService, HelloWorldService>();
 
 // Sunday, 04/26/2026 - Performance Training
 builder.Services.AddScoped<IAccountService, AccountService>();
