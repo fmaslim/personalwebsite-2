@@ -18,10 +18,12 @@ namespace PersonalWebsite.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EmployeeLookupDto>>> GetEmployees()
+        public async Task<IActionResult> GetEmployees()
         {
-            var employees = await _productService.GetEmployeeListAsync();
-            return Ok(employees);
+            // var employees = await _productService.GetEmployeeListAsync();
+            var employees = await _productService.GetEmployeeListV2Async();
+            // return Ok(employees);
+            return employees.ToActionResult();  
         }
 
         [HttpGet("{employeeId}")]

@@ -13,13 +13,8 @@ namespace PersonalWebsite.Api.Services.Abstractions
         Task<ServiceResult<ProductDetailsDto>> GetProductByIdV2Async(int id);
         Task<ProductListResponseDto> GetProductByNameAsync(string? name);
         Task<IEnumerable<EmployeeLookupDto>> GetEmployeeListAsync();
-        //Task<IEnumerable<ProductSearchDto>> SearchProductsAsync(
-        //    string? name,
-        //    int page,
-        //    int pageSize,
-        //    string? sortBy,
-        //    string? sortDir
-        //    );
+        Task<ServiceResult<IEnumerable<EmployeeLookupDto>>> GetEmployeeListV2Async();
+
         Task<IEnumerable<ProductSearchDto>> SearchProductsAsync(string? name,
             string? category,
             int page = 1,

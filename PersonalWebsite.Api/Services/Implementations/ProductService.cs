@@ -296,5 +296,22 @@ return NotFound() if no product exists
 
             return ServiceResult<ProductDetailsDto>.Ok(productDetails);
         }
+
+        public async Task<ServiceResult<IEnumerable<EmployeeLookupDto>>> GetEmployeeListV2Async()
+        {
+            var query = _context.Employees.AsNoTracking();
+            var employees = await query.Select(e => new EmployeeLookupDto
+            {
+                EmployeeId = e.BusinessEntityId,
+                FullName = e.BusinessEntity.FirstName + " " + e.BusinessEntity.LastName,
+                JobTitle = e.JobTitle,
+                HireDate = e.HireDate,
+                CurrentFlag = e.CurrentFlag
+            }).OrderBy(x => x.FullName)
+            .ToListAsync();
+
+
+            return ServiceResult<IEnumerable<EmployeeLookupDto>>.Ok(employees);
+        }
     }
 }
