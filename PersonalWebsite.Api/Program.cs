@@ -110,6 +110,7 @@ builder.Services.AddScoped<IOrderServiceV2, OrderServiceV2>();
 builder.Services.AddScoped<IHelloWorldService, HelloWorldService>();
 // Greeting service for PRD personalized hello
 builder.Services.AddScoped<IHelloService, HelloService>();
+builder.Services.AddScoped<IPersonV2Service, PersonV2Service>();
 
 // Sunday, 04/26/2026 - Performance Training
 builder.Services.AddScoped<IAccountService, AccountService>();
