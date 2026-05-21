@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.DTOs.Files;
 using PersonalWebsite.Api.Extensions;
 using PersonalWebsite.Api.Models;
@@ -64,14 +65,11 @@ namespace PersonalWebsite.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<FileDetailsResponseDto>> GetFileDetailsById(int id)
+        public async Task<IActionResult> GetFileDetailsById(int id)
         {
-            var fileDetails = await _fileService.GetFileDetailsByIdAsync(id);
-            if (fileDetails == null)
-            {
-                return NotFound();
-            }
-            return Ok(fileDetails);
+            var result = await _fileService.GetFileDetailsByIdAsync(id);
+
+            return result.ToActionResult();
         }
 
         [HttpPut("{id}")]

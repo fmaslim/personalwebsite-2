@@ -54,7 +54,7 @@ namespace PersonalWebsite.Api.Services.Implementations
             return ServiceResult<EmployeeLookupDto>.Ok(employee);
         }
 
-        public async Task<IEnumerable<EmployeeLookupDto>> SearchEmployeesAsync(
+        public async Task<PagedResponse<EmployeeLookupDto>> SearchEmployeesAsync(
             string? name, // skip this for now since it requires concatenation of first and last name which is a bit more complex to do efficiently in EF Core
             string? jobTitle, 
             bool? currentFlag, 
@@ -117,6 +117,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 query = desc ? query.OrderByDescending(e => e.BusinessEntityId) : query.OrderBy(e => e.BusinessEntityId);
             }
 
+            // Get totalcount before pagination is applied
+            var totalCount = await query.CountAsync();
+
             // 3. apply pagination
             var employees = await query
                 .Skip((page - 1) * pageSize)
@@ -131,7 +134,17 @@ namespace PersonalWebsite.Api.Services.Implementations
                 })
                 .ToListAsync();
 
-            return employees;
+            var pagedResponse = new PagedResponse<EmployeeLookupDto>
+            {
+                Items = employees,
+                PageNumber = page,
+                PageSize = pageSize,
+                TotalRecords = totalCount,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            };
+
+            return pagedResponse;
+            // return employees;
         }
     }
 }

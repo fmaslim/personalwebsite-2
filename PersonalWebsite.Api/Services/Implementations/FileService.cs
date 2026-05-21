@@ -219,9 +219,9 @@ namespace PersonalWebsite.Api.Services.Implementations
             return ServiceResult<FileDownloadDto>.Ok(downloadDto);
         }
 
-        public async Task<FileDetailsResponseDto?> GetFileDetailsByIdAsync(int id)
+        public async Task<ServiceResult<FileDetailsResponseDto>> GetFileDetailsByIdAsync(int id)
         {
-            var item = _context.FileRecords
+            var item = await _context.FileRecords
                 .AsNoTracking()
                 .Where(f => f.Id == id)
                 .Select(f => new FileDetailsResponseDto
@@ -235,7 +235,13 @@ namespace PersonalWebsite.Api.Services.Implementations
                     UploadedAt = f.UploadedAt
                 }).FirstOrDefaultAsync();
 
-            return await item;
+            if (item == null)
+            {
+                return ServiceResult<FileDetailsResponseDto>.NotFound("File record not found");
+            }
+
+            return ServiceResult<FileDetailsResponseDto>.Ok(item);
+
         }
 
         public async Task<ServiceResult<FileDetailsResponseDto>> UpdateFileByIdAsync(int id, IFormFile newFile)
