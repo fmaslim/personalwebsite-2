@@ -1,4 +1,5 @@
 ﻿using PersonalWebsite.Api.DTOs.Auth;
+using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.Services.Abstractions;
 
 namespace PersonalWebsite.Api.Services.Implementations
@@ -49,30 +50,23 @@ namespace PersonalWebsite.Api.Services.Implementations
             });
         }
 
-        public async Task<LoginV3ResultDto> LoginV3Async(LoginRequestV3Dto dto)
+        public async Task<ServiceResult<LoginResponseV3Dto>> LoginV3Async(LoginRequestV3Dto dto)
         {
+            if (dto == null)
+            {
+                return ServiceResult<LoginResponseV3Dto>.Fail("Request body is required.", 400);
+            }
+
             // if missing username or password, return 400 Bad Request
             if (string.IsNullOrWhiteSpace(dto.Username) || string.IsNullOrWhiteSpace(dto.Password))
             {                 
-                return new LoginV3ResultDto
-                {
-                    Success = false,
-                    StatusCode = 400,
-                    Message = "Username and password are required.",
-                    Data = null
-                };
+                return ServiceResult<LoginResponseV3Dto>.Fail("Username and password are required.", 400);
             }
 
             // if invalid username or password, return 401 Unauthorized
             if (dto.Username != "franky" || dto.Password != "123")
             {
-                return new LoginV3ResultDto
-                {
-                    Success = false,
-                    StatusCode = 401,
-                    Message = "Invalid username or password.",
-                    Data = null
-                };
+                return ServiceResult<LoginResponseV3Dto>.Fail("Invalid username or password.", 401);
             }
 
             // if valid, return 200 OK with user info and token
@@ -86,13 +80,8 @@ namespace PersonalWebsite.Api.Services.Implementations
                 TokenType = "Bearer",
                 RefreshToken = "fake-refresh-token-v3"
             };
-            return new LoginV3ResultDto
-            {
-                Success = true,
-                StatusCode = 200,
-                Message = "Login successful",
-                Data = response
-            };
+            
+            return ServiceResult<LoginResponseV3Dto>.Ok(response, "Login successful");
         }
     }
 }

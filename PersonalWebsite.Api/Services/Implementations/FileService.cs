@@ -256,9 +256,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<FileDetailsResponseDto>
                 {
                     Success = false,
-                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
+                    Errors = new List<ServiceError>
                     {
-                        new PersonalWebsite.Api.Models.Errors.ServiceError
+                        new ServiceError
                         {
                             Field = "fileRecord",
                             Message = "File record not found.",
@@ -274,9 +274,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<FileDetailsResponseDto>
                 {
                     Success = false,
-                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
+                    Errors = new List<ServiceError>
                     {
-                        new PersonalWebsite.Api.Models.Errors.ServiceError
+                        new ServiceError
                         {
                             Field = "file",
                             Message = "No file uploaded.",
@@ -329,9 +329,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<FileDetailsResponseDto>
                 {
                     Success = false,
-                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
+                    Errors = new List<ServiceError>
                     {
-                        new PersonalWebsite.Api.Models.Errors.ServiceError
+                        new ServiceError
                         {
                             Field = "file",
                             Message = "An error occurred while updating the file.",
@@ -369,9 +369,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return new ServiceResult<FileUploadResponseDto>
                 {
                     Success = false,
-                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
+                    Errors = new List<ServiceError>
                     {
-                        new PersonalWebsite.Api.Models.Errors.ServiceError
+                        new ServiceError
                         {
                             Field = "file",
                             Message = "No file uploaded.",
@@ -393,7 +393,7 @@ namespace PersonalWebsite.Api.Services.Implementations
                 };
             }
 
-            var fileExtensionValidationResult = ValidateFileExtension(file);
+            var fileExtensionValidationResult = ValidateUploadFileExtension(file);
             if (fileExtensionValidationResult != null)
             {
                 return new ServiceResult<FileUploadResponseDto>
@@ -476,49 +476,78 @@ namespace PersonalWebsite.Api.Services.Implementations
 
         private ServiceResult<FileDetailsResponseDto>? ValidateFileSize(IFormFile file)
         {
-            var maxFileSize = 5 * 1024 * 1024; // 5 MB
-            if (file.Length > maxFileSize) // Limit file size to 5 MB
+            //var maxFileSize = 5 * 1024 * 1024; // 5 MB
+            //if (file.Length > maxFileSize) // Limit file size to 5 MB
+            //{
+            //    return new ServiceResult<FileDetailsResponseDto>
+            //    {
+            //        Success = false,
+            //        Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
+            //        {
+            //            new PersonalWebsite.Api.Models.Errors.ServiceError
+            //            {
+            //                Field = "file",
+            //                Message = $"File size exceeds the limit of {maxFileSize / (1024 * 1024)} MB",
+            //                Code = "FileSizeExceeded"
+            //            }
+            //        },
+            //        StatusCode = 400
+            //    };
+            //}
+            //return null;
+
+                var maxFileSize = 10 * 1024 * 1024; // 10 MB
+            if (file.Length <= maxFileSize) // Limit file size to 10 MB
             {
-                return new ServiceResult<FileDetailsResponseDto>
-                {
-                    Success = false,
-                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
-                    {
-                        new PersonalWebsite.Api.Models.Errors.ServiceError
-                        {
-                            Field = "file",
-                            Message = $"File size exceeds the limit of {maxFileSize / (1024 * 1024)} MB",
-                            Code = "FileSizeExceeded"
-                        }
-                    },
-                    StatusCode = 400
-                };
+                return null;
             }
-            return null;
+
+            return ServiceResult<FileDetailsResponseDto>.Fail(
+                "File size exceeds the limit of 10 MB", 
+                400);
         }
 
         private ServiceResult<FileDetailsResponseDto>? ValidateFileExtension(IFormFile file)
         {
-            var allowedExtensions = new[] { ".jpg", ".jpeg", "", ".pdf", ".docx" };
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".pdf", ".docx" };
             var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
             if (!allowedExtensions.Contains(fileExtension))
             {
-                return new ServiceResult<FileDetailsResponseDto>
-                {
-                    Success = false,
-                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
-                    {
-                        new PersonalWebsite.Api.Models.Errors.ServiceError
-                        {
-                            Field = "file",
-                            Message = $"File type '{fileExtension}' is not allowed.",
-                            Code = "UnsupportedFileType"
-                        }
-                    },
-                    StatusCode = 400
-                };
+                //return new ServiceResult<FileDetailsResponseDto>
+                //{
+                //    Success = false,
+                //    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
+                //    {
+                //        new PersonalWebsite.Api.Models.Errors.ServiceError
+                //        {
+                //            Field = "file",
+                //            Message = $"File type '{fileExtension}' is not allowed.",
+                //            Code = "UnsupportedFileType"
+                //        }
+                //    },
+                //    StatusCode = 400
+                //};
+                return ServiceResult<FileDetailsResponseDto>.Fail("File type is not allowed.", 400);
             }
             return null;
+        }
+
+        private ServiceResult<FileUploadResponseDto>? ValidateUploadFileExtension(IFormFile file)
+        {
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".pdf", ".docx" };
+
+            var fileExtension = Path
+                .GetExtension(file.FileName)
+                .ToLowerInvariant();
+
+            if (allowedExtensions.Contains(fileExtension))
+            {
+                return null;
+            }
+
+            return ServiceResult<FileUploadResponseDto>.Fail(
+                $"File type '{fileExtension}' is not allowed.",
+                statusCode: 400);
         }
 
         private string GenerateUniqueFileName(IFormFile file)

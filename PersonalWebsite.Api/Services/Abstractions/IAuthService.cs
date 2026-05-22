@@ -1,4 +1,5 @@
 ﻿using PersonalWebsite.Api.DTOs.Auth;
+using PersonalWebsite.Api.DTOs.Common;
 
 namespace PersonalWebsite.Api.Services.Abstractions
 {
@@ -6,6 +7,6 @@ namespace PersonalWebsite.Api.Services.Abstractions
     {
         Task<LoginV2ResultDto> LoginV2Async(LoginRequestDto dto);
 
-        Task<LoginV3ResultDto> LoginV3Async(LoginRequestV3Dto dto);
+        Task<ServiceResult<LoginResponseV3Dto>> LoginV3Async(LoginRequestV3Dto dto);
     }
 }
