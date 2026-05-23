@@ -68,7 +68,10 @@ namespace PersonalWebsite.Api.Services.Implementations
             int pageNumber,
             int pageSize,
             string? sortBy,
-            string? sortDir)
+            string? sortDir,
+            string? status,
+            DateTime? fromDate,
+            DateTime? toDate)
         {
             var errors = new List<string>();
             if (customerId <= 0)
@@ -87,10 +90,17 @@ namespace PersonalWebsite.Api.Services.Implementations
             {
                 errors.Add("Page size cannot be greater than 10.");
             }
-            //if (errors.Count > 0)
-            //{
-            //    return ServiceResult<PagedResponse<CustomerOrderDto>>.Fail(errors);
-            //}
+            if(fromDate.HasValue && toDate.HasValue && fromDate.Value > toDate.Value)
+            {
+                errors.Add("fromDate cannot be greater than toDate.");
+            }
+
+            //validate status
+            var allowedStatuses = new[] { "pending", "shipped", "cancelled" };
+            if (!string.IsNullOrWhiteSpace(status) && !allowedStatuses.Contains(status.Trim().ToLower()))
+            {
+                errors.Add($"Invalid status value. Allowed values are: {string.Join(", ", allowedStatuses)}.");
+            }
 
             // normalize sorting params
             sortBy = string.IsNullOrWhiteSpace(sortBy) ? "orderdate" : sortBy.Trim().ToLower();
@@ -117,7 +127,21 @@ namespace PersonalWebsite.Api.Services.Implementations
                 .AsNoTracking()
                 .Where(o => o.UserId == customerId);
 
-            //query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+            OrderStatus parsedStatus;
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                parsedStatus = Enum.Parse<OrderStatus>(status, true);
+                query = query.Where(o => o.Status == parsedStatus);
+            }
+
+            if (fromDate.HasValue)
+            {
+                query = query.Where(o => o.CreatedAtUtc >= fromDate.Value);
+            }
+            if (toDate.HasValue)
+            {
+                query = query.Where(o => o.CreatedAtUtc <= toDate.Value);
+            }
 
             query = sortBy switch
             {

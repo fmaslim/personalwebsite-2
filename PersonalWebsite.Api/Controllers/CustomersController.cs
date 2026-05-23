@@ -53,13 +53,19 @@ namespace PersonalWebsite.Api.Controllers
             int pageNumber = 1, 
             int pageSize = 10, 
             string? sortBy = "orderDate", 
-            string? sortDir = "desc")
+            string? sortDir = "desc",
+            string? status = "",
+            DateTime? fromDate = null,
+            DateTime? toDate = null)
         {
             var result = await _customerService.GetCustomerOrdersAsync(customerId, 
                 pageNumber, 
                 pageSize, 
                 sortBy, 
-                sortDir);
+                sortDir, 
+                status,
+                fromDate,
+                toDate);
             return result.ToActionResult();
         }
     }

@@ -25,6 +25,9 @@ namespace PersonalWebsite.Api.Services.Abstractions
             int pageNumber, 
             int pageSize,
             string? sortBy,
-            string? sortDir);
+            string? sortDir,
+            string? status,
+            DateTime? fromDate,
+            DateTime? toDate);
     }
 }
