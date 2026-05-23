@@ -17,22 +17,12 @@ namespace PersonalWebsite.Api.Services.Implementations
 
         public Task<ServiceResult<string>> DeleteFileAsync(string fileName)
         {
-            if (string.IsNullOrEmpty(fileName))
+            if (string.IsNullOrWhiteSpace(fileName))
             {
-                return Task.FromResult(new ServiceResult<string>
-                {
-                    Success = false,
-                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
-                    {
-                        new PersonalWebsite.Api.Models.Errors.ServiceError
-                        {
-                            Field = "fileName",
-                            Message = "File name cannot be null or empty.",
-                            Code = "InvalidFileName"
-                        }
-                    },
-                    StatusCode = 400
-                });
+                return Task.FromResult(ServiceResult<string>.Fail(
+                    "File name cannot be null or empty.",
+                    ServiceErrorType.Validation));
+                
             }
 
             var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
@@ -42,9 +32,9 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return Task.FromResult(new ServiceResult<string>
                 {
                     Success = false,
-                    Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
+                    Errors = new List<ServiceError>
                     {
-                        new PersonalWebsite.Api.Models.Errors.ServiceError
+                        new ServiceError
                         {
                             Field = "fileName",
                             Message = $"File '{fileName}' does not exist.",
@@ -59,9 +49,9 @@ namespace PersonalWebsite.Api.Services.Implementations
             return Task.FromResult(new ServiceResult<string>
             {
                 Success = true,
-                Errors = new List<PersonalWebsite.Api.Models.Errors.ServiceError>
+                Errors = new List<ServiceError>
                     {
-                        new PersonalWebsite.Api.Models.Errors.ServiceError
+                        new ServiceError
                         {
                             Field = "SuccessfulDelete",
                             Message = $"File '{fileName}' deleted successfully.",

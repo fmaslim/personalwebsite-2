@@ -1,5 +1,6 @@
 ﻿using PersonalWebsite.Api.DTOs;
 using PersonalWebsite.Api.DTOs.Common;
+using PersonalWebsite.Api.DTOs.PerformanceTraining.Customers;
 using PersonalWebsite.Api.Models.Errors;
 
 namespace PersonalWebsite.Api.Services.Abstractions
@@ -18,5 +19,12 @@ namespace PersonalWebsite.Api.Services.Abstractions
             string? sortBy,
             string? sortDir
             );
+
+        Task<ServiceResult<PagedResponse<CustomerOrderDto>>> GetCustomerOrdersAsync(
+            int customerId, 
+            int pageNumber, 
+            int pageSize,
+            string? sortBy,
+            string? sortDir);
     }
 }

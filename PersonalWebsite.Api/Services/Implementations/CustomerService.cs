@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PersonalWebsite.Api.DTOs;
 using PersonalWebsite.Api.DTOs.Common;
+using PersonalWebsite.Api.DTOs.PerformanceTraining.Customers;
 using PersonalWebsite.Api.Models;
 using PersonalWebsite.Api.Models.Errors;
 using PersonalWebsite.Api.Services.Abstractions;
@@ -60,6 +61,91 @@ namespace PersonalWebsite.Api.Services.Implementations
                 );
             }
             return ServiceResult<CustomerDetailsDto>.Ok(customer);
+        }
+
+        public async Task<ServiceResult<PagedResponse<CustomerOrderDto>>> GetCustomerOrdersAsync(
+            int customerId,
+            int pageNumber,
+            int pageSize,
+            string? sortBy,
+            string? sortDir)
+        {
+            var errors = new List<string>();
+            if (customerId <= 0)
+            {
+                errors.Add("CustomerId must be greater than 0.");
+            }
+            if (pageNumber <= 0)
+            {
+                errors.Add("Page number must be greater than 0.");                
+            }
+            if (pageSize <= 0)
+            {
+                errors.Add("Page size must be greater than 0.");
+            }
+            if (pageSize > 10)
+            {
+                errors.Add("Page size cannot be greater than 10.");
+            }
+            //if (errors.Count > 0)
+            //{
+            //    return ServiceResult<PagedResponse<CustomerOrderDto>>.Fail(errors);
+            //}
+
+            // normalize sorting params
+            sortBy = string.IsNullOrWhiteSpace(sortBy) ? "orderdate" : sortBy.Trim().ToLower();
+            sortDir = string.IsNullOrWhiteSpace(sortDir) ? "asc" : sortDir.Trim().ToLower();
+
+            // then validate sorting params
+            var allowedSortBy = new[] { "orderdate", "totalamount", "status" };
+            var allowedSortDir = new[] { "asc", "desc" };
+
+            if (!allowedSortBy.Contains(sortBy))
+            {
+                errors.Add($"Invalid sortBy value. Allowed values are: {string.Join(", ", allowedSortBy)}.");
+            }
+            if (!allowedSortDir.Contains(sortDir))
+            {
+                errors.Add($"Invalid sortDir value. Allowed values are: {string.Join(", ", allowedSortDir)}.");
+            }
+            if (errors.Count > 0)
+            {
+                return ServiceResult<PagedResponse<CustomerOrderDto>>.Fail(errors);
+            }
+
+            var query = _context.Orders
+                .AsNoTracking()
+                .Where(o => o.UserId == customerId);
+
+            //query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+
+            query = sortBy switch
+            {
+                "totalamount" => sortDir == "asc" ? query.OrderBy(o => o.TotalAmount) : query.OrderByDescending(o => o.TotalAmount),
+                "status" => sortDir == "asc" ? query.OrderBy(o => o.Status) : query.OrderByDescending(o => o.Status),
+                _ => sortDir == "asc" ? query.OrderBy(o => o.CreatedAtUtc) : query.OrderByDescending(o => o.CreatedAtUtc),
+            };
+
+            var totalCount = await query.CountAsync();
+            var orders = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(o => new CustomerOrderDto
+            {
+                OrderId = o.Id,
+                OrderDate = o.CreatedAtUtc,
+                TotalAmount = o.TotalAmount,
+                Status = o.Status.ToString()
+            }).ToListAsync();
+
+            return ServiceResult<PagedResponse<CustomerOrderDto>>.Ok(new PagedResponse<CustomerOrderDto>
+            {
+                Items = orders,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalRecords = totalCount,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            });
         }
 
         public async Task<IEnumerable<CustomerDetailsDto>> SearchCustomersAsync(string? name,

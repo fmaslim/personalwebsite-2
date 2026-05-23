@@ -47,5 +47,20 @@ namespace PersonalWebsite.Api.Controllers
             var customers = await _customerService.SearchCustomersAsync(name, accountNumber, territoryId, customerType, page, pageSize, sortBy, sortDir);
             return Ok(customers);
         }
+
+        [HttpGet("{customerId}/orders")]
+        public async Task<IActionResult> GetCustomerOrdersAsync(int customerId, 
+            int pageNumber = 1, 
+            int pageSize = 10, 
+            string? sortBy = "orderDate", 
+            string? sortDir = "desc")
+        {
+            var result = await _customerService.GetCustomerOrdersAsync(customerId, 
+                pageNumber, 
+                pageSize, 
+                sortBy, 
+                sortDir);
+            return result.ToActionResult();
+        }
     }
 }
