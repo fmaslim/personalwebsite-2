@@ -3,6 +3,7 @@ using PersonalWebsite.Api.DTOs;
 using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.DTOs.Products;
 using PersonalWebsite.Api.Models;
+using PersonalWebsite.Api.Models.Errors;
 using PersonalWebsite.Api.Services.Abstractions;
 
 namespace PersonalWebsite.Api.Services.Implementations
@@ -156,8 +157,27 @@ return NotFound() if no product exists
             return employees;
         }
 
-        public async Task<IEnumerable<ProductSearchDto>> SearchProductsAsync(string? name, string? category, int page = 1, int pageSize = 10, string? sortBy = null, string? sortDir = null)
+        public async Task<ServiceResult<PagedResponse<ProductSearchDto>>> SearchProductsAsync(string? name, 
+            string? category, 
+            int page = 1, 
+            int pageSize = 10, 
+            string? sortBy = null, 
+            string? sortDir = null)
         {
+            var errors = new List<string>();
+
+            if (page <= 0)
+            {
+                errors.Add("Page number must be greater than 0.");
+            }
+            if (pageSize <= 0)
+            {
+                errors.Add("Page size must be greater than 0.");
+            }if (pageSize > 50)
+            {
+                errors.Add("Page size cannot be greater than 50.");
+            }
+
             var query = _context.Products.AsNoTracking().AsQueryable();
 
             // filter by name
@@ -173,8 +193,30 @@ return NotFound() if no product exists
             }
 
             // sorting
-            var sortByNormalized = sortBy?.Trim().ToLower();
-            var sortDirNormalized = sortDir?.Trim().ToLower();
+            var sortByNormalized = string.IsNullOrWhiteSpace(sortBy)
+            ? "id"
+            : sortBy.Trim().ToLower();
+
+            var sortDirNormalized = string.IsNullOrWhiteSpace(sortDir)
+                ? "asc"
+                : sortDir.Trim().ToLower();
+
+            var allowedSortBy = new[] { "name", "listprice", "id" };
+            var allowedSortDir = new[] { "asc", "desc" };
+            if (!allowedSortBy.Contains(sortByNormalized))
+            {
+                errors.Add($"Invalid sortBy value. Allowed values are: {string.Join(", ", allowedSortBy)}.");
+            }
+            if (!allowedSortDir.Contains(sortDirNormalized))
+            {
+                errors.Add($"Invalid sortDir value. Allowed values are: {string.Join(", ", allowedSortDir)}.");
+            }
+
+            if (errors.Any())
+            {
+                return ServiceResult<PagedResponse<ProductSearchDto>>.Fail(errors);
+            }
+
             query = (sortByNormalized, sortDirNormalized) switch
             {
                 ("name", "asc") => query.OrderBy(p => p.Name),
@@ -186,13 +228,15 @@ return NotFound() if no product exists
                 _ => query.OrderBy(p => p.ProductId)
             };
 
+            var totalCount = await query.CountAsync();
+
             // pagination
-            if (page < 1) page = 1;
-            if (pageSize < 1) pageSize = 10;
+            //if (page < 1) page = 1;
+            //if (pageSize < 1) pageSize = 10;
             var skip = (page - 1) * pageSize;
             query = query.Skip(skip).Take(pageSize);            
 
-            var products = query.Select(p => new ProductSearchDto
+            var products = await query.Select(p => new ProductSearchDto
             {
                 ProductId = p.ProductId,
                 ProductName = p.Name,
@@ -200,7 +244,14 @@ return NotFound() if no product exists
                 ListPrice = p.ListPrice
             }).ToListAsync();
 
-            return await products;
+            return ServiceResult<PagedResponse<ProductSearchDto>>.Ok(new PagedResponse<ProductSearchDto>
+            {
+                Items = products,
+                PageNumber = page,
+                PageSize = pageSize,
+                TotalRecords = totalCount,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            });
         }
 
         public async Task<UpdateProductResultV2Dto> UpdateProductV2Async(UpdateProductRequestV2Dto request)

@@ -123,14 +123,13 @@ namespace PersonalWebsite.Api.Services.Implementations
                 return ServiceResult<PagedResponse<CustomerOrderDto>>.Fail(errors);
             }
 
-            var query = _context.Orders
-                .AsNoTracking()
-                .Where(o => o.UserId == customerId);
+            IQueryable<Order> query = _context.Orders
+            .AsNoTracking()
+            .Where(o => o.UserId == customerId);
 
-            OrderStatus parsedStatus;
             if (!string.IsNullOrWhiteSpace(status))
             {
-                parsedStatus = Enum.Parse<OrderStatus>(status, true);
+                var parsedStatus = Enum.Parse<OrderStatus>(status, true);
                 query = query.Where(o => o.Status == parsedStatus);
             }
 

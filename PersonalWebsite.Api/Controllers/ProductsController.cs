@@ -35,7 +35,7 @@ namespace PersonalWebsite.Api.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<ProductSearchDto>>> SearchProductsAsync([FromQuery] string? name,
+        public async Task<IActionResult> SearchProductsAsync([FromQuery] string? name,
             [FromQuery] string? category,
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10,
@@ -43,7 +43,7 @@ namespace PersonalWebsite.Api.Controllers
             [FromQuery] string? sortDir = null)
         {
             var result = await _prodService.SearchProductsAsync(name, category, page, pageSize, sortBy, sortDir);
-            return Ok(result);
+            return result.ToActionResult();
         }
 
         [HttpGet("v2/{id}")]

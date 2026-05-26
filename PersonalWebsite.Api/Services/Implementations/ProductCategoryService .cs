@@ -28,20 +28,6 @@ namespace PersonalWebsite.Api.Services.Implementations
             return categories;
         }
 
-        //public async Task<ProductCategoryDto?> GetCategoryByIdAsync(int categoryId)
-        //{
-        //    var category = await _context.ProductCategories
-        //        .AsNoTracking()
-        //        .Where(c => c.ProductCategoryId == categoryId)
-        //        .Select(c => new ProductCategoryDto { 
-        //            CategoryId = c.ProductCategoryId,
-        //            CategoryName = c.Name
-        //        })
-        //        .FirstOrDefaultAsync();
-
-        //    return category;
-        //}
-
         public async Task<IEnumerable<ProductCategoryDto>> SearchCategoryAsync(string? name, int page, int pageSize, string? sortBy, string? sortDir)
         {
             var query = _context.ProductCategories.AsNoTracking();

@@ -15,7 +15,7 @@ namespace PersonalWebsite.Api.Services.Abstractions
         Task<IEnumerable<EmployeeLookupDto>> GetEmployeeListAsync();
         Task<ServiceResult<IEnumerable<EmployeeLookupDto>>> GetEmployeeListV2Async();
 
-        Task<IEnumerable<ProductSearchDto>> SearchProductsAsync(string? name,
+        Task<ServiceResult<PagedResponse<ProductSearchDto>>> SearchProductsAsync(string? name,
             string? category,
             int page = 1,
             int pageSize = 10,
