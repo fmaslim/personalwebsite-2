@@ -171,7 +171,7 @@ namespace PersonalWebsite.Api.Services.Implementations
             });
         }
 
-        public async Task<IEnumerable<CustomerDetailsDto>> SearchCustomersAsync(string? name,
+        public async Task<ServiceResult<PagedResponse<CustomerDetailsDto>>> SearchCustomersAsync(string? name,
             string? accountNumber,
             int? territoryId,
             string? customerType,
@@ -180,18 +180,41 @@ namespace PersonalWebsite.Api.Services.Implementations
             string? sortBy,
             string? sortDir)
         {
-            var query = _context.Customers.AsNoTracking();
+            var errors = new List<string>();
+            if (page <= 0)
+            {
+                errors.Add("Page number must be greater than 0.");
+            }
+            if(pageSize <= 0)
+            {
+                errors.Add("Page size must be greater than 0.");
+            }
+            if(pageSize > 50)
+            {
+                errors.Add("Page size cannot be greater than 50.");
+            }
+            // Validate Sort fields
+            var allowedSortBy = new[] { "name", "accountnumber", "customertype", "territoryid" };
+            if (!string.IsNullOrWhiteSpace(sortBy) && !allowedSortBy.Contains(sortBy.Trim().ToLower()))
+            {
+                errors.Add($"Invalid sortBy value. Allowed values are: {string.Join(", ", allowedSortBy)}.");
+            }
+            var allowedSortDir = new[] { "asc", "desc" };
+            if (!string.IsNullOrWhiteSpace(sortDir) && !allowedSortDir.Contains(sortDir.Trim().ToLower()))
+            {
+                errors.Add($"Invalid sortDir value. Allowed values are: {string.Join(", ", allowedSortDir)}.");
+            }
+            if(errors.Any())
+            {
+                return ServiceResult<PagedResponse<CustomerDetailsDto>>.Fail(errors);
+            }
 
-            // normalize param
-            customerType = string.IsNullOrWhiteSpace(customerType) ? "all" : customerType.Trim().ToLower();
-
-            page = page <= 0 ? 1 : page;
-            pageSize = pageSize <= 0 ? 10 : pageSize;
-            pageSize = pageSize > 50 ? 50 : pageSize;
+            IQueryable<Customer> query = _context.Customers.AsNoTracking();
 
             name = string.IsNullOrWhiteSpace(name) ? null : name.Trim();
             accountNumber = string.IsNullOrWhiteSpace(accountNumber) ? null : accountNumber.Trim();
-
+            customerType = string.IsNullOrWhiteSpace(customerType) ? "all" : customerType.Trim().ToLower();
+            
             if (!string.IsNullOrEmpty(name))
             {
                 query = query.Where(c =>
@@ -242,8 +265,10 @@ namespace PersonalWebsite.Api.Services.Implementations
                     : query.OrderBy(c => c.CustomerId);
             }
 
+            var totalCount = await query.CountAsync();
+
             query = query.Skip((page - 1) * pageSize).Take(pageSize);
-            var customers = query.Select(c => new CustomerDetailsDto
+            var customers = await query.Select(c => new CustomerDetailsDto
             {
                 CustomerId = c.CustomerId,
                 StoreName = c.Store != null ? c.Store.Name ?? string.Empty : string.Empty,
@@ -253,7 +278,14 @@ namespace PersonalWebsite.Api.Services.Implementations
             })
             .ToListAsync();
 
-            return await customers;
+            return ServiceResult<PagedResponse<CustomerDetailsDto>>.Ok(new PagedResponse<CustomerDetailsDto>
+            {
+                Items = customers,
+                PageNumber = page,
+                PageSize = pageSize,
+                TotalRecords = totalCount,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            });
         }
     }
 }

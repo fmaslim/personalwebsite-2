@@ -27,8 +27,9 @@ namespace PersonalWebsite.Api.Controllers
         }
 
         [HttpGet("search")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagedResponse<VendorDto>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ServiceResult<PagedResponse<VendorDto>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ServiceResult<PagedResponse<VendorDto>>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ServiceResult<PagedResponse<VendorDto>>), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> SearchVendorsByNameAsync(
             [FromQuery] string? name = null,
             [FromQuery] int page = 1,

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PersonalWebsite.Api.DTOs;
+using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.Extensions;
 using PersonalWebsite.Api.Services.Abstractions;
 
@@ -34,6 +35,9 @@ namespace PersonalWebsite.Api.Controllers
         }
 
         [HttpGet("search")]
+        [ProducesResponseType(typeof(ServiceResult<PagedResponse<ShipperDto>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ServiceResult<PagedResponse<ShipperDto>>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ServiceResult<PagedResponse<ShipperDto>>), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> SearchShippersAsync(
             [FromQuery] string? name = null,
             [FromQuery] int page = 1,

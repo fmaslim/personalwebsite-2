@@ -10,7 +10,7 @@ namespace PersonalWebsite.Api.Services.Abstractions
         Task<IEnumerable<CustomerDto>> GetAllCustomersAsync();
         // Task<CustomerDetailsDto?> GetCustomerByIdAsync(int customerId);
         Task<ServiceResult<CustomerDetailsDto>> GetCustomerByIdAsync(int customerId);        
-        Task<IEnumerable<CustomerDetailsDto>> SearchCustomersAsync(string? name,
+        Task<ServiceResult<PagedResponse<CustomerDetailsDto>>> SearchCustomersAsync(string? name,
             string? accountNumber,
             int? territoryId,
             string? customerType,

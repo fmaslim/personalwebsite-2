@@ -34,7 +34,9 @@ namespace PersonalWebsite.Api.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<CustomerDetailsDto>>> SearchCustomersAsync(
+        [ProducesResponseType(typeof(ServiceResult<PagedResponse<CustomerDetailsDto>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ServiceResult<PagedResponse<CustomerDetailsDto>>), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> SearchCustomersAsync(
             [FromQuery] string? name = null,
             [FromQuery] string? accountNumber = null,
             [FromQuery] int? territoryId = null,
@@ -45,7 +47,7 @@ namespace PersonalWebsite.Api.Controllers
             [FromQuery] string? sortDir = "asc")
         {
             var customers = await _customerService.SearchCustomersAsync(name, accountNumber, territoryId, customerType, page, pageSize, sortBy, sortDir);
-            return Ok(customers);
+            return customers.ToActionResult();
         }
 
         [HttpGet("{customerId}/orders")]
