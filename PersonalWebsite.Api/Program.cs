@@ -195,7 +195,10 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
-app.UseMiddleware<GlobalExceptionMiddleware>();
+//app.UseMiddleware<GlobalExceptionMiddleware>();
+//app.UseMiddleware<CorrelationIdMiddleware>();
+//app.UseSerilogRequestLogging();
+app.UseExceptionHandler();
 app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseSerilogRequestLogging();
 
@@ -206,7 +209,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// app.UseExceptionHandler();
 app.UseHttpsRedirection();
 
 app.UseCors("AngularPolicy");

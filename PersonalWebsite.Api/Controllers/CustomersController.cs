@@ -51,20 +51,20 @@ namespace PersonalWebsite.Api.Controllers
         }
 
         [HttpGet("{customerId}/orders")]
-        public async Task<IActionResult> GetCustomerOrdersAsync(int customerId, 
-            int pageNumber = 1, 
-            int pageSize = 10, 
-            string? sortBy = "orderDate", 
+        public async Task<IActionResult> GetCustomerOrdersAsync(int customerId,
+            int pageNumber = 1,
+            int pageSize = 10,
+            string? sortBy = "orderDate",
             string? sortDir = "desc",
             string? status = "",
             DateTime? fromDate = null,
             DateTime? toDate = null)
         {
-            var result = await _customerService.GetCustomerOrdersAsync(customerId, 
-                pageNumber, 
-                pageSize, 
-                sortBy, 
-                sortDir, 
+            var result = await _customerService.GetCustomerOrdersAsync(customerId,
+                pageNumber,
+                pageSize,
+                sortBy,
+                sortDir,
                 status,
                 fromDate,
                 toDate);

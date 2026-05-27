@@ -31,7 +31,7 @@ namespace PersonalWebsite.Api.ExceptionHandling
 
             var result = ServiceResult<string>.Fail(
             code: "UnexpectedError",
-            message: "Something went wrong. Please try again later.",
+            message: $"Something went wrong. Please try again later. TraceId: {httpContext.TraceIdentifier}",
             statusCode: 500);
 
             await httpContext.Response.WriteAsJsonAsync(result, cancellationToken);
