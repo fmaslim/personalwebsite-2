@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.DTOs.PerformanceTraining.Customers;
+using PersonalWebsite.Api.Extensions;
 using PersonalWebsite.Api.Services.PerformanceTraining.Customers;
 
 namespace PersonalWebsite.Api.Controllers.PerformanceTraining
@@ -31,7 +32,8 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
         public async Task<IActionResult> GetCustomerOrderSummaryAsync([FromQuery]CustomerOrderSummaryRequestDto requestDto)
         {
             var result = await _orderSummaryService.SearchCustomerOrderSummaryAsync(requestDto);
-            return ToActionResult(result);
+            //return ToActionResult(result);
+            return result.ToActionResult();
         }
     }
 }

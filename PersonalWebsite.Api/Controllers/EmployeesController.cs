@@ -33,17 +33,20 @@ namespace PersonalWebsite.Api.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<ActionResult<PagedResponse<EmployeeLookupDto>>> SearchEmployeesAsync(
-            [FromQuery] string? name,
+        [ProducesResponseType(typeof(ServiceResult<PagedResponse<EmployeeLookupDto>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ServiceResult<PagedResponse<EmployeeLookupDto>>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ServiceResult<PagedResponse<EmployeeLookupDto>>), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> SearchEmployeesAsync(
+            [FromQuery] string? name = null,
             [FromQuery] string? jobTitle = null,
             [FromQuery] bool? currentFlag = null,
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10,
-            [FromQuery] string? sortBy = "employeeId",
+            [FromQuery] string? sortBy = "id",
             [FromQuery] string? sortDir = "asc")
         {
             var employees = await _employeeService.SearchEmployeesAsync(name, jobTitle, currentFlag, page, pageSize, sortBy, sortDir);
-            return Ok(employees);
+            return employees.ToActionResult();
         }
     }
 }

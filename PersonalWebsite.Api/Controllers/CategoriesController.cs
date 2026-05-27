@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.DTOs.Products;
 using PersonalWebsite.Api.Extensions;
 using PersonalWebsite.Api.Services.Abstractions;
@@ -32,7 +33,9 @@ namespace PersonalWebsite.Api.Controllers
         }
     
 
-    [HttpGet("search")]
+        [HttpGet("search")]
+        [ProducesResponseType(typeof(ServiceResult<PagedResponse<ProductCategoryDto>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ServiceResult<PagedResponse<ProductCategoryDto>>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> SearchCategoryAsync([FromQuery] string? name = null,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.DTOs.Orders;
 using PersonalWebsite.Api.DTOs.PerformanceTraining.Orders;
 using PersonalWebsite.Api.Extensions;
@@ -20,8 +21,8 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
         }
 
         [HttpGet("orders/search")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ServiceResult<PagedResponse<SearchOrderResultDto>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ServiceResult<PagedResponse<SearchOrderResultDto>>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetSearchOrdersTrainingAsync([FromQuery]SearchOrderRequestDto dto)
         {
             var result = await _service.SearchOrdersAsync(dto);
@@ -29,6 +30,7 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
         }
 
         [HttpGet("orders/search-badn1query")]
+        [ProducesResponseType(typeof(ServiceResult<PagedResponse<SearchOrderResultDto>>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetOrdersBadN1Async([FromQuery] DTOs.PerformanceTraining.OrderSearchRequestDto requestDto)
         {
             var result = await _orderService.SearchOrdersBadN1QueryAsync(requestDto);
@@ -36,6 +38,7 @@ namespace PersonalWebsite.Api.Controllers.PerformanceTraining
         }
 
         [HttpGet("orders/search-goodn1query")]
+        [ProducesResponseType(typeof(ServiceResult<PagedResponse<SearchOrderResultDto>>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetOrdersGoodQueryAsync([FromQuery] DTOs.PerformanceTraining.OrderSearchRequestDto requestDto)
         {
             var result = await _orderService.SearchOrdersGoodQueryAsync(requestDto);

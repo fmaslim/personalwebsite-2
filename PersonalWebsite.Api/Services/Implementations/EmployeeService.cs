@@ -12,23 +12,7 @@ namespace PersonalWebsite.Api.Services.Implementations
         public EmployeeService(AdventureWorksContext context)
         {
             _context = context;
-        }
-        //public async Task<EmployeeLookupDto?> GetEmployeeByIdAsync(int employeeId)
-        //{
-        //    var employee = _context.Employees
-        //        .AsNoTracking()
-        //        .Where(e => e.BusinessEntityId == employeeId)
-        //        .Select(e => new EmployeeLookupDto
-        //        {
-        //            EmployeeId = e.BusinessEntityId,
-        //            JobTitle = e.JobTitle,
-        //            HireDate = e.HireDate,
-        //            CurrentFlag = e.CurrentFlag
-        //        })
-        //        .FirstOrDefaultAsync();
-
-        //    return await employee;
-        //}
+        }        
 
         public async Task<ServiceResult<EmployeeLookupDto>> GetEmployeeByIdAsync(int employeeId)
         {
@@ -54,7 +38,7 @@ namespace PersonalWebsite.Api.Services.Implementations
             return ServiceResult<EmployeeLookupDto>.Ok(employee);
         }
 
-        public async Task<PagedResponse<EmployeeLookupDto>> SearchEmployeesAsync(
+        public async Task<ServiceResult<PagedResponse<EmployeeLookupDto>>> SearchEmployeesAsync(
             string? name, // skip this for now since it requires concatenation of first and last name which is a bit more complex to do efficiently in EF Core
             string? jobTitle, 
             bool? currentFlag, 
@@ -63,23 +47,53 @@ namespace PersonalWebsite.Api.Services.Implementations
             string? sortBy, 
             string? sortDir)
         {
+            var errors = new List<string>();
+
             // 1. start query
             var query = _context.Employees
                 .AsNoTracking()
                 .AsQueryable();
 
-            // 2. normalize params
-            name = name?.Trim().ToLower();
-            jobTitle = jobTitle?.Trim().ToLower();
-            sortBy = sortBy?.Trim().ToLower();
-            sortDir = sortDir?.Trim().ToLower();
+            // Add paging validations
+            if (page <= 0)
+            {
+                errors.Add("Page number must be greater than 0.");
+            }
+            if (pageSize <= 0)
+            {
+                errors.Add("Page size must be greater than 0.");
+            }
+            else if (pageSize > 50)
+            {
+                errors.Add("Page size cannot be greater than 50.");
+            }
 
-            page = page <= 0 ? 1 : page;
-            pageSize = pageSize <= 0 ? 10 : pageSize;
-            pageSize = pageSize > 50 ? 50 : pageSize;
+            sortBy = string.IsNullOrWhiteSpace(sortBy) ? "id" : sortBy.Trim().ToLower();
+            sortDir = string.IsNullOrWhiteSpace(sortDir) ? "asc" : sortDir.Trim().ToLower();
+
+            var allowedSortBy = new[]
+            {
+                "id",
+                "jobtitle",
+                "currentflag",
+                "hiredate",
+                "fullname"
+            };
+            var allowedSortDir = new[] { "asc", "desc" };
+            if (!allowedSortBy.Contains(sortBy))
+            {
+                errors.Add($"Invalid sortBy value. Allowed values are: {string.Join(", ", allowedSortBy)}.");
+            }
+            if (!allowedSortDir.Contains(sortDir))
+            {
+                errors.Add($"Invalid sortDir value. Allowed values are: {string.Join(", ", allowedSortDir)}.");
+            }
+            if (errors.Any())
+            {
+                return ServiceResult<PagedResponse<EmployeeLookupDto>>.Fail(errors);
+            }
 
             bool desc = sortDir == "desc";
-
             if (!string.IsNullOrEmpty(name))
             {
                 query = query.Where(e => (e.BusinessEntity.FirstName + " " + e.BusinessEntity.LastName).ToLower().Contains(name)
@@ -111,6 +125,10 @@ namespace PersonalWebsite.Api.Services.Implementations
                 query = desc ? query.OrderByDescending(e => e.BusinessEntity.LastName).ThenByDescending(e => e.BusinessEntity.FirstName)
                     : query.OrderBy(e => e.BusinessEntity.LastName).ThenBy(e => e.BusinessEntity.FirstName);
             }
+            else if (sortBy == "currentflag")
+            {
+                query = desc ? query.OrderByDescending(e => e.CurrentFlag) : query.OrderBy(e => e.CurrentFlag);
+            }
             else
             {
                 // default sort by employee id
@@ -119,10 +137,11 @@ namespace PersonalWebsite.Api.Services.Implementations
 
             // Get totalcount before pagination is applied
             var totalCount = await query.CountAsync();
+            var skip = (page - 1) * pageSize;
 
             // 3. apply pagination
             var employees = await query
-                .Skip((page - 1) * pageSize)
+                .Skip(skip)
                 .Take(pageSize)
                 .Select(e => new EmployeeLookupDto
                 {
@@ -143,8 +162,7 @@ namespace PersonalWebsite.Api.Services.Implementations
                 TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
             };
 
-            return pagedResponse;
-            // return employees;
+            return ServiceResult<PagedResponse<EmployeeLookupDto>>.Ok(pagedResponse);
         }
     }
 }
