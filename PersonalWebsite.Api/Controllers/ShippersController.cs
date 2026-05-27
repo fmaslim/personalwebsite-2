@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PersonalWebsite.Api.DTOs;
+using PersonalWebsite.Api.Extensions;
 using PersonalWebsite.Api.Services.Abstractions;
 
 namespace PersonalWebsite.Api.Controllers
@@ -33,15 +34,16 @@ namespace PersonalWebsite.Api.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<ShipperDto>>> SearchShippersAsync(
+        public async Task<IActionResult> SearchShippersAsync(
             [FromQuery] string? name = null,
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10,
-            [FromQuery] string? sortBy = "shipmethodid",
+            [FromQuery] string? sortBy = "id",
             [FromQuery] string? sortDir = "asc")
         {
             var shippers = await _shipperService.SearchShippersAsync(name, page, pageSize, sortBy, sortDir);
-            return Ok(shippers);
+
+            return shippers.ToActionResult();
         }
     }
 }
