@@ -180,33 +180,63 @@ namespace PersonalWebsite.Api.Services.Implementations
             string? sortBy,
             string? sortDir)
         {
-            var errors = new List<string>();
+            var serviceErrors = new List<ServiceError>();
             if (page <= 0)
             {
-                errors.Add("Page number must be greater than 0.");
+                serviceErrors.Add(new ServiceError
+                {
+                    Code = "InvalidPageNumber",
+                    Message = "Page number must be greater than 0.",
+                    Field = "page",
+                    Type = ServiceErrorType.Validation
+                });
             }
             if(pageSize <= 0)
             {
-                errors.Add("Page size must be greater than 0.");
+                serviceErrors.Add(new ServiceError
+                {
+                    Code = "InvalidPageSize",
+                    Message = "Page size must be greater than 0.",
+                    Field = "pageSize",
+                    Type = ServiceErrorType.Validation
+                });
             }
             if(pageSize > 50)
             {
-                errors.Add("Page size cannot be greater than 50.");
+                serviceErrors.Add(new ServiceError
+                {
+                    Code = "PageSizeTooLarge",
+                    Message = "Page size cannot be greater than 50.",
+                    Field = "pageSize",
+                    Type = ServiceErrorType.Validation
+                });
             }
             // Validate Sort fields
             var allowedSortBy = new[] { "name", "accountnumber", "customertype", "territoryid" };
             if (!string.IsNullOrWhiteSpace(sortBy) && !allowedSortBy.Contains(sortBy.Trim().ToLower()))
             {
-                errors.Add($"Invalid sortBy value. Allowed values are: {string.Join(", ", allowedSortBy)}.");
+                serviceErrors.Add(new ServiceError
+                {
+                    Code = "InvalidSortBy",
+                    Message = $"Invalid sortBy value. Allowed values are: {string.Join(", ", allowedSortBy)}.",
+                    Field = "sortBy",
+                    Type = ServiceErrorType.Validation
+                });
             }
             var allowedSortDir = new[] { "asc", "desc" };
             if (!string.IsNullOrWhiteSpace(sortDir) && !allowedSortDir.Contains(sortDir.Trim().ToLower()))
             {
-                errors.Add($"Invalid sortDir value. Allowed values are: {string.Join(", ", allowedSortDir)}.");
+                serviceErrors.Add(new ServiceError
+                {
+                    Code = "InvalidSortDir",
+                    Message = $"Invalid sortDir value. Allowed values are: {string.Join(", ", allowedSortDir)}.",
+                    Field = "sortDir",
+                    Type = ServiceErrorType.Validation
+                });
             }
-            if(errors.Any())
+            if(serviceErrors.Any())
             {
-                return ServiceResult<PagedResponse<CustomerDetailsDto>>.Fail(errors);
+                return ServiceResult<PagedResponse<CustomerDetailsDto>>.Fail(serviceErrors);
             }
 
             IQueryable<Customer> query = _context.Customers.AsNoTracking();
