@@ -21,7 +21,12 @@ public class CorrelationIdMiddleware
             ? existingId.ToString()
             : Guid.NewGuid().ToString();
 
-        context.Response.Headers[HeaderName] = correlationId;
+        //context.Response.Headers[HeaderName] = correlationId;
+        context.Response.OnStarting(() =>
+        {
+            context.Response.Headers[HeaderName] = correlationId;
+            return Task.CompletedTask;
+        });
         context.Items["CorrelationId"] = correlationId;
 
         using (_logger.BeginScope(new Dictionary<string, object>

@@ -15,14 +15,16 @@ namespace PersonalWebsite.Api.ExceptionHandling
         }
         public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
         {
+            var correlationId = httpContext.Items["CorrelationId"]?.ToString() ?? httpContext.TraceIdentifier;
+
             // _logger.LogError(exception, "An unhandled exception occurred");
             _logger.LogError(
                 exception,
-                "Unhandled exception occurred. Method: {Method}, Path {Path}, QueryString: {QueryString}, TraceId: {TraceId}, Exception Type: {ExceptionType}",
+                "Unhandled exception occurred. Method: {Method}, Path {Path}, QueryString: {QueryString}, CorrelationId: {CorrelationId}, Exception Type: {ExceptionType}",
                 httpContext.Request.Method,
                 httpContext.Request.Path,
                 httpContext.Request.QueryString,
-                httpContext.TraceIdentifier,
+                correlationId,
                 exception.GetType().Name
                 );
             
@@ -31,7 +33,7 @@ namespace PersonalWebsite.Api.ExceptionHandling
 
             var result = ServiceResult<string>.Fail(
             code: "UnexpectedError",
-            message: $"Something went wrong. Please try again later. TraceId: {httpContext.TraceIdentifier}",
+            message: $"Something went wrong. Please try again later. CorrelationId: {correlationId}",
             statusCode: 500);
 
             await httpContext.Response.WriteAsJsonAsync(result, cancellationToken);

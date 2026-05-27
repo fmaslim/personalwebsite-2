@@ -3,6 +3,7 @@ using PersonalWebsite.Api.DTOs;
 using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.Extensions;
 using PersonalWebsite.Api.Services.Abstractions;
+using System.Diagnostics.Contracts;
 
 namespace PersonalWebsite.Api.Controllers
 {
@@ -69,6 +70,12 @@ namespace PersonalWebsite.Api.Controllers
                 fromDate,
                 toDate);
             return result.ToActionResult();
+        }
+
+        [HttpGet("test-crash")]
+        public IActionResult TestCrash()
+        {
+                       throw new Exception("This is a test exception for crash testing.");
         }
     }
 }

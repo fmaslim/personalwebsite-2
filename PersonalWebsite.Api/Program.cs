@@ -198,8 +198,8 @@ var app = builder.Build();
 //app.UseMiddleware<GlobalExceptionMiddleware>();
 //app.UseMiddleware<CorrelationIdMiddleware>();
 //app.UseSerilogRequestLogging();
-app.UseExceptionHandler();
 app.UseMiddleware<CorrelationIdMiddleware>();
+app.UseExceptionHandler();
 app.UseSerilogRequestLogging();
 
 // Configure the HTTP request pipeline.
