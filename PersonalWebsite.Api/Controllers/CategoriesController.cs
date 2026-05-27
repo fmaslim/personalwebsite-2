@@ -33,14 +33,14 @@ namespace PersonalWebsite.Api.Controllers
     
 
     [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<ProductCategoryDto>>> SearchCategoryAsync(string? name = null,
-        int page = 1,
-        int pageSize = 10,
-        string? sortBy = "categoryid",
-        string? sortDir = "asc")
+        public async Task<IActionResult> SearchCategoryAsync([FromQuery] string? name = null,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? sortBy = "id",
+        [FromQuery] string? sortDir = "asc")
         {
             var categories = await _categoryService.SearchCategoryAsync(name, page, pageSize, sortBy, sortDir);
-            return Ok(categories);
+            return categories.ToActionResult();
         }
     }
 }

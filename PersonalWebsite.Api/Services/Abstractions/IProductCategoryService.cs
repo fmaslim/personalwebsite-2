@@ -8,6 +8,6 @@ namespace PersonalWebsite.Api.Services.Abstractions
         Task<IEnumerable<ProductCategoryDto>> GetAllCategoriesAsync();
         // Task<ProductCategoryDto?> GetCategoryByIdAsync(int categoryId);
         Task<ServiceResult<ProductCategoryDto>> GetCategoryByIdAsync(int categoryId);
-        Task<IEnumerable<ProductCategoryDto>> SearchCategoryAsync(string? name, int page, int pageSize, string? sortBy, string? sortDir);
+        Task<ServiceResult<PagedResponse<ProductCategoryDto>>> SearchCategoryAsync(string? name, int page, int pageSize, string? sortBy, string? sortDir);
     }
 }

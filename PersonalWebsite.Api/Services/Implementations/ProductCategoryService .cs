@@ -28,48 +28,81 @@ namespace PersonalWebsite.Api.Services.Implementations
             return categories;
         }
 
-        public async Task<IEnumerable<ProductCategoryDto>> SearchCategoryAsync(string? name, int page, int pageSize, string? sortBy, string? sortDir)
+        public async Task<ServiceResult<PagedResponse<ProductCategoryDto>>> SearchCategoryAsync(string? name, int page, int pageSize, string? sortBy, string? sortDir)
         {
-            var query = _context.ProductCategories.AsNoTracking();
+            var errors = new List<string>();
+            IQueryable<ProductCategory> query = _context.ProductCategories.AsNoTracking();
 
             if (!string.IsNullOrEmpty(name))
             {
                 query = query.Where(c => c.Name.Contains(name));
             }
 
-            page = page <= 0 ? 1 : page;            
-            pageSize = pageSize <= 0 ? 10 : pageSize;
-            pageSize = pageSize > 50 ? 50 : pageSize; // pageSize capped at 50
-
-            // normalize sort parameters
-            sortBy = sortBy?.Trim().ToLower();
-            sortDir = sortDir?.Trim().ToLower();
-
-            bool desc = sortDir == "desc";
-
-            // apply sorting
-            if (sortBy == "categoryid")
+            if (page <= 0)
             {
-                query = desc ? query.OrderByDescending(c => c.ProductCategoryId) : query.OrderBy(c => c.ProductCategoryId);
+                errors.Add("Page number must be greater than 0.");
             }
-            else
+            if (pageSize <= 0)
             {
-                query = desc ? query.OrderByDescending(c => c.Name) : query.OrderBy(c => c.Name);
+                errors.Add("Page size must be greater than 0.");
+            }
+            else if (pageSize > 50)
+            {
+                errors.Add("Page size cannot exceed 50.");
             }
 
-            // apply pagination
+            sortBy = string.IsNullOrWhiteSpace(sortBy) ? "id" : sortBy.Trim().ToLower();
+            sortDir = string.IsNullOrWhiteSpace(sortDir) ? "asc" : sortDir.Trim().ToLower();
+
+            var allowedSortBy = new[] { "id", "name" };
+            var allowedSortDir = new[] { "asc", "desc" };
+
+            if (!allowedSortBy.Contains(sortBy))
+            {
+                errors.Add($"Invalid sortBy value. Allowed values are: {string.Join(", ", allowedSortBy)}.");
+            }
+            
+            if (!allowedSortDir.Contains(sortDir))
+            {
+                errors.Add($"Invalid sortDir value. Allowed values are: {string.Join(", ", allowedSortDir)}.");
+            }
+
+            if (errors.Any())
+            {
+                return ServiceResult<PagedResponse<ProductCategoryDto>>.Fail(errors);
+            }
+            
+            query = (sortBy, sortDir) switch
+            {
+                ("id", "asc") => query.OrderBy(c => c.ProductCategoryId),
+                ("id", "desc") => query.OrderByDescending(c => c.ProductCategoryId),
+                ("name", "asc") => query.OrderBy(c => c.Name),
+                ("name", "desc") => query.OrderByDescending(c => c.Name),
+                _ => query.OrderBy(c => c.ProductCategoryId) // default sorting
+            };
+
+            var totalCount = await query.CountAsync();
             var skip = (page - 1) * pageSize;
-            return await query
-            .Skip(skip)
-            .Take(pageSize)
-            .Select(c => new ProductCategoryDto
-            {
-                CategoryId = c.ProductCategoryId,
-                CategoryName = c.Name
-            })
+            var categories = await query
+                .Skip(skip)
+                .Take(pageSize)
+                .Select(c => new ProductCategoryDto
+                {
+                    CategoryId = c.ProductCategoryId,
+                    CategoryName = c.Name
+                })
             .ToListAsync();
 
+            var pagedResponse = new PagedResponse<ProductCategoryDto>
+            {
+                Items = categories,
+                PageNumber = page,
+                PageSize = pageSize,
+                TotalRecords = totalCount,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            };
 
+            return ServiceResult<PagedResponse<ProductCategoryDto>>.Ok(pagedResponse);
         }
 
         public async Task<ServiceResult<ProductCategoryDto>> GetCategoryByIdAsync(int categoryId)
