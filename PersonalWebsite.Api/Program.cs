@@ -195,12 +195,26 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
-//app.UseMiddleware<GlobalExceptionMiddleware>();
-//app.UseMiddleware<CorrelationIdMiddleware>();
-//app.UseSerilogRequestLogging();
+
 app.UseMiddleware<CorrelationIdMiddleware>();
+// app.UseExceptionHandler();
+// app.UseSerilogRequestLogging();
+app.UseSerilogRequestLogging(options =>
+{
+    options.MessageTemplate =
+        "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
+
+    options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+    {
+        var correlationId = httpContext.Items["CorrelationId"]?.ToString()
+            ?? httpContext.TraceIdentifier;
+
+        diagnosticContext.Set("CorrelationId", correlationId);
+        diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value);
+        diagnosticContext.Set("RequestScheme", httpContext.Request.Scheme);
+    };
+});
 app.UseExceptionHandler();
-app.UseSerilogRequestLogging();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
