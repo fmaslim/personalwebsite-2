@@ -5,6 +5,7 @@ using PersonalWebsite.Api.DTOs.PerformanceTraining.Customers;
 using PersonalWebsite.Api.Models;
 using PersonalWebsite.Api.Models.Errors;
 using PersonalWebsite.Api.Services.Abstractions;
+using PersonalWebsite.Api.Validation;
 
 namespace PersonalWebsite.Api.Services.Implementations
 {
@@ -181,59 +182,16 @@ namespace PersonalWebsite.Api.Services.Implementations
             string? sortDir)
         {
             var serviceErrors = new List<ServiceError>();
-            if (page <= 0)
-            {
-                serviceErrors.Add(new ServiceError
-                {
-                    Code = "InvalidPageNumber",
-                    Message = "Page number must be greater than 0.",
-                    Field = "page",
-                    Type = ServiceErrorType.Validation
-                });
-            }
-            if(pageSize <= 0)
-            {
-                serviceErrors.Add(new ServiceError
-                {
-                    Code = "InvalidPageSize",
-                    Message = "Page size must be greater than 0.",
-                    Field = "pageSize",
-                    Type = ServiceErrorType.Validation
-                });
-            }
-            if(pageSize > 50)
-            {
-                serviceErrors.Add(new ServiceError
-                {
-                    Code = "PageSizeTooLarge",
-                    Message = "Page size cannot be greater than 50.",
-                    Field = "pageSize",
-                    Type = ServiceErrorType.Validation
-                });
-            }
+            sortBy = string.IsNullOrWhiteSpace(sortBy) ? "name" : sortBy.Trim().ToLower();
+            sortDir = string.IsNullOrWhiteSpace(sortDir) ? "asc" : sortDir.Trim().ToLower();
+
+            PaginationValidation.AddPaginationErrors(serviceErrors, page, pageSize);
+            
             // Validate Sort fields
             var allowedSortBy = new[] { "name", "accountnumber", "customertype", "territoryid" };
-            if (!string.IsNullOrWhiteSpace(sortBy) && !allowedSortBy.Contains(sortBy.Trim().ToLower()))
-            {
-                serviceErrors.Add(new ServiceError
-                {
-                    Code = "InvalidSortBy",
-                    Message = $"Invalid sortBy value. Allowed values are: {string.Join(", ", allowedSortBy)}.",
-                    Field = "sortBy",
-                    Type = ServiceErrorType.Validation
-                });
-            }
             var allowedSortDir = new[] { "asc", "desc" };
-            if (!string.IsNullOrWhiteSpace(sortDir) && !allowedSortDir.Contains(sortDir.Trim().ToLower()))
-            {
-                serviceErrors.Add(new ServiceError
-                {
-                    Code = "InvalidSortDir",
-                    Message = $"Invalid sortDir value. Allowed values are: {string.Join(", ", allowedSortDir)}.",
-                    Field = "sortDir",
-                    Type = ServiceErrorType.Validation
-                });
-            }
+            SortValidation.AddSortErrors(serviceErrors, sortBy, sortDir, allowedSortBy, allowedSortDir);
+            
             if(serviceErrors.Any())
             {
                 return ServiceResult<PagedResponse<CustomerDetailsDto>>.Fail(serviceErrors);

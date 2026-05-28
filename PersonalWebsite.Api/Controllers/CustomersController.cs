@@ -44,8 +44,8 @@ namespace PersonalWebsite.Api.Controllers
             [FromQuery] string? customerType = "all",
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10,
-            [FromQuery] string? sortBy = "customerId",
-            [FromQuery] string? sortDir = "asc")
+            [FromQuery] string? sortBy = null,
+            [FromQuery] string? sortDir = null)
         {
             var customers = await _customerService.SearchCustomersAsync(name, accountNumber, territoryId, customerType, page, pageSize, sortBy, sortDir);
             return customers.ToActionResult();
