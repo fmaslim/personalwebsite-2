@@ -1,12 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.DTOs.Orders;
-using PT = PersonalWebsite.Api.DTOs.PerformanceTraining.Orders;
-using PersonalWebsite.Api.Models;
-using PersonalWebsite.Api.Services.Abstractions;
 using PersonalWebsite.Api.DTOs.PerformanceTraining.Orders;
-using OrderSearchResultDto = PersonalWebsite.Api.DTOs.PerformanceTraining.Orders.OrderSearchResultDto;
+using PersonalWebsite.Api.Models;
 using PersonalWebsite.Api.Models.Errors;
+using PersonalWebsite.Api.Services.Abstractions;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
+using OrderSearchResultDto = PersonalWebsite.Api.DTOs.PerformanceTraining.Orders.OrderSearchResultDto;
+using PT = PersonalWebsite.Api.DTOs.PerformanceTraining.Orders;
 
 namespace PersonalWebsite.Api.Services.Implementations
 {
@@ -455,6 +457,24 @@ namespace PersonalWebsite.Api.Services.Implementations
                 serviceErrors.Select(e => e.Message));
                 return ServiceResult<DTOs.Orders.CreateOrderResponseDto>.Fail(serviceErrors);
             }
+            // Add conflict validation. So the validation order is:
+            //1. Basic validation
+            //2. If validation errors → return 400
+            //3. Business conflict rule
+            //4. If conflict → return 409
+            //5. Create order
+            if (dto.TotalAmount > 10000)
+            {
+                _logger.LogWarning(
+                "Create order blocked by business rule. UserId: {UserId}, Status: {Status}, TotalAmount: {TotalAmount}",
+                dto.UserId,
+                dto.Status,
+                dto.TotalAmount);
+                return ServiceResult<DTOs.Orders.CreateOrderResponseDto>.Conflict(
+                    "Orders over 10000 require manager approval.",
+                    "TotalAmount");
+            }
+
             // Validations passed. Now create Order
             var order = new Order
             {
