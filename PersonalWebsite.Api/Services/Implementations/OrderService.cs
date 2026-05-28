@@ -504,5 +504,50 @@ namespace PersonalWebsite.Api.Services.Implementations
             };
             return ServiceResult<DTOs.Orders.CreateOrderResponseDto>.Created(response);
         }
+
+        public async Task<ServiceResult<DTOs.Orders.CreateOrderResponseDto>> UpdateOrderAsync(int id, DTOs.Orders.UpdateOrderRequestDto dto)
+        {
+            var errors = new List<string>();
+            if (id <= 0)
+            {
+                errors.Add("Id must be greater than 0.");
+            }
+            if (dto == null)
+            {
+                errors.Add("Order data is required");
+            }
+            if (dto != null)
+            {
+                //if (string.IsNullOrWhiteSpace(dto.ProductName))
+                //{
+                //    errors.Add("ProductName is required.");
+                //}
+                if (dto.TotalAmount <= 0)
+                {
+                    errors.Add("TotalAmount must be greater than 0.");
+                }
+            }
+            if (errors.Any())
+            {
+                return ServiceResult<DTOs.Orders.CreateOrderResponseDto>.Fail(errors);
+            }
+            // update order
+            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == id);
+            if(order == null)
+            {
+                return ServiceResult<DTOs.Orders.CreateOrderResponseDto>.NotFound($"Order with id {id} does not exist.");
+            }
+            // update editable fields
+            order.TotalAmount = dto.TotalAmount;
+            await _context.SaveChangesAsync();
+            return ServiceResult<DTOs.Orders.CreateOrderResponseDto>.Ok(new DTOs.Orders.CreateOrderResponseDto
+            {
+                OrderId = order.Id,
+                UserId = order.UserId,
+                CreatedAtUtc = order.CreatedAtUtc,
+                Status = (int)order.Status,
+                TotalAmount = order.TotalAmount
+            });
+        }
     }
 }

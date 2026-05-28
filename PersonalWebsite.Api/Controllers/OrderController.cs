@@ -46,11 +46,11 @@ namespace PersonalWebsite.Api.Controllers
             [FromQuery] DateTime? orderDateTo,
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10,
-            [FromQuery]  string? sortBy = "OrderDate",
-            [FromQuery]  string? sortDir = "desc")
+            [FromQuery] string? sortBy = "OrderDate",
+            [FromQuery] string? sortDir = "desc")
         {
             var orders = await _orderService.SearchOrdersAsync(customerId, status, orderDateFrom, orderDateTo, page, pageSize, sortBy, sortDir);
-            
+
             return orders.ToActionResult();
         }
 
@@ -61,10 +61,18 @@ namespace PersonalWebsite.Api.Controllers
         public async Task<IActionResult> GetOrderByIdAsync(int id)
         {
             var result = await _orderService.GetOrderByIdAsync(id);
-            
+
             return result.ToActionResult();
         }
 
-        
+        [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateOrderAsync(int id, [FromBody] UpdateOrderRequestDto dto)
+        {
+            var result = await _orderService.UpdateOrderAsync(id, dto);
+            return result.ToActionResult();
+        }
     }
 }
