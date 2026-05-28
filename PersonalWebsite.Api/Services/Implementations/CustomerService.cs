@@ -74,54 +74,47 @@ namespace PersonalWebsite.Api.Services.Implementations
             DateTime? fromDate,
             DateTime? toDate)
         {
-            var errors = new List<string>();
-            if (customerId <= 0)
-            {
-                errors.Add("CustomerId must be greater than 0.");
-            }
-            if (pageNumber <= 0)
-            {
-                errors.Add("Page number must be greater than 0.");                
-            }
-            if (pageSize <= 0)
-            {
-                errors.Add("Page size must be greater than 0.");
-            }
-            if (pageSize > 10)
-            {
-                errors.Add("Page size cannot be greater than 10.");
-            }
-            if(fromDate.HasValue && toDate.HasValue && fromDate.Value > toDate.Value)
-            {
-                errors.Add("fromDate cannot be greater than toDate.");
-            }
+            var serviceErrors = new List<ServiceError>();
+
+            sortBy = string.IsNullOrWhiteSpace(sortBy) ? "orderdate" : sortBy.Trim().ToLower();
+            sortDir = string.IsNullOrWhiteSpace(sortDir) ? "asc" : sortDir.Trim().ToLower();
+            status = string.IsNullOrWhiteSpace(status) ? null : status.Trim().ToLower();
+
+            PaginationValidation.AddPaginationErrors(serviceErrors, pageNumber, pageSize);
 
             //validate status
             var allowedStatuses = new[] { "pending", "shipped", "cancelled" };
-            if (!string.IsNullOrWhiteSpace(status) && !allowedStatuses.Contains(status.Trim().ToLower()))
+            if (!string.IsNullOrWhiteSpace(status) && !allowedStatuses.Contains(status))
             {
-                errors.Add($"Invalid status value. Allowed values are: {string.Join(", ", allowedStatuses)}.");
+                serviceErrors.Add(new ServiceError
+                {
+                    Code = "InvalidStatus",
+                    Message = $"Invalid status value. Allowed values are: {string.Join(", ", allowedStatuses)}.",
+                    Field = "status",
+                    Type = ServiceErrorType.Validation
+                });
             }
-
-            // normalize sorting params
-            sortBy = string.IsNullOrWhiteSpace(sortBy) ? "orderdate" : sortBy.Trim().ToLower();
-            sortDir = string.IsNullOrWhiteSpace(sortDir) ? "asc" : sortDir.Trim().ToLower();
+            //validate date range
+            if(fromDate.HasValue && toDate.HasValue && fromDate.Value > toDate.Value)
+            {
+                serviceErrors.Add(new ServiceError
+                {
+                    Code = "InvalidDateRange",
+                    Message = "fromDate cannot be later than toDate.",
+                    Field = "fromDate",
+                    Type = ServiceErrorType.Validation
+                });
+            }
 
             // then validate sorting params
             var allowedSortBy = new[] { "orderdate", "totalamount", "status" };
             var allowedSortDir = new[] { "asc", "desc" };
 
-            if (!allowedSortBy.Contains(sortBy))
+            SortValidation.AddSortErrors(serviceErrors, sortBy, sortDir, allowedSortBy, allowedSortDir);
+
+            if (serviceErrors.Any())
             {
-                errors.Add($"Invalid sortBy value. Allowed values are: {string.Join(", ", allowedSortBy)}.");
-            }
-            if (!allowedSortDir.Contains(sortDir))
-            {
-                errors.Add($"Invalid sortDir value. Allowed values are: {string.Join(", ", allowedSortDir)}.");
-            }
-            if (errors.Count > 0)
-            {
-                return ServiceResult<PagedResponse<CustomerOrderDto>>.Fail(errors);
+                return ServiceResult<PagedResponse<CustomerOrderDto>>.Fail(serviceErrors);
             }
 
             IQueryable<Order> query = _context.Orders
