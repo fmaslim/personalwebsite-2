@@ -12,9 +12,11 @@ namespace PersonalWebsite.Api.Services.Implementations
     public class CustomerService : ICustomerService
     {
         private readonly AdventureWorksContext _context;
-        public CustomerService(AdventureWorksContext context)
+        private readonly ILogger<CustomerService> _logger;
+        public CustomerService(AdventureWorksContext context, ILogger<CustomerService> logger)
         {
             _context = context;
+            _logger = logger;   
         }
         public async Task<IEnumerable<CustomerDto>> GetAllCustomersAsync()
         {
@@ -174,9 +176,13 @@ namespace PersonalWebsite.Api.Services.Implementations
             string? sortBy,
             string? sortDir)
         {
-            var serviceErrors = new List<ServiceError>();
             sortBy = string.IsNullOrWhiteSpace(sortBy) ? "name" : sortBy.Trim().ToLower();
             sortDir = string.IsNullOrWhiteSpace(sortDir) ? "asc" : sortDir.Trim().ToLower();
+
+            _logger.LogInformation("Searching customers with parameters: name={Name}, accountNumber={AccountNumber}, territoryId={TerritoryId}, customerType={CustomerType}, page={Page}, pageSize={PageSize}, sortBy={SortBy}, sortDir={SortDir}",
+                name, accountNumber, territoryId, customerType, page, pageSize, sortBy, sortDir);
+
+            var serviceErrors = new List<ServiceError>();            
 
             PaginationValidation.AddPaginationErrors(serviceErrors, page, pageSize);
             
@@ -187,6 +193,10 @@ namespace PersonalWebsite.Api.Services.Implementations
             
             if(serviceErrors.Any())
             {
+                _logger.LogWarning(
+                "Customer search validation failed. Errors: {Errors}",
+                serviceErrors.Select(e => e.Message));
+
                 return ServiceResult<PagedResponse<CustomerDetailsDto>>.Fail(serviceErrors);
             }
 
