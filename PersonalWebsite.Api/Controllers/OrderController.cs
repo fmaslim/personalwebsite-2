@@ -16,14 +16,23 @@ namespace PersonalWebsite.Api.Controllers
         {
             _orderService = orderService;
         }
+        //[HttpPost]
+        //[ProducesResponseType(StatusCodes.Status201Created)]
+        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+        //[ProducesResponseType(StatusCodes.Status404NotFound)]
+        //[ProducesResponseType(StatusCodes.Status409Conflict)]
+        //public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto dto)
+        //{
+        //    var result = await _orderService.CreateOrderAsync(dto);
+        //    return result.ToActionResult();
+        //    //var result = await _orderService.CreateOrderV2Async(dto);
+        //    //return result.ToActionResult();
+        //}
+
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto dto)
+        public async Task<IActionResult> CreateOrderV2([FromBody] CreateOrderRequestDto dto)
         {
-            var result = await _orderService.CreateOrderAsync(dto);
+            var result = await _orderService.CreateOrderV2Async(dto);
             return result.ToActionResult();
         }
 
