@@ -2,7 +2,9 @@
 using PersonalWebsite.Api.DTOs.Common;
 using PersonalWebsite.Api.DTOs.Products;
 using PersonalWebsite.Api.Models;
+using PersonalWebsite.Api.Models.Errors;
 using PersonalWebsite.Api.Services.Abstractions;
+using PersonalWebsite.Api.Validation;
 
 namespace PersonalWebsite.Api.Services.Implementations
 {
@@ -30,48 +32,31 @@ namespace PersonalWebsite.Api.Services.Implementations
 
         public async Task<ServiceResult<PagedResponse<ProductCategoryDto>>> SearchCategoryAsync(string? name, int page, int pageSize, string? sortBy, string? sortDir)
         {
-            var errors = new List<string>();
+            var serviceErrors = new List<ServiceError>();
+
+            sortBy = string.IsNullOrWhiteSpace(sortBy) ? "id" : sortBy.Trim().ToLower();
+            sortDir = string.IsNullOrWhiteSpace(sortDir) ? "asc" : sortDir.Trim().ToLower();
+
+            PaginationValidation.AddPaginationErrors(serviceErrors, page, pageSize);
+
+            var allowedSortBy = new[] { "id", "name" };
+            var allowedSortDir = new[] { "asc", "desc" };
+
+            SortValidation.AddSortErrors(serviceErrors, sortBy, sortDir, allowedSortBy, allowedSortDir);
+
+            if (serviceErrors.Any())
+            {
+                return ServiceResult<PagedResponse<ProductCategoryDto>>.Fail(serviceErrors);
+            }
+
             IQueryable<ProductCategory> query = _context.ProductCategories.AsNoTracking();
 
+            name = string.IsNullOrWhiteSpace(name) ? null : name.Trim();
             if (!string.IsNullOrEmpty(name))
             {
                 query = query.Where(c => c.Name.Contains(name));
             }
 
-            if (page <= 0)
-            {
-                errors.Add("Page number must be greater than 0.");
-            }
-            if (pageSize <= 0)
-            {
-                errors.Add("Page size must be greater than 0.");
-            }
-            else if (pageSize > 50)
-            {
-                errors.Add("Page size cannot exceed 50.");
-            }
-
-            sortBy = string.IsNullOrWhiteSpace(sortBy) ? "id" : sortBy.Trim().ToLower();
-            sortDir = string.IsNullOrWhiteSpace(sortDir) ? "asc" : sortDir.Trim().ToLower();
-
-            var allowedSortBy = new[] { "id", "name" };
-            var allowedSortDir = new[] { "asc", "desc" };
-
-            if (!allowedSortBy.Contains(sortBy))
-            {
-                errors.Add($"Invalid sortBy value. Allowed values are: {string.Join(", ", allowedSortBy)}.");
-            }
-            
-            if (!allowedSortDir.Contains(sortDir))
-            {
-                errors.Add($"Invalid sortDir value. Allowed values are: {string.Join(", ", allowedSortDir)}.");
-            }
-
-            if (errors.Any())
-            {
-                return ServiceResult<PagedResponse<ProductCategoryDto>>.Fail(errors);
-            }
-            
             query = (sortBy, sortDir) switch
             {
                 ("id", "asc") => query.OrderBy(c => c.ProductCategoryId),
