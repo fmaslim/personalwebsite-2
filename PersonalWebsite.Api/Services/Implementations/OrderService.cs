@@ -6,6 +6,8 @@ using PersonalWebsite.Api.DTOs.PerformanceTraining.Orders;
 using PersonalWebsite.Api.Models;
 using PersonalWebsite.Api.Models.Errors;
 using PersonalWebsite.Api.Services.Abstractions;
+using System;
+using System.Linq;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
 using OrderSearchResultDto = PersonalWebsite.Api.DTOs.PerformanceTraining.Orders.OrderSearchResultDto;
 using PT = PersonalWebsite.Api.DTOs.PerformanceTraining.Orders;
@@ -669,5 +671,89 @@ namespace PersonalWebsite.Api.Services.Implementations
             };
             return ServiceResult<DTOs.Orders.CreateOrderResponseDto>.Ok(response);
         }        
+
+        public async Task<ServiceResult<DTOs.Orders.OrderStatusResponseDto>> PatchOrderStatusAsync(int id, DTOs.Orders.PatchOrderStatusRequestDto dto)
+        {
+            var serviceErrors = new List<ServiceError>();
+            if (id <= 0)
+            {
+                serviceErrors.Add(new ServiceError
+                {
+                    Field = "Id",
+                    Message = "Id must be greater than 0.",
+                    Type = ServiceErrorType.Validation
+                });
+            }
+            if (dto == null)
+            {
+                serviceErrors.Add(new ServiceError
+                {
+                    Field = "Request body",
+                    Message = "Request body cannot be null.",
+                    Type = ServiceErrorType.Validation
+                });
+            }
+            else
+            {
+                var allowedStatusValues = Enum.GetNames<OrderStatus>();
+                if (!allowedStatusValues.Contains(dto.Status, StringComparer.OrdinalIgnoreCase))
+                {
+                    serviceErrors.Add(new ServiceError
+                    {
+                        Field = "Status",
+                        Message = $"Status must be one of: {string.Join(", ", allowedStatusValues)}.",
+                        Type = ServiceErrorType.Validation
+                    });
+                }
+            }
+            if (serviceErrors.Any())
+            {
+                return ServiceResult<DTOs.Orders.OrderStatusResponseDto>.Fail(serviceErrors);
+            }
+            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == id);
+            if (order == null)
+            {
+                return ServiceResult<DTOs.Orders.OrderStatusResponseDto>.NotFound($"Order with id {id} does not exist.");
+            }
+
+            var allowedTransitions = new Dictionary<string, string[]>
+            {
+                { "Pending", new[] { "Paid", "Cancelled" } },
+                { "Paid", new[] { "Shipped", "Cancelled" } },
+                { "Shipped", new[] { "Delivered" } },
+                { "Delivered", Array.Empty<string>() },
+                { "Cancelled", Array.Empty<string>() }
+            };
+            var currentStatus = order.Status.ToString();
+            var newStatus = dto.Status;
+            if (!allowedTransitions[currentStatus].Contains(newStatus, StringComparer.OrdinalIgnoreCase))
+            {
+                return ServiceResult<DTOs.Orders.OrderStatusResponseDto>.Conflict(
+                    $"Invalid status transition from {currentStatus} to {newStatus}.",
+                    "Status");
+            }
+
+            if (!Enum.TryParse<OrderStatus>(dto.Status, ignoreCase: true, out var parsedStatus))
+            {
+                return ServiceResult<DTOs.Orders.OrderStatusResponseDto>.Fail(new List<ServiceError>
+                {
+                    new ServiceError
+                    {
+                        Field = "Status",
+                        Message = $"Invalid order status: {dto.Status}.",
+                        Type = ServiceErrorType.Validation
+                    }
+                });
+            }
+
+            order.Status = parsedStatus;
+            await _context.SaveChangesAsync();
+            var response = new DTOs.Orders.OrderStatusResponseDto
+            {
+                //OrderId = order.Id,
+                Status = order.Status.ToString()
+            };
+            return ServiceResult<DTOs.Orders.OrderStatusResponseDto>.Ok(response);
+        }
     }
 }

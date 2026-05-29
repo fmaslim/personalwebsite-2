@@ -16,18 +16,6 @@ namespace PersonalWebsite.Api.Controllers
         {
             _orderService = orderService;
         }
-        //[HttpPost]
-        //[ProducesResponseType(StatusCodes.Status201Created)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //[ProducesResponseType(StatusCodes.Status409Conflict)]
-        //public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto dto)
-        //{
-        //    var result = await _orderService.CreateOrderAsync(dto);
-        //    return result.ToActionResult();
-        //    //var result = await _orderService.CreateOrderV2Async(dto);
-        //    //return result.ToActionResult();
-        //}
 
         [HttpPost]
         public async Task<IActionResult> CreateOrderV2([FromBody] CreateOrderRequestDto dto)
@@ -92,6 +80,13 @@ namespace PersonalWebsite.Api.Controllers
         public async Task<IActionResult> PatchOrderAsync(int id, [FromBody] PatchOrderRequestV2Dto dto)
         {
             var result = await _orderService.PatchOrderAsync(id, dto);
+            return result.ToActionResult();
+        }
+
+        [HttpPatch("{id}/status")]
+        public async Task<IActionResult> PatchOrderStatusAsync(int id, [FromBody] PatchOrderStatusRequestDto dto)
+        {
+            var result = await _orderService.PatchOrderStatusAsync(id, dto);
             return result.ToActionResult();
         }
     }
