@@ -73,7 +73,7 @@ namespace PersonalWebsite.Api.Services.Implementations
             _logger.LogInformation(
             "Order found. OrderId: {OrderId}",
             orderId);
-            
+
             return ServiceResult<OrderDetailsDto>.Ok(order);
         }
 
@@ -533,7 +533,7 @@ namespace PersonalWebsite.Api.Services.Implementations
             }
             // update order
             var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == id);
-            if(order == null)
+            if (order == null)
             {
                 return ServiceResult<DTOs.Orders.CreateOrderResponseDto>.NotFound($"Order with id {id} does not exist.");
             }
@@ -562,12 +562,12 @@ namespace PersonalWebsite.Api.Services.Implementations
                     Type = ServiceErrorType.Validation
                 });
             }
-            if(serviceErrors.Any())
+            if (serviceErrors.Any())
             {
                 return ServiceResult<DTOs.Orders.CreateOrderResponseDto>.Fail(serviceErrors);
             }
             var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == id);
-            if(order == null)
+            if (order == null)
             {
                 return ServiceResult<DTOs.Orders.CreateOrderResponseDto>.NotFound($"Order with id {id} does not exist.");
             }
@@ -582,5 +582,92 @@ namespace PersonalWebsite.Api.Services.Implementations
             await _context.SaveChangesAsync();
             return ServiceResult<DTOs.Orders.CreateOrderResponseDto>.NoContent("Order deleted successfully.");
         }
+
+        public async Task<ServiceResult<DTOs.Orders.CreateOrderResponseDto>> PatchOrderAsync(int id, DTOs.Orders.PatchOrderRequestV2Dto dto)
+        {
+            var serviceErrors = new List<ServiceError>();
+            if (id <= 0)
+            {
+                serviceErrors.Add(new ServiceError
+                {
+                    Field = "Id",
+                    Message = "Id must be greater than 0.",
+                    Type = ServiceErrorType.Validation
+                });
+            }
+            if (dto == null)
+            {
+                serviceErrors.Add(new ServiceError
+                {
+                    Field = "Request body",
+                    Message = "Request body cannot be null.",
+                    Type = ServiceErrorType.Validation
+                });
+            }
+            if (dto != null)
+            {
+                if (!dto.Status.HasValue && !dto.TotalAmount.HasValue)
+                {
+                    serviceErrors.Add(new ServiceError
+                    {
+                        Field = "Status, TotalAmount",
+                        Message = "At least one field (Status or TotalAmount) must be provided for update.",
+                        Type = ServiceErrorType.Validation
+                    });
+                }
+
+                var allowedStatusValues = new[] { 1, 2, 3 };
+                if (dto.Status.HasValue && !allowedStatusValues.Contains(dto.Status.Value))
+                {
+                    serviceErrors.Add(new ServiceError
+                    {
+                        Field = "Status",
+                        Message = $"Status must be one of the following values: {string.Join(", ", allowedStatusValues)}.",
+                        Type = ServiceErrorType.Validation
+                    });
+                }
+                if (dto.TotalAmount.HasValue && dto.TotalAmount.Value <= 0)
+                {
+                    serviceErrors.Add(new ServiceError
+                    {
+                        Field = "TotalAmount",
+                        Message = "TotalAmount must be greater than 0.",
+                        Type = ServiceErrorType.Validation
+                    });
+                }
+            }
+            if (serviceErrors.Any())
+            {
+                return ServiceResult<DTOs.Orders.CreateOrderResponseDto>.Fail(serviceErrors);
+            }
+            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == id);
+            if (order == null)
+            {
+                return ServiceResult<DTOs.Orders.CreateOrderResponseDto>.NotFound($"Order with id {id} does not exist.");
+            }
+            if(order.IsDeleted)
+            {
+                return ServiceResult<DTOs.Orders.CreateOrderResponseDto>.NotFound($"Order with id {id} is deleted.");
+            }
+            if (dto.Status.HasValue)
+            {
+                order.Status = (OrderStatus)dto.Status.Value;
+            }
+
+            if (dto.TotalAmount.HasValue)
+            {
+                order.TotalAmount = dto.TotalAmount.Value;
+            }
+            await _context.SaveChangesAsync();
+            var response = new DTOs.Orders.CreateOrderResponseDto
+            {
+                OrderId = order.Id,
+                UserId = order.UserId,
+                CreatedAtUtc = order.CreatedAtUtc,
+                Status = (int)order.Status,
+                TotalAmount = order.TotalAmount
+            };
+            return ServiceResult<DTOs.Orders.CreateOrderResponseDto>.Ok(response);
+        }        
     }
 }
