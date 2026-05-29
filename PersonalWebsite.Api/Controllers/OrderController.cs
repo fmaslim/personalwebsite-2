@@ -74,5 +74,15 @@ namespace PersonalWebsite.Api.Controllers
             var result = await _orderService.UpdateOrderAsync(id, dto);
             return result.ToActionResult();
         }
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> DeleteOrderAsync(int id)
+        {
+            var result = await _orderService.DeleteOrderAsync(id);
+            return result.ToActionResult();
+        }
     }
 }

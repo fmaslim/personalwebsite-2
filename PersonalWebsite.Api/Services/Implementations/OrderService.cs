@@ -549,5 +549,38 @@ namespace PersonalWebsite.Api.Services.Implementations
                 TotalAmount = order.TotalAmount
             });
         }
+
+        public async Task<ServiceResult<DTOs.Orders.CreateOrderResponseDto>> DeleteOrderAsync(int id)
+        {
+            var serviceErrors = new List<ServiceError>();
+            if (id <= 0)
+            {
+                serviceErrors.Add(new ServiceError
+                {
+                    Field = "Id",
+                    Message = "Id must be greater than 0.",
+                    Type = ServiceErrorType.Validation
+                });
+            }
+            if(serviceErrors.Any())
+            {
+                return ServiceResult<DTOs.Orders.CreateOrderResponseDto>.Fail(serviceErrors);
+            }
+            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == id);
+            if(order == null)
+            {
+                return ServiceResult<DTOs.Orders.CreateOrderResponseDto>.NotFound($"Order with id {id} does not exist.");
+            }
+            // is already deleted
+            if (order.IsDeleted)
+            {
+                return ServiceResult<DTOs.Orders.CreateOrderResponseDto>.NotFound($"Order with id {id} is already deleted.");
+            }
+            // soft delete
+            order.IsDeleted = true;
+            order.DeletedAtUtc = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            return ServiceResult<DTOs.Orders.CreateOrderResponseDto>.NoContent("Order deleted successfully.");
+        }
     }
 }
