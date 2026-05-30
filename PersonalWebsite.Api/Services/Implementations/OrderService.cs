@@ -755,5 +755,86 @@ namespace PersonalWebsite.Api.Services.Implementations
             };
             return ServiceResult<DTOs.Orders.OrderStatusResponseDto>.Ok(response);
         }
+
+        public async Task<ServiceResult<OrderPaymentResponseDto>> PatchOrderPaymentAsync(int id, DTOs.Orders.PatchOrderPaymentRequestDto dto)
+        {
+            var serviceErrors = new List<ServiceError>();
+            if(id <= 0)
+            {
+                serviceErrors.Add(new ServiceError
+                {
+                    Field = "Id",
+                    Message = "Id must be greater than 0.",
+                    Type = ServiceErrorType.Validation
+                });
+            }
+            if (dto == null)
+            {
+                serviceErrors.Add(new ServiceError
+                {
+                    Field = "Request body",
+                    Message = "Request body cannot be null.",
+                    Type = ServiceErrorType.Validation
+                });
+            }
+            else
+            {
+                if (dto.PaidAmount <= 0)
+                {
+                    serviceErrors.Add(new ServiceError
+                    {
+                        Field = "PaidAmount",
+                        Message = "PaidAmount must be greater than 0.",
+                        Type = ServiceErrorType.Validation
+                    });
+                }
+            }
+
+            if (serviceErrors.Any())
+            {
+                return ServiceResult<OrderPaymentResponseDto>.Fail(serviceErrors);
+            }
+            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == id);
+            if (order == null)
+            {
+                return ServiceResult<OrderPaymentResponseDto>.NotFound($"Order with id {id} does not exist.");
+            }
+            // now, payment business rules
+            if (order.Status == OrderStatus.Cancelled)
+            {
+                return ServiceResult<OrderPaymentResponseDto>.Conflict(
+                    "Cannot make payment on a cancelled order.",
+                    "Status");
+            }
+            if (order.Status == OrderStatus.Delivered)
+            {
+                return ServiceResult<OrderPaymentResponseDto>.Conflict(
+                    "Cannot make payment on a delivered order.",
+                    "Status");
+            }
+            // before setting an order as paid, check if the order is already paid. If so, return conflict error
+            if (order.Status == OrderStatus.Paid)
+            {
+                return ServiceResult<OrderPaymentResponseDto>.Conflict(
+                    "Order is already marked as paid.",
+                    "Status");
+            }
+            if (dto.PaidAmount < order.TotalAmount)
+            {
+                return ServiceResult<OrderPaymentResponseDto>.Conflict(
+                    "Paid amount must be at least the total amount.",
+                    "PaidAmount");
+            }            
+            // all validations pass, now update the order
+            order.Status = OrderStatus.Paid;
+            await _context.SaveChangesAsync();
+            var response = new OrderPaymentResponseDto
+            {
+                //OrderId = order.Id,
+                Status = order.Status.ToString(),
+                PaidAmount = dto.PaidAmount
+            };
+            return ServiceResult<OrderPaymentResponseDto>.Ok(response);
+        }
     }
 }

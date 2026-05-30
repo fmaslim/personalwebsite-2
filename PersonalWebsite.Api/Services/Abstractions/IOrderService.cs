@@ -23,5 +23,6 @@ namespace PersonalWebsite.Api.Services.Abstractions
         Task<ServiceResult<DTOs.Orders.CreateOrderResponseDto>> DeleteOrderAsync(int id);
         Task<ServiceResult<DTOs.Orders.CreateOrderResponseDto>> PatchOrderAsync(int id, DTOs.Orders.PatchOrderRequestV2Dto dto);
         Task<ServiceResult<DTOs.Orders.OrderStatusResponseDto>> PatchOrderStatusAsync(int id, DTOs.Orders.PatchOrderStatusRequestDto dto);
+        Task<ServiceResult<OrderPaymentResponseDto>> PatchOrderPaymentAsync(int id, DTOs.Orders.PatchOrderPaymentRequestDto dto);
     }
 }

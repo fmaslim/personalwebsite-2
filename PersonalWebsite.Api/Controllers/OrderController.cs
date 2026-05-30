@@ -89,5 +89,16 @@ namespace PersonalWebsite.Api.Controllers
             var result = await _orderService.PatchOrderStatusAsync(id, dto);
             return result.ToActionResult();
         }
+
+        [HttpPatch("{id}/payment")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> PatchOrderPaymentAsync(int id, [FromBody] PatchOrderPaymentRequestDto dto)
+        {
+            var result = await _orderService.PatchOrderPaymentAsync(id, dto);
+            return result.ToActionResult();
+        }
     }
 }
